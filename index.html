@@ -97,48 +97,48 @@
                 </div>
             </div>
 
-            <!-- Note Editor (shown when a note is selected) -->
-            <div id="note-editor-screen" class="note-editor-screen" style="display: none;">
-                <div class="editor-header">
-                    <input type="text" id="note-title" class="note-title-input" placeholder="Note title...">
-                <div class="editor-actions">
-                <span id="save-status" class="save-status">✓ Saved</span>
-                <button id="encrypt-note-btn" class="btn btn-small btn-success" style="display: none;">
-                    🔒 Encrypt Note
-                </button>
-                <button id="decrypt-note-btn" class="btn btn-small btn-warning" style="display: none;">
-                    🔓 Decrypt Note
-                </button>
-                <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
-                </div>                </div>
-                
-                <div class="editor-toolbar">
-                    <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)">
-                        <strong>B</strong>
-                    </button>
-                    <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)">
-                        <em>I</em>
-                    </button>
-                    <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)">
-                        <u>U</u>
-                    </button>
-                    <div class="toolbar-divider"></div>
-                    <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">
-                        • List
-                    </button>
-                    <button class="toolbar-btn" data-action="date" title="Insert Date">
-                        📅 Date
-                    </button>
-                    <div class="toolbar-divider"></div>
-                    <button class="toolbar-btn" id="ai-tag-btn" title="AI Auto-Tag (Coming Soon)">
-                        🤖 Auto-Tag
-                    </button>
-                </div>
+<!-- Note Editor (shown when a note is selected) -->
+<div id="note-editor-screen" class="note-editor-screen" style="display: none;">
+    <div class="editor-header">
+        <input type="text" id="note-title" class="note-title-input" placeholder="Note title...">
+        <div class="editor-actions">
+            <span id="save-status" class="save-status">✓ Saved</span>
+            <button id="encrypt-note-btn" class="btn btn-small btn-success" style="display: none;">
+                🔒 Encrypt Note
+            </button>
+            <button id="decrypt-note-btn" class="btn btn-small btn-warning" style="display: none;">
+                🔓 Decrypt Note
+            </button>
+            <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
+        </div>
+    </div>
+    
+    <div class="editor-toolbar">
+        <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)">
+            <strong>B</strong>
+        </button>
+        <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)">
+            <em>I</em>
+        </button>
+        <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)">
+            <u>U</u>
+        </button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">
+            • List
+        </button>
+        <button class="toolbar-btn" data-action="date" title="Insert Date">
+            📅 Date
+        </button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" id="ai-tag-btn" title="AI Auto-Tag (Coming Soon)">
+            🤖 Auto-Tag
+        </button>
+    </div>
 
-                <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
-                </div>
-            </div>
-
+    <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
+    </div>
+</div>
             <!-- Privacy Dashboard (modal) -->
             <div id="privacy-dashboard" class="modal" style="display: none;">
                 <div class="modal-content">
