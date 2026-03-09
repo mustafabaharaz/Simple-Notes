@@ -1,0 +1,147 @@
+/* ============================================
+   THEMES.CSS - Dark Mode and Theme Support
+   ============================================ */
+
+/* Dark Mode Variables */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #1a1a1a;
+    --color-surface: #242424;
+    --color-border: #333333;
+    --color-text: #e0e0e0;
+    --color-text-light: #a0a0a0;
+    --color-text-lighter: #666666;
+    
+    --color-gray-50: #2a2a2a;
+    --color-gray-100: #333333;
+    --color-gray-200: #404040;
+  }
+  
+  .loading-screen {
+    background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
+  }
+  
+  .sidebar {
+    background: var(--color-surface);
+    border-right-color: var(--color-border);
+  }
+  
+  .sidebar-header {
+    background: var(--color-background);
+  }
+  
+  .note-item {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+  }
+  
+  .note-item:hover {
+    border-color: var(--color-primary);
+    background: #2a3a4a;
+  }
+  
+  .note-item.active {
+    background: #1a2a3a;
+  }
+  
+  .feature-card {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+  }
+  
+  .welcome-screen {
+    background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
+  }
+  
+  .modal-content {
+    background: var(--color-surface);
+  }
+  
+  .toolbar-btn {
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+  
+  .toolbar-btn:hover {
+    background: var(--color-gray-200);
+  }
+}
+
+/* Manual Dark Mode Toggle (for future) */
+body.dark-mode {
+  --color-background: #1a1a1a;
+  --color-surface: #242424;
+  --color-border: #333333;
+  --color-text: #e0e0e0;
+  --color-text-light: #a0a0a0;
+  --color-text-lighter: #666666;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --color-border: #000000;
+  }
+  
+  .btn {
+    border: 2px solid currentColor;
+  }
+  
+  .note-item {
+    border-width: 2px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .sidebar,
+  .editor-toolbar,
+  .editor-actions,
+  .modal,
+  .toast {
+    display: none !important;
+  }
+  
+  .main-content {
+    width: 100%;
+  }
+  
+  .note-content {
+    padding: 0;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+}
+
+/* Custom Theme Classes (for future customization) */
+.theme-blue {
+  --color-primary: #007AFF;
+  --color-primary-dark: #0051D5;
+}
+
+.theme-green {
+  --color-primary: #28a745;
+  --color-primary-dark: #218838;
+}
+
+.theme-purple {
+  --color-primary: #6f42c1;
+  --color-primary-dark: #5a32a3;
+}
+
+.theme-pink {
+  --color-primary: #e83e8c;
+  --color-primary-dark: #c9266f;
+}
