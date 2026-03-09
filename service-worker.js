@@ -3,7 +3,7 @@
    Makes Simple Notes work without internet!
    ============================================ */
 
-const CACHE_NAME = 'simple-notes-v1.0.0';
+const CACHE_NAME = 'simple-notes-v1.1.0';
 const OFFLINE_URL = '/Simple-Notes/';
 
 // Files to cache for offline use
