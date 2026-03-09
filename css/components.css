@@ -404,3 +404,134 @@
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+/* Encryption Styles */
+.note-encrypted-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.note-encrypted-message {
+  background: white;
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  max-width: 400px;
+}
+
+.note-encrypted-message h3 {
+  margin-bottom: var(--spacing-md);
+  color: var(--color-gray-800);
+}
+
+.note-encrypted-message p {
+  color: var(--color-text-light);
+  margin-bottom: var(--spacing-lg);
+}
+
+.encrypted-note-badge {
+  background: #fff3e0;
+  color: #e65100;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: var(--spacing-sm);
+}
+
+.password-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  animation: fadeIn var(--transition-base);
+}
+
+.password-modal-content {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  max-width: 400px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+}
+
+.password-modal-content h3 {
+  margin-bottom: var(--spacing-md);
+}
+
+.password-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-md);
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.password-strength-indicator {
+  height: 4px;
+  background: var(--color-gray-200);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-sm);
+  overflow: hidden;
+}
+
+.password-strength-bar {
+  height: 100%;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-sm);
+}
+
+.password-strength-weak {
+  width: 25%;
+  background: var(--color-danger);
+}
+
+.password-strength-fair {
+  width: 50%;
+  background: var(--color-warning);
+}
+
+.password-strength-good {
+  width: 75%;
+  background: var(--color-success);
+}
+
+.password-strength-strong {
+  width: 100%;
+  background: var(--color-primary);
+}
+
+.password-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.password-buttons button {
+  flex: 1;
+}

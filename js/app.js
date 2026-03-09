@@ -95,6 +95,15 @@ class NotesApp {
     // Toolbar buttons
     this.setupToolbar();
 
+    // Encryption buttons
+    document.getElementById('encrypt-note-btn')?.addEventListener('click', () => {
+      this.encryptCurrentNote();
+    });
+
+    document.getElementById('decrypt-note-btn')?.addEventListener('click', () => {
+      this.decryptCurrentNote();
+    });
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       // Ctrl/Cmd + N: New note
@@ -193,7 +202,7 @@ createNewNote() {
     }
   }, 100);
 }
-  // Open note
+// Open note (updated for encryption support)
   openNote(noteId) {
     const note = storage.getNote(noteId);
     if (!note) return;
@@ -204,9 +213,40 @@ createNewNote() {
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('note-editor-screen').style.display = 'flex';
 
-    // Load note content
-    document.getElementById('note-title').value = note.title;
-    document.getElementById('note-content').innerHTML = note.content;
+    // Show/hide encryption buttons based on state
+    const encryptBtn = document.getElementById('encrypt-note-btn');
+    const decryptBtn = document.getElementById('decrypt-note-btn');
+
+    if (note.encrypted) {
+      // Note is encrypted - show decrypt button, hide encrypt
+      encryptBtn.style.display = 'none';
+      decryptBtn.style.display = 'inline-flex';
+
+      // Show encrypted placeholder
+      document.getElementById('note-title').value = '🔒 Encrypted Note';
+      document.getElementById('note-title').disabled = true;
+      
+      document.getElementById('note-content').innerHTML = `
+        <div style="text-align: center; padding: 60px 20px; color: var(--color-text-light);">
+          <div style="font-size: 64px; margin-bottom: 20px;">🔒</div>
+          <h3>This note is encrypted</h3>
+          <p>Click "🔓 Decrypt Note" above to view the contents</p>
+          <small style="display: block; margin-top: 10px;">Encrypted on: ${new Date(note.encryptedAt || note.modified).toLocaleString()}</small>
+        </div>
+      `;
+      document.getElementById('note-content').contentEditable = false;
+
+    } else {
+      // Note is not encrypted - show encrypt button, hide decrypt
+      encryptBtn.style.display = 'inline-flex';
+      decryptBtn.style.display = 'none';
+
+      // Load note content normally
+      document.getElementById('note-title').value = note.title;
+      document.getElementById('note-title').disabled = false;
+      document.getElementById('note-content').innerHTML = note.content;
+      document.getElementById('note-content').contentEditable = true;
+    }
 
     // Update active state in list
     document.querySelectorAll('.note-item').forEach(item => {
@@ -214,9 +254,8 @@ createNewNote() {
     });
     document.querySelector(`[data-note-id="${noteId}"]`)?.classList.add('active');
 
-    log(`Opened note: ${noteId}`, 'info');
+    log(`Opened note: ${noteId}${note.encrypted ? ' (encrypted)' : ''}`, 'info');
   }
-
   // Auto-save note
   autoSaveNote() {
     if (!this.currentNote) return;
@@ -334,6 +373,190 @@ if (document.readyState === 'loading') {
   });
 } else {
   window.app = new NotesApp();
+  // Encrypt current note
+  encryptCurrentNote() {
+    if (!this.currentNote) {
+      showToast('No note selected', 'warning');
+      return;
+    }
+
+    if (this.currentNote.encrypted) {
+      showToast('Note is already encrypted', 'warning');
+      return;
+    }
+
+    this.showPasswordModal('encrypt');
+  }
+
+  // Decrypt current note
+  decryptCurrentNote() {
+    if (!this.currentNote) {
+      showToast('No note selected', 'warning');
+      return;
+    }
+
+    if (!this.currentNote.encrypted) {
+      showToast('Note is not encrypted', 'warning');
+      return;
+    }
+
+    this.showPasswordModal('decrypt');
+  }
+
+  // Show password input modal
+  showPasswordModal(action) {
+    const modal = document.createElement('div');
+    modal.className = 'password-modal';
+    modal.innerHTML = `
+      <div class="password-modal-content">
+        <h3>${action === 'encrypt' ? '🔒 Encrypt Note' : '🔓 Decrypt Note'}</h3>
+        <p>${action === 'encrypt' ? 'Enter a password to encrypt this note:' : 'Enter password to decrypt this note:'}</p>
+        
+        <input type="password" id="encryption-password-input" class="password-input" 
+               placeholder="Enter password" autocomplete="off">
+        
+        ${action === 'encrypt' ? `
+          <div class="password-strength-indicator">
+            <div id="password-strength-bar" class="password-strength-bar"></div>
+          </div>
+          <small id="password-feedback" style="color: var(--color-text-light); display: block; margin-bottom: 10px;">
+            Use a strong password with letters, numbers, and symbols
+          </small>
+        ` : ''}
+        
+        <div class="password-buttons">
+          <button class="btn btn-secondary" id="cancel-password-btn">Cancel</button>
+          <button class="btn btn-primary" id="confirm-password-btn">
+            ${action === 'encrypt' ? 'Encrypt' : 'Decrypt'}
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const passwordInput = document.getElementById('encryption-password-input');
+    const confirmBtn = document.getElementById('confirm-password-btn');
+    const cancelBtn = document.getElementById('cancel-password-btn');
+
+    setTimeout(() => passwordInput.focus(), 100);
+
+    if (action === 'encrypt') {
+      passwordInput.addEventListener('input', () => {
+        const strength = checkPasswordStrength(passwordInput.value);
+        const strengthBar = document.getElementById('password-strength-bar');
+        const feedback = document.getElementById('password-feedback');
+
+        strengthBar.className = `password-strength-bar password-strength-${strength.level}`;
+        
+        if (strength.feedback.length > 0) {
+          feedback.textContent = strength.feedback.join(', ');
+          feedback.style.color = 'var(--color-danger)';
+        } else {
+          feedback.textContent = '✓ Strong password!';
+          feedback.style.color = 'var(--color-success)';
+        }
+      });
+    }
+
+    confirmBtn.addEventListener('click', () => {
+      const password = passwordInput.value;
+      
+      if (!password) {
+        showToast('Please enter a password', 'warning');
+        return;
+      }
+
+      if (action === 'encrypt') {
+        this.performEncryption(password);
+      } else {
+        this.performDecryption(password);
+      }
+
+      modal.remove();
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      modal.remove();
+    });
+
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        confirmBtn.click();
+      }
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  }
+
+  // Perform encryption
+  performEncryption(password) {
+    if (!this.currentNote) return;
+
+    try {
+      const title = document.getElementById('note-title')?.value || '';
+      const content = document.getElementById('note-content')?.innerHTML || '';
+
+      const encryptedTitle = advancedEncrypt(title, password);
+      const encryptedContent = advancedEncrypt(content, password);
+
+      storage.updateNote(this.currentNote.id, {
+        title: encryptedTitle,
+        content: encryptedContent,
+        encrypted: true,
+        encryptedAt: new Date().toISOString()
+      });
+
+      privacyMonitor.trackEncryption();
+
+      this.openNote(this.currentNote.id);
+      this.renderNotes();
+
+      showToast('🔒 Note encrypted successfully!', 'success');
+      log('Note encrypted', 'privacy');
+
+    } catch (error) {
+      console.error('Encryption failed:', error);
+      showToast('Encryption failed. Please try again.', 'error');
+    }
+  }
+
+  // Perform decryption
+  performDecryption(password) {
+    if (!this.currentNote || !this.currentNote.encrypted) return;
+
+    try {
+      const decryptedTitle = advancedDecrypt(this.currentNote.title, password);
+      const decryptedContent = advancedDecrypt(this.currentNote.content, password);
+
+      if (!decryptedTitle && !decryptedContent) {
+        showToast('❌ Wrong password!', 'error');
+        return;
+      }
+
+      storage.updateNote(this.currentNote.id, {
+        title: decryptedTitle,
+        content: decryptedContent,
+        encrypted: false
+      });
+
+      this.openNote(this.currentNote.id);
+      this.renderNotes();
+
+      showToast('🔓 Note decrypted successfully!', 'success');
+      log('Note decrypted', 'info');
+
+    } catch (error) {
+      console.error('Decryption failed:', error);
+      showToast('❌ Wrong password or decryption failed', 'error');
+    }
+  }
+
+
 }
 
 console.log('✅ Simple Notes App ready!');
