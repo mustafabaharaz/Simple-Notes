@@ -4,22 +4,22 @@
    ============================================ */
 
 const CACHE_NAME = 'simple-notes-v1.0.0';
-const OFFLINE_URL = '/';
+const OFFLINE_URL = '/Simple-Notes/';
 
 // Files to cache for offline use
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/css/base.css',
-  '/css/layout.css',
-  '/css/components.css',
-  '/css/themes.css',
-  '/js/app.js',
-  '/js/storage.js',
-  '/js/privacy.js',
-  '/js/utils/helpers.js',
-  '/js/utils/security.js',
-  '/manifest.json'
+  '/Simple-Notes/',
+  '/Simple-Notes/index.html',
+  '/Simple-Notes/css/base.css',
+  '/Simple-Notes/css/layout.css',
+  '/Simple-Notes/css/components.css',
+  '/Simple-Notes/css/themes.css',
+  '/Simple-Notes/js/app.js',
+  '/Simple-Notes/js/storage.js',
+  '/Simple-Notes/js/privacy.js',
+  '/Simple-Notes/js/utils/helpers.js',
+  '/Simple-Notes/js/utils/security.js',
+  '/Simple-Notes/manifest.json'
 ];
 
 // Install event - cache static assets
