@@ -112,30 +112,47 @@
             <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
         </div>
     </div>
-                    <!-- Tags Section -->
-                <div class="tag-input-container" id="tags-section">
-                    <div style="flex: 1;">
-                        <div class="tags-section-header">
-                            <span>🏷️ Tags</span>
-                            <button class="ai-suggest-btn" id="ai-suggest-tags-btn">
-                                🤖 AI Suggest Tags
-                            </button>
+                    <!-- Unified Compact Toolbar -->
+                    <div class="unified-toolbar" id="unified-toolbar" style="display: none;">
+                        <div class="toolbar-section toolbar-formatting">
+                            <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)"><strong>B</strong></button>
+                            <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)"><em>I</em></button>
+                            <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+                            <div class="toolbar-divider"></div>
+                            <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">• List</button>
+                            <button class="toolbar-btn" data-action="numbered-list" title="Numbered List">1. List</button>
                         </div>
                         
-                        <div id="suggested-tags-container" style="display: none;">
+                        <div class="toolbar-section toolbar-paragraph">
+                            <button class="toolbar-btn" data-action="align-left" title="Align Left">⬅</button>
+                            <button class="toolbar-btn" data-action="align-center" title="Center">↔</button>
+                            <button class="toolbar-btn" data-action="align-right" title="Align Right">➡</button>
+                            <div class="toolbar-divider"></div>
+                            <button class="toolbar-btn" data-action="indent" title="Indent">→|</button>
+                            <button class="toolbar-btn" data-action="outdent" title="Outdent">|←</button>
+                            <div class="toolbar-divider"></div>
+                            <select class="toolbar-select" id="line-spacing" title="Line Spacing">
+                                <option value="1">1.0</option>
+                                <option value="1.15">1.15</option>
+                                <option value="1.5" selected>1.5</option>
+                                <option value="2">2.0</option>
+                            </select>
+                            <div class="toolbar-divider"></div>
+                            <button class="toolbar-btn" data-action="date" title="Insert Date">📅</button>
                         </div>
                         
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="text" id="tag-input" class="tag-input" 
-                                   placeholder="Add tag (press Enter)..." maxlength="20">
-                            <button class="btn btn-small btn-primary" id="add-tag-btn">Add</button>
-                        </div>
-                        
-                        <div class="tags-container" id="note-tags-container">
-                            <!-- Tags will appear here -->
+                        <div class="toolbar-section toolbar-tags">
+                            <button class="toolbar-btn ai-suggest-btn-compact" id="ai-suggest-tags-btn-compact">🤖 Tags</button>
+                            <input type="text" id="tag-input-compact" class="tag-input-compact" placeholder="Add tag..." maxlength="20">
+                            <div class="tags-display-compact" id="note-tags-display"></div>
                         </div>
                     </div>
-                </div>
+                    
+                    <!-- Suggested Tags Row -->
+                    <div id="suggested-tags-row" class="suggested-tags-row" style="display: none;">
+                        <span class="suggested-label">🤖 Suggested:</span>
+                        <div id="suggested-tags-compact"></div>
+                    </div>
 
                 <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
                 </div>
@@ -208,30 +225,47 @@
                     </button>
                 </div>
 
-                <!-- Tags Section -->
-                <div class="tag-input-container" id="tags-section">
-                    <div style="flex: 1;">
-                        <div class="tags-section-header">
-                            <span>🏷️ Tags</span>
-                            <button class="ai-suggest-btn" id="ai-suggest-tags-btn">
-                                🤖 AI Suggest Tags
-                            </button>
+                <!-- Unified Compact Toolbar -->
+                    <div class="unified-toolbar" id="unified-toolbar" style="display: none;">
+                        <div class="toolbar-section toolbar-formatting">
+                            <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)"><strong>B</strong></button>
+                            <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)"><em>I</em></button>
+                            <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+                            <div class="toolbar-divider"></div>
+                            <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">• List</button>
+                            <button class="toolbar-btn" data-action="numbered-list" title="Numbered List">1. List</button>
                         </div>
                         
-                        <div id="suggested-tags-container" style="display: none;">
+                        <div class="toolbar-section toolbar-paragraph">
+                            <button class="toolbar-btn" data-action="align-left" title="Align Left">⬅</button>
+                            <button class="toolbar-btn" data-action="align-center" title="Center">↔</button>
+                            <button class="toolbar-btn" data-action="align-right" title="Align Right">➡</button>
+                            <div class="toolbar-divider"></div>
+                            <button class="toolbar-btn" data-action="indent" title="Indent">→|</button>
+                            <button class="toolbar-btn" data-action="outdent" title="Outdent">|←</button>
+                            <div class="toolbar-divider"></div>
+                            <select class="toolbar-select" id="line-spacing" title="Line Spacing">
+                                <option value="1">1.0</option>
+                                <option value="1.15">1.15</option>
+                                <option value="1.5" selected>1.5</option>
+                                <option value="2">2.0</option>
+                            </select>
+                            <div class="toolbar-divider"></div>
+                            <button class="toolbar-btn" data-action="date" title="Insert Date">📅</button>
                         </div>
                         
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="text" id="tag-input" class="tag-input" 
-                                   placeholder="Add tag (press Enter)..." maxlength="20">
-                            <button class="btn btn-small btn-primary" id="add-tag-btn">Add</button>
-                        </div>
-                        
-                        <div class="tags-container" id="note-tags-container">
-                            <!-- Tags will appear here -->
+                        <div class="toolbar-section toolbar-tags">
+                            <button class="toolbar-btn ai-suggest-btn-compact" id="ai-suggest-tags-btn-compact">🤖 Tags</button>
+                            <input type="text" id="tag-input-compact" class="tag-input-compact" placeholder="Add tag..." maxlength="20">
+                            <div class="tags-display-compact" id="note-tags-display"></div>
                         </div>
                     </div>
-                </div>
+                    
+                    <!-- Suggested Tags Row -->
+                    <div id="suggested-tags-row" class="suggested-tags-row" style="display: none;">
+                        <span class="suggested-label">🤖 Suggested:</span>
+                        <div id="suggested-tags-compact"></div>
+                    </div>
 
                 <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
                 </div>

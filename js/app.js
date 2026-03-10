@@ -13,12 +13,9 @@ class NotesApp {
 
   // Initialize app
   init() {
-    this.loadTheme();
-
     // Hide loading screen
     setTimeout(() => {
-    log('Initializing Simple Notes App...', 'info');
-
+      log('Initializing Simple Notes App...', 'info');
       document.getElementById('loading-screen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
       log('App loaded successfully!', 'success');
@@ -68,21 +65,45 @@ class NotesApp {
       }
     });
 
-    // Tag functionality
-    document.getElementById('ai-suggest-tags-btn')?.addEventListener('click', () => {
-      this.suggestAITags();
+    // Tag functionality - AI Tags button
+    document.getElementById('ai-suggest-tags-btn-compact')?.addEventListener('click', () => {
+      this.suggestAITagsCompact();
     });
-
-    document.getElementById('add-tag-btn')?.addEventListener('click', () => {
-      this.addTagManually();
-    });
-
-    document.getElementById('tag-input')?.addEventListener('keypress', (e) => {
+    
+    // Tag input - Enter key
+    document.getElementById('tag-input-compact')?.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        this.addTagManually();
+        this.addTagFromCompactInput();
       }
-    });    
+    });
+
+    // Paragraph formatting buttons
+    document.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = btn.dataset.action;
+        this.handleFormatAction(action);
+      });
+    });
+
+    // Update formatting button states on selection/typing
+    const noteContent = document.getElementById('note-content');
+    if (noteContent) {
+      noteContent.addEventListener('mouseup', () => this.updateButtonStates());
+      noteContent.addEventListener('keyup', () => this.updateButtonStates());
+      noteContent.addEventListener('input', debounce(() => {
+        this.autoSaveNote();
+      }, 1000));
+      noteContent.addEventListener('input', () => {
+        const bytes = new Blob([noteContent.innerHTML]).size;
+        privacyMonitor.trackLocalProcessing(bytes);
+      });
+    }
+
+    // Line spacing
+    document.getElementById('line-spacing')?.addEventListener('change', (e) => {
+      this.setLineSpacing(e.target.value);
+    });
 
     // Note title input
     const titleInput = document.getElementById('note-title');
@@ -92,27 +113,10 @@ class NotesApp {
       }, 500));
     }
 
-    // Note content editor
-    const contentEditor = document.getElementById('note-content');
-    if (contentEditor) {
-      contentEditor.addEventListener('input', debounce(() => {
-        this.autoSaveNote();
-      }, 1000));
-
-      // Track bytes processed locally
-      contentEditor.addEventListener('input', () => {
-        const bytes = new Blob([contentEditor.innerHTML]).size;
-        privacyMonitor.trackLocalProcessing(bytes);
-      });
-    }
-
     // Delete note button
     document.getElementById('delete-note-btn')?.addEventListener('click', () => {
       this.deleteCurrentNote();
     });
-
-    // Toolbar buttons
-    this.setupToolbar();
 
     // Encryption buttons
     document.getElementById('encrypt-note-btn')?.addEventListener('click', () => {
@@ -123,22 +127,25 @@ class NotesApp {
       this.decryptCurrentNote();
     });
 
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        this.toggleTheme();
+      });
+    }
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-      // Ctrl/Cmd + N: New note
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
         e.preventDefault();
         this.createNewNote();
       }
-
-      // Ctrl/Cmd + S: Save note
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
         this.saveNote();
         showToast('Note saved!');
       }
-
-      // Ctrl/Cmd + D: Delete note
       if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
         e.preventDefault();
         this.deleteCurrentNote();
@@ -146,111 +153,147 @@ class NotesApp {
     });
 
     log('Event listeners setup complete', 'info');
-
-    // Theme toggle
-      const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    const self = this;
-    themeToggle.addEventListener('click', function() {
-      self.toggleTheme();
-    });
-  }
   }
 
-  // Setup toolbar buttons
-  setupToolbar() {
-    const toolbar = document.querySelectorAll('.toolbar-btn[data-action]');
-    
-    toolbar.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const action = btn.dataset.action;
-        this.executeToolbarAction(action);
-      });
-    });
+  // Handle formatting actions
+  handleFormatAction(action) {
+    const editor = document.getElementById('note-content');
+    if (!editor) return;
 
-    // AI auto-tag button (placeholder for future)
-    document.getElementById('ai-tag-btn')?.addEventListener('click', () => {
-      showToast('AI Auto-Tag coming soon! 🤖', 'info');
-      privacyMonitor.trackAIOperation('auto-tag-preview', 0);
-    });
-  }
-
-  // Execute toolbar actions
-  executeToolbarAction(action) {
-    const contentEditor = document.getElementById('note-content');
-    if (!contentEditor) return;
-
-    contentEditor.focus();
+    editor.focus();
 
     switch(action) {
       case 'bold':
-        document.execCommand('bold');
+        document.execCommand('bold', false, null);
         break;
       case 'italic':
-        document.execCommand('italic');
+        document.execCommand('italic', false, null);
         break;
       case 'underline':
-        document.execCommand('underline');
+        document.execCommand('underline', false, null);
         break;
       case 'bullet-list':
-        document.execCommand('insertUnorderedList');
+        document.execCommand('insertUnorderedList', false, null);
+        break;
+      case 'numbered-list':
+        document.execCommand('insertOrderedList', false, null);
+        break;
+      case 'align-left':
+        document.execCommand('justifyLeft', false, null);
+        break;
+      case 'align-center':
+        document.execCommand('justifyCenter', false, null);
+        break;
+      case 'align-right':
+        document.execCommand('justifyRight', false, null);
+        break;
+      case 'indent':
+        document.execCommand('indent', false, null);
+        break;
+      case 'outdent':
+        document.execCommand('outdent', false, null);
         break;
       case 'date':
-        const today = new Date().toLocaleDateString('en-US', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        insertTextAtCursor(today);
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        document.execCommand('insertText', false, dateStr);
         break;
     }
 
+    // Update button states after any formatting
+    setTimeout(() => this.updateButtonStates(), 10);
     this.autoSaveNote();
   }
 
-// Create new note
-createNewNote() {
-  const note = storage.createNote('Untitled Note', '');
-  privacyMonitor.trackNoteCreated();  // ✅ This line should be here
-  
-  this.renderNotes();
-  this.updateNotesCount();
-  this.openNote(note.id);
-  
-  showToast('New note created!');
-  
-  // Focus on title
-  setTimeout(() => {
-    const titleInput = document.getElementById('note-title');
-    if (titleInput) {
-      titleInput.focus();
-      titleInput.select();
+  // Update button active states
+  updateButtonStates() {
+    console.log('🔍 updateButtonStates called');
+    
+    const boldBtn = document.querySelector('[data-action="bold"]');
+    const italicBtn = document.querySelector('[data-action="italic"]');
+    const underlineBtn = document.querySelector('[data-action="underline"]');
+
+    if (boldBtn) {
+      const isBold = document.queryCommandState('bold');
+      console.log('Bold state:', isBold);
+      if (isBold) {
+        boldBtn.classList.add('active');
+      } else {
+        boldBtn.classList.remove('active');
+      }
     }
-  }, 100);
-}
-// Open note (updated for encryption support)
+
+    if (italicBtn) {
+      const isItalic = document.queryCommandState('italic');
+      console.log('Italic state:', isItalic);
+      if (isItalic) {
+        italicBtn.classList.add('active');
+      } else {
+        italicBtn.classList.remove('active');
+      }
+    }
+
+    if (underlineBtn) {
+      const isUnderline = document.queryCommandState('underline');
+      console.log('Underline state:', isUnderline);
+      if (isUnderline) {
+        underlineBtn.classList.add('active');
+      } else {
+        underlineBtn.classList.remove('active');
+      }
+    }
+  }
+
+  // Set line spacing
+  setLineSpacing(spacing) {
+    const editor = document.getElementById('note-content');
+    if (!editor) return;
+
+    editor.style.lineHeight = spacing;
+    
+    if (this.currentNote) {
+      this.currentNote.lineSpacing = spacing;
+      this.autoSaveNote();
+    }
+  }
+
+  // Create new note
+  createNewNote() {
+    const note = storage.createNote('Untitled Note', '');
+    privacyMonitor.trackNoteCreated();
+    
+    this.renderNotes();
+    this.updateNotesCount();
+    this.openNote(note.id);
+    
+    showToast('New note created!');
+    
+    setTimeout(() => {
+      const titleInput = document.getElementById('note-title');
+      if (titleInput) {
+        titleInput.focus();
+        titleInput.select();
+      }
+    }, 100);
+  }
+
+  // Open note
   openNote(noteId) {
     const note = storage.getNote(noteId);
     if (!note) return;
 
     this.currentNote = note;
 
-    // Hide welcome, show editor
     document.getElementById('welcome-screen').style.display = 'none';
     document.getElementById('note-editor-screen').style.display = 'flex';
 
-    // Show/hide encryption buttons based on state
     const encryptBtn = document.getElementById('encrypt-note-btn');
     const decryptBtn = document.getElementById('decrypt-note-btn');
 
     if (note.encrypted) {
-      // Note is encrypted - show decrypt button, hide encrypt
       encryptBtn.style.display = 'none';
       decryptBtn.style.display = 'inline-flex';
 
-      // Show encrypted placeholder
       document.getElementById('note-title').value = '🔒 Encrypted Note';
       document.getElementById('note-title').disabled = true;
       
@@ -265,18 +308,15 @@ createNewNote() {
       document.getElementById('note-content').contentEditable = false;
 
     } else {
-      // Note is not encrypted - show encrypt button, hide decrypt
       encryptBtn.style.display = 'inline-flex';
       decryptBtn.style.display = 'none';
 
-      // Load note content normally
       document.getElementById('note-title').value = note.title;
       document.getElementById('note-title').disabled = false;
       document.getElementById('note-content').innerHTML = note.content;
       document.getElementById('note-content').contentEditable = true;
     }
 
-    // Update active state in list
     document.querySelectorAll('.note-item').forEach(item => {
       item.classList.remove('active');
     });
@@ -284,9 +324,13 @@ createNewNote() {
 
     log(`Opened note: ${noteId}${note.encrypted ? ' (encrypted)' : ''}`, 'info');
 
-    // Show tags section and render tags
-    document.getElementById('tags-section').style.display = 'block';
-    this.renderNoteTags();
+    const toolbar = document.getElementById('unified-toolbar');
+    if (toolbar) {
+      toolbar.style.display = 'flex';
+    }
+    
+    this.renderNoteTagsCompact();
+    this.updateButtonStates();
   }
 
   // Auto-save note
@@ -312,17 +356,14 @@ createNewNote() {
       content: content
     });
 
-    // Update in list
     this.renderNotes();
 
-    // Show save status
     const saveStatus = document.getElementById('save-status');
     if (saveStatus) {
       saveStatus.textContent = '✓ Saved';
       saveStatus.style.color = 'var(--color-success)';
     }
 
-    // Track local processing
     const bytes = new Blob([JSON.stringify({ title, content })]).size;
     privacyMonitor.trackLocalProcessing(bytes);
   }
@@ -374,7 +415,6 @@ createNewNote() {
       `;
     }).join('');
 
-    // Add click listeners to notes
     notesList.querySelectorAll('.note-item').forEach(item => {
       item.addEventListener('click', () => {
         const noteId = item.dataset.noteId;
@@ -397,18 +437,164 @@ createNewNote() {
     document.getElementById('note-editor-screen').style.display = 'none';
     this.currentNote = null;
   }
+
+  // Toggle theme
+  toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    this.setTheme(newTheme);
+  }
+
+  // Set theme
+  setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    
+    const icon = document.getElementById('theme-icon');
+    if (icon) {
+      icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    
+    console.log('🎨 Theme changed to: ' + theme);
+    showToast(theme === 'dark' ? '🌙 Dark mode enabled' : '☀️ Light mode enabled');
+  }
+
+  // Load saved theme
+  loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    this.setTheme(savedTheme);
+  }
 }
 
-// Initialize app when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.app = new NotesApp();
+// ========================================
+// PROTOTYPE METHODS - AI & Tags
+// ========================================
+
+NotesApp.prototype.suggestAITagsCompact = function() {
+  if (!this.currentNote) {
+    showToast('No note selected', 'warning');
+    return;
+  }
+
+  const title = document.getElementById('note-title')?.value || '';
+  const content = stripHtml(document.getElementById('note-content')?.innerHTML || '');
+
+  const suggestedTags = aiTagging.generateTags(title, content, 5);
+
+  if (suggestedTags.length === 0) {
+    showToast('Not enough content to suggest tags. Write more!', 'info');
+    return;
+  }
+
+  privacyMonitor.trackAIOperation('auto-tag', new Blob([title + content]).size);
+
+  const container = document.getElementById('suggested-tags-compact');
+  const row = document.getElementById('suggested-tags-row');
+  
+  container.innerHTML = suggestedTags.map(tag => 
+    `<span class="suggested-tag-compact" data-tag="${tag}">${tag}</span>`
+  ).join('');
+  
+  row.style.display = 'flex';
+
+  const self = this;
+  container.querySelectorAll('.suggested-tag-compact').forEach(tagEl => {
+    tagEl.addEventListener('click', function() {
+      self.addTag(tagEl.dataset.tag);
+      tagEl.remove();
+      
+      if (container.querySelectorAll('.suggested-tag-compact').length === 0) {
+        row.style.display = 'none';
+      }
+    });
   });
-} else {
-  window.app = new NotesApp();
-}
 
-// Attach encryption-related methods to the NotesApp prototype (they belong to the class instance)
+  showToast('🤖 AI suggested tags!', 'success');
+};
+
+NotesApp.prototype.renderNoteTagsCompact = function() {
+  if (!this.currentNote) return;
+
+  const container = document.getElementById('note-tags-display');
+  if (!container) return;
+
+  const tags = this.currentNote.tags || [];
+
+  container.innerHTML = tags.map(tag => `
+    <span class="tag-chip-compact">
+      ${tag}
+      <span class="remove" data-tag="${tag}">×</span>
+    </span>
+  `).join('');
+
+  const self = this;
+  container.querySelectorAll('.remove').forEach(removeBtn => {
+    removeBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      self.removeTag(removeBtn.dataset.tag);
+    });
+  });
+};
+
+NotesApp.prototype.addTag = function(tag) {
+  if (!this.currentNote) return;
+
+  if (!this.currentNote.tags) {
+    this.currentNote.tags = [];
+  }
+
+  if (this.currentNote.tags.includes(tag)) {
+    showToast('Tag already added', 'warning');
+    return;
+  }
+
+  this.currentNote.tags.push(tag);
+
+  storage.updateNote(this.currentNote.id, {
+    tags: this.currentNote.tags
+  });
+
+  this.renderNoteTagsCompact();
+  this.renderNotes();
+
+  showToast(`Added tag: ${tag}`);
+};
+
+NotesApp.prototype.removeTag = function(tag) {
+  if (!this.currentNote || !this.currentNote.tags) return;
+
+  this.currentNote.tags = this.currentNote.tags.filter(t => t !== tag);
+
+  storage.updateNote(this.currentNote.id, {
+    tags: this.currentNote.tags
+  });
+
+  this.renderNoteTagsCompact();
+  this.renderNotes();
+
+  showToast(`Removed tag: ${tag}`);
+};
+
+NotesApp.prototype.addTagFromCompactInput = function() {
+  const input = document.getElementById('tag-input-compact');
+  const tag = input?.value.trim().toLowerCase();
+
+  if (!tag) return;
+
+  if (tag.length < 2) {
+    showToast('Tag must be at least 2 characters', 'warning');
+    return;
+  }
+
+  this.addTag(tag);
+  input.value = '';
+  this.renderNoteTagsCompact();
+};
+
+// ========================================
+// PROTOTYPE METHODS - Encryption
+// ========================================
+
 NotesApp.prototype.encryptCurrentNote = function() {
   if (!this.currentNote) {
     showToast('No note selected', 'warning');
@@ -587,178 +773,18 @@ NotesApp.prototype.performDecryption = function(password) {
   }
 };
 
-// AI Suggest Tags
-NotesApp.prototype.suggestAITags = function() {
-  if (!this.currentNote) {
-    showToast('No note selected', 'warning');
-    return;
-  }
-
-  const title = document.getElementById('note-title')?.value || '';
-  const content = stripHtml(document.getElementById('note-content')?.innerHTML || '');
-
-  // Use AI to generate tags
-  const suggestedTags = aiTagging.generateTags(title, content, 5);
-
-  if (suggestedTags.length === 0) {
-    showToast('Not enough content to suggest tags. Write more!', 'info');
-    return;
-  }
-
-  // Track AI operation
-  privacyMonitor.trackAIOperation('auto-tag', new Blob([title + content]).size);
-
-  // Display suggested tags
-  const container = document.getElementById('suggested-tags-container');
-  if (container) {
-    container.style.display = 'block';
-    container.innerHTML = `
-      <div style="font-size: 11px; color: #7b1fa2; margin-bottom: 8px; font-weight: 600;">
-        🤖 AI Suggested Tags (click to add):
-      </div>
-      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-        ${suggestedTags.map(tag => `
-          <span class="suggested-tag" data-tag="${tag}">${tag}</span>
-        `).join('')}
-      </div>
-    `;
-
-    // Add click listeners to suggested tags
-    container.querySelectorAll('.suggested-tag').forEach(tagEl => {
-      tagEl.addEventListener('click', () => {
-        const tag = tagEl.dataset.tag;
-        this.addTag(tag);
-        tagEl.remove();
-
-        // Hide container if no more suggestions
-        if (container.querySelectorAll('.suggested-tag').length === 0) {
-          container.style.display = 'none';
-        }
-      });
-    });
-  }
-
-  showToast('🤖 AI suggested tags!', 'success');
-};
-
-// Add tag manually from input
-NotesApp.prototype.addTagManually = function() {
-  const input = document.getElementById('tag-input');
-  const tag = input?.value.trim().toLowerCase();
-
-  if (!tag) return;
-
-  if (tag.length < 2) {
-    showToast('Tag must be at least 2 characters', 'warning');
-    return;
-  }
-
-  this.addTag(tag);
-  input.value = '';
-};
-
-// Add tag to current note
-NotesApp.prototype.addTag = function(tag) {
-  if (!this.currentNote) return;
-
-  if (!this.currentNote.tags) {
-    this.currentNote.tags = [];
-  }
-
-  if (this.currentNote.tags.includes(tag)) {
-    showToast('Tag already added', 'warning');
-    return;
-  }
-
-  this.currentNote.tags.push(tag);
-
-  storage.updateNote(this.currentNote.id, {
-    tags: this.currentNote.tags
-  });
-
-  this.renderNoteTags();
-  this.renderNotes();
-
-  showToast(`Added tag: ${tag}`);
-};
-
-// Remove tag from current note
-NotesApp.prototype.removeTag = function(tag) {
-  if (!this.currentNote || !this.currentNote.tags) return;
-
-  this.currentNote.tags = this.currentNote.tags.filter(t => t !== tag);
-
-  storage.updateNote(this.currentNote.id, {
-    tags: this.currentNote.tags
-  });
-
-  this.renderNoteTags();
-  this.renderNotes();
-
-  showToast(`Removed tag: ${tag}`);
-};
-
-// Render tags in note editor
-NotesApp.prototype.renderNoteTags = function() {
-  if (!this.currentNote) return;
-
-  const container = document.getElementById('note-tags-container');
-  if (!container) return;
-
-  const tags = this.currentNote.tags || [];
-
-  if (tags.length === 0) {
-    container.innerHTML = '<small style="color: var(--color-text-lighter);">No tags yet</small>';
-    return;
-  }
-
-  container.innerHTML = tags.map(tag => `
-    <span class="tag-chip">
-      🏷️ ${tag}
-      <span class="tag-chip-remove" data-tag="${tag}">×</span>
-    </span>
-  `).join('');
-
-  // Add remove listeners
-  container.querySelectorAll('.tag-chip-remove').forEach(removeBtn => {
-    removeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.removeTag(removeBtn.dataset.tag);
-    });
-  });
-};
-
 // ========================================
-// THEME MANAGEMENT
+// INITIALIZATION
 // ========================================
 
-// Toggle between light and dark theme
-NotesApp.prototype.toggleTheme = function() {
-  const currentTheme = document.documentElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  
-  this.setTheme(newTheme);
-};
-
-// Set theme
-NotesApp.prototype.setTheme = function(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
-  
-  // Update icon
-  const icon = document.getElementById('theme-icon');
-  if (icon) {
-    icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-  }
-  
-  console.log('🎨 Theme changed to: ' + theme);
-  showToast(theme === 'dark' ? '🌙 Dark mode enabled' : '☀️ Light mode enabled');
-};
-
-// Load saved theme on init
-NotesApp.prototype.loadTheme = function() {
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  this.setTheme(savedTheme);
-};
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.app = new NotesApp();
+    app.loadTheme();
+  });
+} else {
+  window.app = new NotesApp();
+  app.loadTheme();
+}
 
 console.log('✅ Simple Notes App ready!');
