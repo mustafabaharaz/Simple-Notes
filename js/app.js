@@ -6,16 +6,19 @@
 class NotesApp {
   constructor() {
     this.currentNote = null;
+    this.activeTagFilter = null;
     this.autoSaveTimeout = null;
     this.init();
   }
 
   // Initialize app
   init() {
+    this.loadTheme();
+
+    // Hide loading screen
+    setTimeout(() => {
     log('Initializing Simple Notes App...', 'info');
 
-    // Hide loading screen, show app
-    setTimeout(() => {
       document.getElementById('loading-screen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
       log('App loaded successfully!', 'success');
@@ -64,6 +67,22 @@ class NotesApp {
         privacyMonitor.hideDashboard();
       }
     });
+
+    // Tag functionality
+    document.getElementById('ai-suggest-tags-btn')?.addEventListener('click', () => {
+      this.suggestAITags();
+    });
+
+    document.getElementById('add-tag-btn')?.addEventListener('click', () => {
+      this.addTagManually();
+    });
+
+    document.getElementById('tag-input')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.addTagManually();
+      }
+    });    
 
     // Note title input
     const titleInput = document.getElementById('note-title');
@@ -127,6 +146,15 @@ class NotesApp {
     });
 
     log('Event listeners setup complete', 'info');
+
+    // Theme toggle
+      const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    const self = this;
+    themeToggle.addEventListener('click', function() {
+      self.toggleTheme();
+    });
+  }
   }
 
   // Setup toolbar buttons
@@ -255,7 +283,12 @@ createNewNote() {
     document.querySelector(`[data-note-id="${noteId}"]`)?.classList.add('active');
 
     log(`Opened note: ${noteId}${note.encrypted ? ' (encrypted)' : ''}`, 'info');
+
+    // Show tags section and render tags
+    document.getElementById('tags-section').style.display = 'block';
+    this.renderNoteTags();
   }
+
   // Auto-save note
   autoSaveNote() {
     if (!this.currentNote) return;
@@ -552,6 +585,180 @@ NotesApp.prototype.performDecryption = function(password) {
     console.error('Decryption failed:', error);
     showToast('❌ Wrong password or decryption failed', 'error');
   }
+};
+
+// AI Suggest Tags
+NotesApp.prototype.suggestAITags = function() {
+  if (!this.currentNote) {
+    showToast('No note selected', 'warning');
+    return;
+  }
+
+  const title = document.getElementById('note-title')?.value || '';
+  const content = stripHtml(document.getElementById('note-content')?.innerHTML || '');
+
+  // Use AI to generate tags
+  const suggestedTags = aiTagging.generateTags(title, content, 5);
+
+  if (suggestedTags.length === 0) {
+    showToast('Not enough content to suggest tags. Write more!', 'info');
+    return;
+  }
+
+  // Track AI operation
+  privacyMonitor.trackAIOperation('auto-tag', new Blob([title + content]).size);
+
+  // Display suggested tags
+  const container = document.getElementById('suggested-tags-container');
+  if (container) {
+    container.style.display = 'block';
+    container.innerHTML = `
+      <div style="font-size: 11px; color: #7b1fa2; margin-bottom: 8px; font-weight: 600;">
+        🤖 AI Suggested Tags (click to add):
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        ${suggestedTags.map(tag => `
+          <span class="suggested-tag" data-tag="${tag}">${tag}</span>
+        `).join('')}
+      </div>
+    `;
+
+    // Add click listeners to suggested tags
+    container.querySelectorAll('.suggested-tag').forEach(tagEl => {
+      tagEl.addEventListener('click', () => {
+        const tag = tagEl.dataset.tag;
+        this.addTag(tag);
+        tagEl.remove();
+
+        // Hide container if no more suggestions
+        if (container.querySelectorAll('.suggested-tag').length === 0) {
+          container.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  showToast('🤖 AI suggested tags!', 'success');
+};
+
+// Add tag manually from input
+NotesApp.prototype.addTagManually = function() {
+  const input = document.getElementById('tag-input');
+  const tag = input?.value.trim().toLowerCase();
+
+  if (!tag) return;
+
+  if (tag.length < 2) {
+    showToast('Tag must be at least 2 characters', 'warning');
+    return;
+  }
+
+  this.addTag(tag);
+  input.value = '';
+};
+
+// Add tag to current note
+NotesApp.prototype.addTag = function(tag) {
+  if (!this.currentNote) return;
+
+  if (!this.currentNote.tags) {
+    this.currentNote.tags = [];
+  }
+
+  if (this.currentNote.tags.includes(tag)) {
+    showToast('Tag already added', 'warning');
+    return;
+  }
+
+  this.currentNote.tags.push(tag);
+
+  storage.updateNote(this.currentNote.id, {
+    tags: this.currentNote.tags
+  });
+
+  this.renderNoteTags();
+  this.renderNotes();
+
+  showToast(`Added tag: ${tag}`);
+};
+
+// Remove tag from current note
+NotesApp.prototype.removeTag = function(tag) {
+  if (!this.currentNote || !this.currentNote.tags) return;
+
+  this.currentNote.tags = this.currentNote.tags.filter(t => t !== tag);
+
+  storage.updateNote(this.currentNote.id, {
+    tags: this.currentNote.tags
+  });
+
+  this.renderNoteTags();
+  this.renderNotes();
+
+  showToast(`Removed tag: ${tag}`);
+};
+
+// Render tags in note editor
+NotesApp.prototype.renderNoteTags = function() {
+  if (!this.currentNote) return;
+
+  const container = document.getElementById('note-tags-container');
+  if (!container) return;
+
+  const tags = this.currentNote.tags || [];
+
+  if (tags.length === 0) {
+    container.innerHTML = '<small style="color: var(--color-text-lighter);">No tags yet</small>';
+    return;
+  }
+
+  container.innerHTML = tags.map(tag => `
+    <span class="tag-chip">
+      🏷️ ${tag}
+      <span class="tag-chip-remove" data-tag="${tag}">×</span>
+    </span>
+  `).join('');
+
+  // Add remove listeners
+  container.querySelectorAll('.tag-chip-remove').forEach(removeBtn => {
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.removeTag(removeBtn.dataset.tag);
+    });
+  });
+};
+
+// ========================================
+// THEME MANAGEMENT
+// ========================================
+
+// Toggle between light and dark theme
+NotesApp.prototype.toggleTheme = function() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  
+  this.setTheme(newTheme);
+};
+
+// Set theme
+NotesApp.prototype.setTheme = function(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  
+  // Update icon
+  const icon = document.getElementById('theme-icon');
+  if (icon) {
+    icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+  }
+  
+  console.log('🎨 Theme changed to: ' + theme);
+  showToast(theme === 'dark' ? '🌙 Dark mode enabled' : '☀️ Light mode enabled');
+};
+
+// Load saved theme on init
+NotesApp.prototype.loadTheme = function() {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  this.setTheme(savedTheme);
 };
 
 console.log('✅ Simple Notes App ready!');

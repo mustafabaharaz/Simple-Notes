@@ -112,6 +112,48 @@
             <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
         </div>
     </div>
+                    <!-- Tags Section -->
+                <div class="tag-input-container" id="tags-section">
+                    <div style="flex: 1;">
+                        <div class="tags-section-header">
+                            <span>🏷️ Tags</span>
+                            <button class="ai-suggest-btn" id="ai-suggest-tags-btn">
+                                🤖 AI Suggest Tags
+                            </button>
+                        </div>
+                        
+                        <div id="suggested-tags-container" style="display: none;">
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="tag-input" class="tag-input" 
+                                   placeholder="Add tag (press Enter)..." maxlength="20">
+                            <button class="btn btn-small btn-primary" id="add-tag-btn">Add</button>
+                        </div>
+                        
+                        <div class="tags-container" id="note-tags-container">
+                            <!-- Tags will appear here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
+                </div>
+            </div>            <!-- Privacy Dashboard (modal) -->
+            <div id="privacy-dashboard" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>🔒 Privacy Dashboard</h2>
+                        <button class="modal-close" id="close-privacy-dashboard">&times;</button>
+                    </div>
+                    <div id="privacy-metrics" class="privacy-metrics">
+                        <!-- Privacy metrics will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
     
     <div class="editor-toolbar">
         <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)">
@@ -139,7 +181,61 @@
     <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
     </div>
 </div>
-            <!-- Privacy Dashboard (modal) -->
+
+</div>
+
+                <!-- Tags Section (NEW - Add this!) -->
+<div class="editor-toolbar">
+                    <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)">
+                        <strong>B</strong>
+                    </button>
+                    <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)">
+                        <em>I</em>
+                    </button>
+                    <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)">
+                        <u>U</u>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                    <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">
+                        • List
+                    </button>
+                    <button class="toolbar-btn" data-action="date" title="Insert Date">
+                        📅 Date
+                    </button>
+                    <div class="toolbar-divider"></div>
+                    <button class="toolbar-btn" id="ai-tag-btn" title="AI Auto-Tag (Coming Soon)">
+                        🤖 Auto-Tag
+                    </button>
+                </div>
+
+                <!-- Tags Section -->
+                <div class="tag-input-container" id="tags-section">
+                    <div style="flex: 1;">
+                        <div class="tags-section-header">
+                            <span>🏷️ Tags</span>
+                            <button class="ai-suggest-btn" id="ai-suggest-tags-btn">
+                                🤖 AI Suggest Tags
+                            </button>
+                        </div>
+                        
+                        <div id="suggested-tags-container" style="display: none;">
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="tag-input" class="tag-input" 
+                                   placeholder="Add tag (press Enter)..." maxlength="20">
+                            <button class="btn btn-small btn-primary" id="add-tag-btn">Add</button>
+                        </div>
+                        
+                        <div class="tags-container" id="note-tags-container">
+                            <!-- Tags will appear here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
+                </div>
+            </div>            <!-- Privacy Dashboard (modal) -->
             <div id="privacy-dashboard" class="modal" style="display: none;">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -156,6 +252,7 @@
 
     <!-- JavaScript Files -->
     <script src="js/utils/helpers.js"></script>
+    <script src="js/ai/tagging.js"></script>
     <script src="js/utils/security.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/privacy.js"></script>
@@ -171,5 +268,11 @@
             });
         }
     </script>
+
+   <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
+        <span id="theme-icon">🌙</span>
+    </button>
+ 
 </body>
 </html>
