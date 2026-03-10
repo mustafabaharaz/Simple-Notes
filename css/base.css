@@ -263,3 +263,12 @@ a:hover {
 .theme-toggle:active {
   transform: scale(0.95);
 }
+/* ===== SMOOTH SCROLLING ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+#notes-list,
+.note-content {
+  scroll-behavior: smooth;
+}
