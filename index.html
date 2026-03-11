@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Privacy-First AI Notes App - Local AI, Family Sharing, Zero Surveillance">
+    <meta name="description" content="Privacy-First AI Notes App - Local AI, Zero Surveillance">
     <meta name="theme-color" content="#007AFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Simple Notes - Privacy-First AI Notes</title>
@@ -26,7 +26,7 @@
     <div id="loading-screen" class="loading-screen" style="display: none;">
         <div class="loading-spinner"></div>
         <p>Loading Simple Notes...</p>
-        <small>🔒 100% Private • 🤖 Local AI • 👨‍👩‍👧‍👦 Family Safe</small>
+        <small>🔒 100% Private • 🤖 Local AI</small>
     </div>
 
     <!-- Main App Container -->
@@ -37,7 +37,7 @@
             <div class="sidebar-header">
                 <h1>📝 Simple Notes</h1>
                 <div class="privacy-badge" id="privacy-badge">
-                    🛡️ <span id="privacy-status">0 bytes to cloud</span>
+                    🛡️ <span id="privacy-status">100% Local</span>
                 </div>
             </div>
 
@@ -58,218 +58,244 @@
                     <!-- Notes will be dynamically added here -->
                 </div>
             </div>
+
+            <!-- Folders Section -->
+            <div class="folders-section">
+                <div class="folders-header">
+                    <h3>📁 Folders</h3>
+                    <button class="btn-icon" id="new-folder-btn" title="New Folder">+</button>
+                </div>
+                
+                <div class="folders-list">
+                    <div class="folder-item special-folder active" data-folder-id="all">
+                        <span class="folder-icon">📋</span>
+                        <span class="folder-name">All Notes</span>
+                        <span class="folder-count" id="all-notes-count">0</span>
+                    </div>
+                    
+                    <div class="folder-item special-folder" data-folder-id="unfiled">
+                        <span class="folder-icon">📄</span>
+                        <span class="folder-name">Unfiled</span>
+                        <span class="folder-count" id="unfiled-count">0</span>
+                    </div>
+                    
+                    <div class="folders-divider"></div>
+                    
+                    <div id="user-folders-list">
+                        <!-- User folders will be rendered here -->
+                    </div>
+                </div>
+            </div>
+            
         </aside>
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Welcome Screen (shown when no note is selected) -->
+            <!-- Welcome Screen -->
             <div id="welcome-screen" class="welcome-screen">
-                <div class="welcome-content">
-                    <h2>👋 Welcome to Simple Notes</h2>
-                    <p>Your privacy-first notes app with AI-powered features</p>
-                    
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">🤖</div>
-                            <h3>Local AI</h3>
-                            <p>AI processing happens on your device, never in the cloud</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🔒</div>
-                            <h3>100% Private</h3>
-                            <p>Zero data sent to external servers</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">👨‍👩‍👧‍👦</div>
-                            <h3>Family Safe</h3>
-                            <p>Share notes securely with your family</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">⚡</div>
-                            <h3>Works Offline</h3>
-                            <p>Full functionality without internet</p>
-                        </div>
-                    </div>
-
-                    <button id="get-started-btn" class="btn btn-large btn-primary">
-                        Get Started - Create Your First Note
-                    </button>
-                </div>
-            </div>
-
-<!-- Note Editor (shown when a note is selected) -->
-<div id="note-editor-screen" class="note-editor-screen" style="display: none;">
-    <div class="editor-header">
-        <input type="text" id="note-title" class="note-title-input" placeholder="Note title...">
-        <div class="editor-actions">
-            <span id="save-status" class="save-status">✓ Saved</span>
-            <button id="encrypt-note-btn" class="btn btn-small btn-success" style="display: none;">
-                🔒 Encrypt Note
-            </button>
-            <button id="decrypt-note-btn" class="btn btn-small btn-warning" style="display: none;">
-                🔓 Decrypt Note
-            </button>
-            <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
-        </div>
-    </div>
-                    <!-- Unified Compact Toolbar -->
-                    <div class="unified-toolbar" id="unified-toolbar" style="display: none;">
-                        <div class="toolbar-section toolbar-formatting">
-                            <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)"><strong>B</strong></button>
-                            <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)"><em>I</em></button>
-                            <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)"><u>U</u></button>
-                            <div class="toolbar-divider"></div>
-                            <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">• List</button>
-                            <button class="toolbar-btn" data-action="numbered-list" title="Numbered List">1. List</button>
+                <div class="welcome-container">
+                    <!-- Hero Section -->
+                    <div class="welcome-hero">
+                        <div class="hero-badge">
+                            <span class="badge-dot"></span>
+                            Privacy-First Technology
                         </div>
                         
-                        <div class="toolbar-section toolbar-paragraph">
-                            <button class="toolbar-btn" data-action="align-left" title="Align Left">⬅</button>
-                            <button class="toolbar-btn" data-action="align-center" title="Center">↔</button>
-                            <button class="toolbar-btn" data-action="align-right" title="Align Right">➡</button>
-                            <div class="toolbar-divider"></div>
-                            <button class="toolbar-btn" data-action="indent" title="Indent">→|</button>
-                            <button class="toolbar-btn" data-action="outdent" title="Outdent">|←</button>
-                            <div class="toolbar-divider"></div>
-                            <select class="toolbar-select" id="line-spacing" title="Line Spacing">
-                                <option value="1">1.0</option>
-                                <option value="1.15">1.15</option>
-                                <option value="1.5" selected>1.5</option>
-                                <option value="2">2.0</option>
-                            </select>
-                            <div class="toolbar-divider"></div>
-                            <button class="toolbar-btn" data-action="date" title="Insert Date">📅</button>
-                        </div>
+                        <h1 class="hero-title">
+                            Your Notes.
+                            <span class="gradient-text">Your Privacy.</span>
+                            <span class="gradient-text">Your Control.</span>
+                        </h1>
                         
-                        <div class="toolbar-section toolbar-tags">
-                            <button class="toolbar-btn ai-suggest-btn-compact" id="ai-suggest-tags-btn-compact">🤖 Tags</button>
-                            <input type="text" id="tag-input-compact" class="tag-input-compact" placeholder="Add tag..." maxlength="20">
-                            <div class="tags-display-compact" id="note-tags-display"></div>
+                        <p class="hero-subtitle">
+                            Experience the future of note-taking with AI-powered organization,<br>
+                            military-grade encryption, and absolute privacy—all without cloud storage.
+                        </p>
+                        
+                        <div class="hero-cta">
+                            <button id="get-started-btn" class="btn-primary-large">
+                                <span class="btn-icon">✨</span>
+                                <span>Start Writing Now</span>
+                                <span class="btn-arrow">→</span>
+                            </button>
+                            <div class="cta-subtext">
+                                <span class="check-icon">✓</span> No sign-up required
+                                <span class="dot-separator">•</span>
+                                <span class="check-icon">✓</span> Works offline
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Suggested Tags Row -->
-                    <div id="suggested-tags-row" class="suggested-tags-row" style="display: none;">
-                        <span class="suggested-label">🤖 Suggested:</span>
-                        <div id="suggested-tags-compact"></div>
+                    <!-- Features Grid -->
+                    <div class="features-grid">
+                        <div class="feature-box feature-privacy">
+                            <div class="feature-visual">
+                                <div class="shield-container">
+                                    <div class="shield-outer"></div>
+                                    <div class="shield-inner">🛡️</div>
+                                    <div class="shield-pulse"></div>
+                                </div>
+                            </div>
+                            <h3 class="feature-title">Zero-Knowledge Privacy</h3>
+                            <p class="feature-desc">Your data never touches our servers. Everything stays local, encrypted, and yours.</p>
+                            <div class="feature-stats">
+                                <div class="stat">
+                                    <div class="stat-value">0 KB</div>
+                                    <div class="stat-label">Cloud Storage</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">100%</div>
+                                    <div class="stat-label">Local</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-box feature-ai">
+                            <div class="feature-visual">
+                                <div class="ai-brain">
+                                    <div class="brain-core">🤖</div>
+                                    <div class="brain-orbit orbit-1"></div>
+                                    <div class="brain-orbit orbit-2"></div>
+                                    <div class="brain-orbit orbit-3"></div>
+                                </div>
+                            </div>
+                            <h3 class="feature-title">AI That Respects Privacy</h3>
+                            <p class="feature-desc">Smart auto-tagging and organization powered by on-device AI. No external APIs.</p>
+                            <div class="feature-tags">
+                                <span class="tag-bubble">Auto-Tag</span>
+                                <span class="tag-bubble">Smart Search</span>
+                                <span class="tag-bubble">Local ML</span>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-box feature-tools">
+                            <div class="feature-visual">
+                                <div class="tools-stack">
+                                    <div class="tool-layer layer-1">
+                                        <span>📝</span> Rich Text
+                                    </div>
+                                    <div class="tool-layer layer-2">
+                                        <span>🔐</span> Encryption
+                                    </div>
+                                    <div class="tool-layer layer-3">
+                                        <span>📁</span> Folders
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 class="feature-title">Pro-Level Tools</h3>
+                            <p class="feature-desc">Rich formatting, folders, tags, encryption, and lightning-fast search—all free.</p>
+                            <div class="feature-list">
+                                <div class="list-item">✓ Advanced Editor</div>
+                                <div class="list-item">✓ AES Encryption</div>
+                                <div class="list-item">✓ Smart Folders</div>
+                            </div>
+                        </div>
                     </div>
-
-                <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
-                </div>
-            </div>            <!-- Privacy Dashboard (modal) -->
-            <div id="privacy-dashboard" class="modal" style="display: none;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>🔒 Privacy Dashboard</h2>
-                        <button class="modal-close" id="close-privacy-dashboard">&times;</button>
-                    </div>
-                    <div id="privacy-metrics" class="privacy-metrics">
-                        <!-- Privacy metrics will be dynamically added here -->
+                    
+                    <!-- Trust Indicators -->
+                    <div class="trust-bar">
+                        <div class="trust-item">
+                            <div class="trust-icon">🔒</div>
+                            <div class="trust-text">
+                                <strong>End-to-End Encrypted</strong>
+                                <span>Military-grade AES</span>
+                            </div>
+                        </div>
+                        <div class="trust-item">
+                            <div class="trust-icon">🌐</div>
+                            <div class="trust-text">
+                                <strong>Works Offline</strong>
+                                <span>No internet needed</span>
+                            </div>
+                        </div>
+                        <div class="trust-item">
+                            <div class="trust-icon">🚫</div>
+                            <div class="trust-text">
+                                <strong>No Tracking</strong>
+                                <span>Zero analytics</span>
+                            </div>
+                        </div>
+                        <div class="trust-item">
+                            <div class="trust-icon">💾</div>
+                            <div class="trust-text">
+                                <strong>Auto-Save</strong>
+                                <span>Never lose work</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    
-    <div class="editor-toolbar">
-        <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)">
-            <strong>B</strong>
-        </button>
-        <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)">
-            <em>I</em>
-        </button>
-        <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)">
-            <u>U</u>
-        </button>
-        <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">
-            • List
-        </button>
-        <button class="toolbar-btn" data-action="date" title="Insert Date">
-            📅 Date
-        </button>
-        <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" id="ai-tag-btn" title="AI Auto-Tag (Coming Soon)">
-            🤖 Auto-Tag
-        </button>
-    </div>
-
-    <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
-    </div>
-</div>
-
-</div>
-
-                <!-- Tags Section (NEW - Add this!) -->
-<div class="editor-toolbar">
-                    <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)">
-                        <strong>B</strong>
-                    </button>
-                    <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)">
-                        <em>I</em>
-                    </button>
-                    <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)">
-                        <u>U</u>
-                    </button>
-                    <div class="toolbar-divider"></div>
-                    <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">
-                        • List
-                    </button>
-                    <button class="toolbar-btn" data-action="date" title="Insert Date">
-                        📅 Date
-                    </button>
-                    <div class="toolbar-divider"></div>
-                    <button class="toolbar-btn" id="ai-tag-btn" title="AI Auto-Tag (Coming Soon)">
-                        🤖 Auto-Tag
-                    </button>
+            <!-- Note Editor Screen -->
+            <div id="note-editor-screen" class="note-editor-screen" style="display: none;">
+                <div class="editor-header">
+                    <input type="text" id="note-title" class="note-title-input" placeholder="Note title...">
+                    <div class="editor-actions">
+                        <span id="save-status" class="save-status">✓ Saved</span>
+                        <button id="encrypt-note-btn" class="btn btn-small btn-success" style="display: none;">
+                            🔒 Encrypt Note
+                        </button>
+                        <button id="decrypt-note-btn" class="btn btn-small btn-warning" style="display: none;">
+                            🔓 Decrypt Note
+                        </button>
+                        <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
+                    </div>
                 </div>
 
                 <!-- Unified Compact Toolbar -->
-                    <div class="unified-toolbar" id="unified-toolbar" style="display: none;">
-                        <div class="toolbar-section toolbar-formatting">
-                            <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)"><strong>B</strong></button>
-                            <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)"><em>I</em></button>
-                            <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)"><u>U</u></button>
-                            <div class="toolbar-divider"></div>
-                            <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">• List</button>
-                            <button class="toolbar-btn" data-action="numbered-list" title="Numbered List">1. List</button>
-                        </div>
-                        
-                        <div class="toolbar-section toolbar-paragraph">
-                            <button class="toolbar-btn" data-action="align-left" title="Align Left">⬅</button>
-                            <button class="toolbar-btn" data-action="align-center" title="Center">↔</button>
-                            <button class="toolbar-btn" data-action="align-right" title="Align Right">➡</button>
-                            <div class="toolbar-divider"></div>
-                            <button class="toolbar-btn" data-action="indent" title="Indent">→|</button>
-                            <button class="toolbar-btn" data-action="outdent" title="Outdent">|←</button>
-                            <div class="toolbar-divider"></div>
-                            <select class="toolbar-select" id="line-spacing" title="Line Spacing">
-                                <option value="1">1.0</option>
-                                <option value="1.15">1.15</option>
-                                <option value="1.5" selected>1.5</option>
-                                <option value="2">2.0</option>
-                            </select>
-                            <div class="toolbar-divider"></div>
-                            <button class="toolbar-btn" data-action="date" title="Insert Date">📅</button>
-                        </div>
-                        
-                        <div class="toolbar-section toolbar-tags">
-                            <button class="toolbar-btn ai-suggest-btn-compact" id="ai-suggest-tags-btn-compact">🤖 Tags</button>
-                            <input type="text" id="tag-input-compact" class="tag-input-compact" placeholder="Add tag..." maxlength="20">
-                            <div class="tags-display-compact" id="note-tags-display"></div>
-                        </div>
+                <div class="unified-toolbar" id="unified-toolbar" style="display: none;">
+                    <div class="toolbar-section toolbar-formatting">
+                        <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)"><strong>B</strong></button>
+                        <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)"><em>I</em></button>
+                        <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+                        <div class="toolbar-divider"></div>
+                        <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">• List</button>
+                        <button class="toolbar-btn" data-action="numbered-list" title="Numbered List">1. List</button>
                     </div>
                     
-                    <!-- Suggested Tags Row -->
-                    <div id="suggested-tags-row" class="suggested-tags-row" style="display: none;">
-                        <span class="suggested-label">🤖 Suggested:</span>
-                        <div id="suggested-tags-compact"></div>
+                    <div class="toolbar-section toolbar-paragraph">
+                        <button class="toolbar-btn" data-action="align-left" title="Align Left">⬅</button>
+                        <button class="toolbar-btn" data-action="align-center" title="Center">↔</button>
+                        <button class="toolbar-btn" data-action="align-right" title="Align Right">➡</button>
+                        <div class="toolbar-divider"></div>
+                        <button class="toolbar-btn" data-action="indent" title="Indent">→|</button>
+                        <button class="toolbar-btn" data-action="outdent" title="Outdent">|←</button>
+                        <div class="toolbar-divider"></div>
+                        <select class="toolbar-select" id="line-spacing" title="Line Spacing">
+                            <option value="1">1.0</option>
+                            <option value="1.15">1.15</option>
+                            <option value="1.5" selected>1.5</option>
+                            <option value="2">2.0</option>
+                        </select>
+                        <div class="toolbar-divider"></div>
+                        <button class="toolbar-btn" data-action="date" title="Insert Date">📅</button>
                     </div>
+
+                    <div class="toolbar-section toolbar-folder">
+                        <label for="note-folder-select" style="font-size: 12px; color: var(--color-text-secondary);">Folder:</label>
+                        <select class="toolbar-select" id="note-folder-select">
+                            <option value="">Unfiled</option>
+                        </select>
+                    </div>
+                    
+                    <div class="toolbar-section toolbar-tags">
+                        <button class="toolbar-btn ai-suggest-btn-compact" id="ai-suggest-tags-btn-compact">🤖 Tags</button>
+                        <input type="text" id="tag-input-compact" class="tag-input-compact" placeholder="Add tag..." maxlength="20">
+                        <div class="tags-display-compact" id="note-tags-display"></div>
+                    </div>
+                </div>
+                
+                <!-- Suggested Tags Row -->
+                <div id="suggested-tags-row" class="suggested-tags-row" style="display: none;">
+                    <span class="suggested-label">🤖 Suggested:</span>
+                    <div id="suggested-tags-compact"></div>
+                </div>
 
                 <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
                 </div>
-            </div>            <!-- Privacy Dashboard (modal) -->
+            </div>
+
+            <!-- Privacy Dashboard (modal) -->
             <div id="privacy-dashboard" class="modal" style="display: none;">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -283,6 +309,11 @@
             </div>
         </main>
     </div>
+
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
+        <span id="theme-icon">🌙</span>
+    </button>
 
     <!-- JavaScript Files -->
     <script src="js/utils/helpers.js"></script>
@@ -302,11 +333,5 @@
             });
         }
     </script>
-
-   <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
-        <span id="theme-icon">🌙</span>
-    </button>
- 
 </body>
 </html>

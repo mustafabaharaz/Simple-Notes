@@ -24,9 +24,12 @@ class NotesApp {
     // Setup event listeners
     this.setupEventListeners();
 
-    // Load and render notes
+    // Load and render notes and folders
+    this.activeFolderId = 'all'; // Default to All Notes
+    this.renderFolders();
     this.renderNotes();
     this.updateNotesCount();
+    this.enableNoteDragDrop();
 
     // Show welcome screen if no notes
     if (storage.getNotes().length === 0) {
@@ -135,6 +138,27 @@ class NotesApp {
       });
     }
 
+    // Folder management
+    document.getElementById('new-folder-btn')?.addEventListener('click', () => {
+      this.createNewFolder();
+    });
+
+    // Special folder clicks (All Notes, Unfiled)
+    document.querySelectorAll('.special-folder').forEach(folder => {
+      folder.addEventListener('click', () => {
+        const folderId = folder.dataset.folderId;
+        this.filterByFolder(folderId);
+      });
+    });
+
+    // Folder dropdown change
+    document.getElementById('note-folder-select')?.addEventListener('change', (e) => {
+      if (this.currentNote) {
+        const folderId = e.target.value || null;
+        this.moveNoteToFolder(this.currentNote.id, folderId);
+      }
+    });
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
@@ -207,15 +231,12 @@ class NotesApp {
 
   // Update button active states
   updateButtonStates() {
-    console.log('🔍 updateButtonStates called');
-    
     const boldBtn = document.querySelector('[data-action="bold"]');
     const italicBtn = document.querySelector('[data-action="italic"]');
     const underlineBtn = document.querySelector('[data-action="underline"]');
 
     if (boldBtn) {
       const isBold = document.queryCommandState('bold');
-      console.log('Bold state:', isBold);
       if (isBold) {
         boldBtn.classList.add('active');
       } else {
@@ -225,7 +246,6 @@ class NotesApp {
 
     if (italicBtn) {
       const isItalic = document.queryCommandState('italic');
-      console.log('Italic state:', isItalic);
       if (isItalic) {
         italicBtn.classList.add('active');
       } else {
@@ -235,7 +255,6 @@ class NotesApp {
 
     if (underlineBtn) {
       const isUnderline = document.queryCommandState('underline');
-      console.log('Underline state:', isUnderline);
       if (isUnderline) {
         underlineBtn.classList.add('active');
       } else {
@@ -260,9 +279,17 @@ class NotesApp {
   // Create new note
   createNewNote() {
     const note = storage.createNote('Untitled Note', '');
+    
+    // Assign to current folder if not viewing "All Notes"
+    if (this.activeFolderId && this.activeFolderId !== 'all' && this.activeFolderId !== 'unfiled') {
+      note.folderId = this.activeFolderId;
+      storage.updateNote(note.id, { folderId: this.activeFolderId });
+    }
+    
     privacyMonitor.trackNoteCreated();
     
     this.renderNotes();
+    this.renderFolders();
     this.updateNotesCount();
     this.openNote(note.id);
     
@@ -330,6 +357,7 @@ class NotesApp {
     }
     
     this.renderNoteTagsCompact();
+    this.renderFolderDropdown();
     this.updateButtonStates();
   }
 
@@ -377,6 +405,7 @@ class NotesApp {
       this.currentNote = null;
 
       this.renderNotes();
+      this.renderFolders();
       this.updateNotesCount();
       this.showWelcomeScreen();
     }
@@ -387,7 +416,15 @@ class NotesApp {
     const notesList = document.getElementById('notes-list');
     if (!notesList) return;
 
-    const notes = storage.getNotes();
+    // Get notes based on active folder filter
+    let notes;
+    if (!this.activeFolderId || this.activeFolderId === 'all') {
+      notes = storage.getNotes();
+    } else {
+      notes = storage.getNotesInFolder(this.activeFolderId).sort((a, b) => {
+        return new Date(b.modified) - new Date(a.modified);
+      });
+    }
 
     if (notes.length === 0) {
       notesList.innerHTML = `
@@ -404,7 +441,7 @@ class NotesApp {
       const isActive = this.currentNote?.id === note.id;
 
       return `
-        <div class="note-item ${isActive ? 'active' : ''}" data-note-id="${note.id}">
+        <div class="note-item ${isActive ? 'active' : ''}" data-note-id="${note.id}" draggable="true">
           <div class="note-item-title">${note.title}</div>
           <div class="note-item-preview">${preview || 'No content'}</div>
           <div class="note-item-meta">
@@ -773,6 +810,252 @@ NotesApp.prototype.performDecryption = function(password) {
   }
 };
 
+// ==========================================
+// FOLDER MANAGEMENT
+// ==========================================
+
+NotesApp.prototype.renderFolders = function() {
+  const userFoldersList = document.getElementById('user-folders-list');
+  if (!userFoldersList) return;
+
+  const folders = storage.getFolders();
+
+  if (folders.length === 0) {
+    userFoldersList.innerHTML = `
+      <div style="text-align: center; padding: 20px; color: var(--color-text-secondary); font-size: 12px;">
+        No folders yet
+      </div>
+    `;
+    return;
+  }
+
+  userFoldersList.innerHTML = folders.map(folder => {
+    const noteCount = storage.getNotesInFolder(folder.id).length;
+    return `
+      <div class="folder-item" data-folder-id="${folder.id}">
+        <span class="folder-icon">📁</span>
+        <span class="folder-name">${folder.name}</span>
+        <span class="folder-count">${noteCount}</span>
+        <div class="folder-actions">
+          <button class="folder-action-btn" data-action="rename" title="Rename">✏️</button>
+          <button class="folder-action-btn" data-action="delete" title="Delete">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Add click listeners
+  userFoldersList.querySelectorAll('.folder-item').forEach(item => {
+    const folderId = item.dataset.folderId;
+    
+    // Click folder to filter
+    item.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('folder-action-btn')) {
+        this.filterByFolder(folderId);
+      }
+    });
+
+    // Rename button
+    const renameBtn = item.querySelector('[data-action="rename"]');
+    if (renameBtn) {
+      renameBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.renameFolder(folderId);
+      });
+    }
+
+    // Delete button
+    const deleteBtn = item.querySelector('[data-action="delete"]');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.deleteFolder(folderId);
+      });
+    }
+  });
+
+  this.updateFolderCounts();
+};
+
+NotesApp.prototype.updateFolderCounts = function() {
+  const allCount = document.getElementById('all-notes-count');
+  const unfiledCount = document.getElementById('unfiled-count');
+
+  if (allCount) {
+    allCount.textContent = storage.getNotes().length;
+  }
+
+  if (unfiledCount) {
+    unfiledCount.textContent = storage.getNotesInFolder('unfiled').length;
+  }
+};
+
+NotesApp.prototype.createNewFolder = function() {
+  const name = prompt('Enter folder name:');
+  
+  if (!name || !name.trim()) {
+    return;
+  }
+
+  const folder = storage.createFolder(name.trim());
+  this.renderFolders();
+  this.renderFolderDropdown(); // ← ADD THIS LINE
+  showToast(`📁 Folder "${folder.name}" created!`);
+};
+
+NotesApp.prototype.renameFolder = function(folderId) {
+  const folder = storage.getFolder(folderId);
+  if (!folder) return;
+
+  const newName = prompt('Rename folder:', folder.name);
+  
+  if (!newName || !newName.trim() || newName.trim() === folder.name) {
+    return;
+  }
+
+  storage.updateFolder(folderId, { name: newName.trim() });
+  this.renderFolders();
+  this.renderFolderDropdown();
+  showToast(`📁 Folder renamed to "${newName.trim()}"`);
+};
+
+NotesApp.prototype.deleteFolder = function(folderId) {
+  const folder = storage.getFolder(folderId);
+  if (!folder) return;
+
+  const noteCount = storage.getNotesInFolder(folderId).length;
+  const message = noteCount > 0
+    ? `Delete "${folder.name}"? ${noteCount} note(s) will be moved to Unfiled.`
+    : `Delete "${folder.name}"?`;
+
+  if (!confirm(message)) {
+    return;
+  }
+
+  storage.deleteFolder(folderId);
+  this.renderFolders();
+  this.renderFolderDropdown();
+  this.renderNotes();
+  showToast(`📁 Folder "${folder.name}" deleted`);
+  
+  // If currently viewing this folder, switch to All Notes
+  if (this.activeFolderId === folderId) {
+    this.filterByFolder('all');
+  }
+};
+
+NotesApp.prototype.filterByFolder = function(folderId) {
+  this.activeFolderId = folderId;
+
+  // Update active states
+  document.querySelectorAll('.folder-item').forEach(item => {
+    item.classList.remove('active');
+  });
+
+  const activeFolder = document.querySelector(`[data-folder-id="${folderId}"]`);
+  if (activeFolder) {
+    activeFolder.classList.add('active');
+  }
+
+  // Render filtered notes
+  this.renderNotes();
+};
+
+NotesApp.prototype.moveNoteToFolder = function(noteId, folderId) {
+  storage.moveNoteToFolder(noteId, folderId);
+  this.renderNotes();
+  this.renderFolders();
+  
+  const folderName = folderId ? storage.getFolder(folderId)?.name : 'Unfiled';
+  showToast(`Note moved to ${folderName || 'Unfiled'}`);
+};
+
+NotesApp.prototype.renderFolderDropdown = function() {
+  const select = document.getElementById('note-folder-select');
+  if (!select) return;
+
+  const folders = storage.getFolders();
+  const currentFolderId = this.currentNote?.folderId || '';
+
+  select.innerHTML = '<option value="">Unfiled</option>';
+  
+  folders.forEach(folder => {
+    const option = document.createElement('option');
+    option.value = folder.id;
+    option.textContent = folder.name;
+    option.selected = folder.id === currentFolderId;
+    select.appendChild(option);
+  });
+};
+// ==========================================
+// DRAG & DROP SYSTEM
+// ==========================================
+
+NotesApp.prototype.enableNoteDragDrop = function() {
+  const notesList = document.getElementById('notes-list');
+  if (!notesList) return;
+
+  // Make notes draggable
+  notesList.addEventListener('dragstart', (e) => {
+    if (e.target.classList.contains('note-item')) {
+      e.target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', e.target.dataset.noteId);
+    }
+  });
+
+  notesList.addEventListener('dragend', (e) => {
+    if (e.target.classList.contains('note-item')) {
+      e.target.classList.remove('dragging');
+    }
+  });
+
+  // Make folders drop zones
+  const foldersList = document.querySelector('.folders-list');
+  if (!foldersList) return;
+
+  foldersList.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    const folderItem = e.target.closest('.folder-item');
+    if (folderItem) {
+      document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('drag-over'));
+      folderItem.classList.add('drag-over');
+    }
+  });
+
+  foldersList.addEventListener('dragleave', (e) => {
+    const folderItem = e.target.closest('.folder-item');
+    if (folderItem && !folderItem.contains(e.relatedTarget)) {
+      folderItem.classList.remove('drag-over');
+    }
+  });
+
+  foldersList.addEventListener('drop', (e) => {
+    e.preventDefault();
+    
+    const folderItem = e.target.closest('.folder-item');
+    if (!folderItem) return;
+
+    const noteId = e.dataTransfer.getData('text/plain');
+    const folderId = folderItem.dataset.folderId;
+
+    // Clear drag-over state
+    document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('drag-over'));
+
+    // Handle special folders
+    if (folderId === 'all') {
+      showToast('Cannot move notes to "All Notes"', 'warning');
+      return;
+    }
+
+    const targetFolderId = folderId === 'unfiled' ? null : folderId;
+
+    // Move the note
+    this.moveNoteToFolder(noteId, targetFolderId);
+  });
+};
 // ========================================
 // INITIALIZATION
 // ========================================

@@ -14,6 +14,12 @@ class StorageManager {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        
+        // Ensure folders array exists
+        if (!parsed.folders) {
+          parsed.folders = [];
+        }
+        
         log('Data loaded from storage', 'success');
         return parsed;
       }
@@ -25,6 +31,7 @@ class StorageManager {
     // Return default structure
     return {
       notes: {},
+      folders: [],
       settings: {
         theme: 'auto',
         autoSave: true,
@@ -83,6 +90,7 @@ class StorageManager {
       modified: now,
       encrypted: false,
       tags: [],
+      folderId: null,
       color: null
     };
     
@@ -189,6 +197,7 @@ class StorageManager {
     if (confirm('⚠️ Delete ALL notes? This cannot be undone!')) {
       this.data = {
         notes: {},
+        folders: [],
         settings: this.data.settings,
         metadata: {
           version: '1.0.0',
@@ -202,6 +211,93 @@ class StorageManager {
       return true;
     }
     return false;
+  }
+
+  // ==========================================
+  // FOLDER MANAGEMENT
+  // ==========================================
+
+  // Get all folders
+  getFolders() {
+    return this.data.folders || [];
+  }
+
+  // Get folder by ID
+  getFolder(folderId) {
+    return this.data.folders.find(f => f.id === folderId);
+  }
+
+  // Create new folder
+  createFolder(name) {
+    const folder = {
+      id: generateId(),
+      name: name,
+      created: new Date().toISOString(),
+      modified: new Date().toISOString()
+    };
+
+    this.data.folders.push(folder);
+    this.save();
+    
+    log(`Folder created: ${name}`, 'info');
+    return folder;
+  }
+
+  // Update folder
+  updateFolder(folderId, updates) {
+    const folder = this.getFolder(folderId);
+    if (!folder) return null;
+
+    Object.assign(folder, updates, {
+      modified: new Date().toISOString()
+    });
+
+    this.save();
+    log(`Folder updated: ${folderId}`, 'info');
+    return folder;
+  }
+
+  // Delete folder
+  deleteFolder(folderId) {
+    const index = this.data.folders.findIndex(f => f.id === folderId);
+    if (index === -1) return false;
+
+    // Remove folder reference from all notes
+    this.data.notes = Object.fromEntries(
+      Object.entries(this.data.notes).map(([id, note]) => {
+        if (note.folderId === folderId) {
+          note.folderId = null;
+        }
+        return [id, note];
+      })
+    );
+
+    this.data.folders.splice(index, 1);
+    this.save();
+    
+    log(`Folder deleted: ${folderId}`, 'info');
+    return true;
+  }
+
+  // Get notes in folder
+  getNotesInFolder(folderId) {
+    if (folderId === 'unfiled') {
+      return Object.values(this.data.notes).filter(note => !note.folderId);
+    }
+    return Object.values(this.data.notes).filter(note => note.folderId === folderId);
+  }
+
+  // Move note to folder
+  moveNoteToFolder(noteId, folderId) {
+    const note = this.getNote(noteId);
+    if (!note) return false;
+
+    note.folderId = folderId;
+    note.modified = new Date().toISOString();
+    
+    this.save();
+    log(`Note moved to folder: ${noteId} -> ${folderId}`, 'info');
+    return true;
   }
 }
 

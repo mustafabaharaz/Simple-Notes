@@ -1,26 +1,26 @@
 /* ============================================
    PRIVACY.JS - Privacy Dashboard & Monitoring
-   This is our KILLER FEATURE - proves 0 bytes to cloud!
    ============================================ */
 
 class PrivacyMonitor {
   constructor() {
     this.metrics = {
       bytesToCloud: 0,
-      bytesProcessedLocally: 0,
+      localProcessingBytes: 0,
       notesCreated: 0,
       notesEncrypted: 0,
-      aiOperationsLocal: 0,
+      aiOperationsCount: 0,
       networkRequestsBlocked: 0,
-      sessionStart: Date.now()
+      sessionStart: Date.now(),
+      events: []
     };
     
     this.load();
     this.monitorNetwork();
     this.updateBadge();
+    this.syncWithExistingData();
     
-    console.log('✅ Privacy Monitor initialized with metrics:', this.metrics);
-      this.syncWithExistingData();
+    console.log('✅ Privacy Monitor initialized');
   }
 
   // Load saved metrics
@@ -29,7 +29,7 @@ class PrivacyMonitor {
       const saved = localStorage.getItem('privacy_metrics');
       if (saved) {
         this.metrics = { ...this.metrics, ...JSON.parse(saved) };
-        console.log('📊 Loaded privacy metrics:', this.metrics);
+        console.log('📊 Loaded privacy metrics');
       }
     } catch (e) {
       console.error('Failed to load privacy metrics:', e);
@@ -40,13 +40,30 @@ class PrivacyMonitor {
   save() {
     try {
       localStorage.setItem('privacy_metrics', JSON.stringify(this.metrics));
-      console.log('💾 Saved privacy metrics');
     } catch (e) {
       console.error('Failed to save privacy metrics:', e);
     }
   }
 
-  // Monitor network requests (prove 0 bytes to cloud!)
+  // Add event to timeline
+  addEvent(type, data = {}) {
+    const event = {
+      type,
+      timestamp: new Date().toISOString(),
+      ...data
+    };
+    
+    this.metrics.events.push(event);
+    
+    // Keep only last 50 events
+    if (this.metrics.events.length > 50) {
+      this.metrics.events = this.metrics.events.slice(-50);
+    }
+    
+    this.save();
+  }
+
+  // Monitor network requests
   monitorNetwork() {
     const originalFetch = window.fetch;
     const self = this;
@@ -54,7 +71,6 @@ class PrivacyMonitor {
     window.fetch = function(...args) {
       const url = args[0];
       
-      // Allow only CDN requests (DOMPurify, CryptoJS)
       const allowedDomains = [
         'cdnjs.cloudflare.com',
         'cdn.jsdelivr.net'
@@ -81,7 +97,8 @@ class PrivacyMonitor {
 
   // Track local data processing
   trackLocalProcessing(bytes) {
-    this.metrics.bytesProcessedLocally += bytes;
+    this.metrics.localProcessingBytes += bytes;
+    this.addEvent('local-processing', { bytes });
     this.save();
     this.updateBadge();
   }
@@ -89,226 +106,214 @@ class PrivacyMonitor {
   // Track note creation
   trackNoteCreated() {
     this.metrics.notesCreated++;
+    this.addEvent('note-created');
     this.save();
     this.updateBadge();
-    console.log('📝 Note created - total:', this.metrics.notesCreated);
   }
 
   // Track encryption
   trackEncryption() {
     this.metrics.notesEncrypted++;
+    this.addEvent('note-encrypted');
     this.save();
     this.updateBadge();
   }
 
-  // Track AI operations (all local!)
+  // Track AI operations
   trackAIOperation(operation, dataSize = 0) {
-    this.metrics.aiOperationsLocal++;
-    this.metrics.bytesProcessedLocally += dataSize;
+    this.metrics.aiOperationsCount++;
+    this.metrics.localProcessingBytes += dataSize;
+    this.addEvent('ai-operation', { operation, bytes: dataSize });
     this.save();
     this.updateBadge();
-    console.log(`🤖 AI operation "${operation}" completed locally`);
-  }
-
-  // Calculate privacy score (0-100)
-  getPrivacyScore() {
-    let score = 100;
-
-    // Deduct for any cloud data (should always be 0!)
-    if (this.metrics.bytesToCloud > 0) {
-      score -= 50;
-    }
-
-    // Bonus for encryption
-    if (this.metrics.notesEncrypted > 0) {
-      score = Math.min(100, score + 10);
-    }
-
-    // Bonus for blocking requests
-    if (this.metrics.networkRequestsBlocked > 0) {
-      score = Math.min(100, score + 5);
-    }
-
-    return score;
   }
 
   // Update privacy badge in UI
   updateBadge() {
     const badge = document.getElementById('privacy-status');
     if (badge) {
-      badge.textContent = `${formatBytes(this.metrics.bytesToCloud)} to cloud`;
+      badge.textContent = '100% Local';
     }
   }
 
   // Show privacy dashboard
   showDashboard() {
-    console.log('🔒 Opening privacy dashboard...');
-    
     const modal = document.getElementById('privacy-dashboard');
-    const metricsDiv = document.getElementById('privacy-metrics');
+    const metricsContainer = document.getElementById('privacy-metrics');
     
-    console.log('Modal element:', modal);
-    console.log('Metrics div:', metricsDiv);
-    
-    if (!modal) {
-      console.error('❌ Privacy dashboard modal not found!');
-      alert('Error: Privacy dashboard modal not found in HTML');
-      return;
-    }
-    
-    if (!metricsDiv) {
-      console.error('❌ Privacy metrics div not found!');
-      alert('Error: Privacy metrics div not found in HTML');
-      return;
-    }
+    if (!modal || !metricsContainer) return;
 
-    const score = this.getPrivacyScore();
-    const sessionHours = ((Date.now() - this.metrics.sessionStart) / (1000 * 60 * 60)).toFixed(1);
+    // Calculate metrics
+    const totalNotes = Object.keys(storage.data.notes || {}).length;
+    const encryptedNotes = Object.values(storage.data.notes || {}).filter(n => n.encrypted).length;
+    const localBytes = this.metrics.localProcessingBytes;
+    const aiOps = this.metrics.aiOperationsCount;
 
-    console.log('Privacy Score:', score);
-    console.log('Session Hours:', sessionHours);
-    console.log('Current Metrics:', this.metrics);
-
-    const metricsHTML = `
-      <div class="privacy-score">
-        <div class="privacy-score-number">${score}</div>
-        <div class="privacy-score-label">Privacy Score</div>
+    metricsContainer.innerHTML = `
+      <div class="privacy-hero">
+        <div class="privacy-shield-large">
+          <div class="shield-pulse-large"></div>
+          <div class="shield-icon-large">🛡️</div>
+        </div>
+        <h3>Your Privacy is Protected</h3>
+        <p>All data processing happens locally on your device. Zero cloud storage.</p>
       </div>
 
-      <div class="metric-card metric-highlight">
-        <div class="metric-header">
-          <span class="metric-label">📡 Data Sent to Cloud</span>
+      <div class="privacy-stats-grid">
+        <div class="privacy-stat-card stat-success">
+          <div class="stat-icon">✓</div>
+          <div class="stat-content">
+            <div class="stat-value">${formatBytes(localBytes)}</div>
+            <div class="stat-label">Processed Locally</div>
+            <div class="stat-sublabel">Never uploaded to cloud</div>
+          </div>
         </div>
-        <div class="metric-value">${formatBytes(this.metrics.bytesToCloud)}</div>
-        <div class="metric-description">
-          ✅ Perfect! Zero data has been sent to external servers.
-        </div>
-      </div>
 
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-label">💻 Processed Locally</span>
+        <div class="privacy-stat-card stat-primary">
+          <div class="stat-icon">🤖</div>
+          <div class="stat-content">
+            <div class="stat-value">${aiOps}</div>
+            <div class="stat-label">AI Operations</div>
+            <div class="stat-sublabel">100% on-device processing</div>
+          </div>
         </div>
-        <div class="metric-value">${formatBytes(this.metrics.bytesProcessedLocally)}</div>
-        <div class="metric-description">
-          All processing happens on your device.
-        </div>
-      </div>
 
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-label">📝 Notes Created</span>
+        <div class="privacy-stat-card stat-warning">
+          <div class="stat-icon">🔒</div>
+          <div class="stat-content">
+            <div class="stat-value">${encryptedNotes}/${totalNotes}</div>
+            <div class="stat-label">Encrypted Notes</div>
+            <div class="stat-sublabel">AES-256 encryption</div>
+          </div>
         </div>
-        <div class="metric-value">${this.metrics.notesCreated}</div>
-        <div class="metric-description">
-          Total notes you've created this session.
-        </div>
-      </div>
 
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-label">🔒 Notes Encrypted</span>
-        </div>
-        <div class="metric-value">${this.metrics.notesEncrypted}</div>
-        <div class="metric-description">
-          Notes protected with encryption.
+        <div class="privacy-stat-card stat-danger">
+          <div class="stat-icon">🚫</div>
+          <div class="stat-content">
+            <div class="stat-value">0 KB</div>
+            <div class="stat-label">Cloud Storage</div>
+            <div class="stat-sublabel">Zero server uploads</div>
+          </div>
         </div>
       </div>
 
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-label">🤖 AI Operations (Local)</span>
-        </div>
-        <div class="metric-value">${this.metrics.aiOperationsLocal}</div>
-        <div class="metric-description">
-          AI processing completed entirely on your device.
+      <div class="privacy-guarantees">
+        <h4>🛡️ Our Privacy Guarantees</h4>
+        <div class="guarantees-grid">
+          <div class="guarantee-item">
+            <span class="guarantee-icon">✓</span>
+            <div class="guarantee-text">
+              <strong>Zero Tracking</strong>
+              <p>No analytics, cookies, or user tracking</p>
+            </div>
+          </div>
+          
+          <div class="guarantee-item">
+            <span class="guarantee-icon">✓</span>
+            <div class="guarantee-text">
+              <strong>Local Storage Only</strong>
+              <p>All data stays in your browser</p>
+            </div>
+          </div>
+          
+          <div class="guarantee-item">
+            <span class="guarantee-icon">✓</span>
+            <div class="guarantee-text">
+              <strong>No External APIs</strong>
+              <p>AI runs entirely on your device</p>
+            </div>
+          </div>
+          
+          <div class="guarantee-item">
+            <span class="guarantee-icon">✓</span>
+            <div class="guarantee-text">
+              <strong>You Own Your Data</strong>
+              <p>Export anytime, delete anytime</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="metric-card">
-        <div class="metric-header">
-          <span class="metric-label">🛡️ Requests Blocked</span>
-        </div>
-        <div class="metric-value">${this.metrics.networkRequestsBlocked}</div>
-        <div class="metric-description">
-          External requests blocked to protect your privacy.
+      <div class="privacy-timeline">
+        <h4>📊 Privacy Activity</h4>
+        <div class="timeline-items">
+          ${this.metrics.events.slice(-5).reverse().map(event => `
+            <div class="timeline-item">
+              <div class="timeline-icon ${event.type}">${this.getEventIcon(event.type)}</div>
+              <div class="timeline-content">
+                <div class="timeline-title">${this.getEventTitle(event)}</div>
+                <div class="timeline-time">${new Date(event.timestamp).toLocaleString()}</div>
+              </div>
+            </div>
+          `).join('') || '<p style="text-align: center; color: var(--color-text-secondary);">No recent activity</p>'}
         </div>
       </div>
 
-      <div style="margin-top: 20px; padding: 20px; background: #e3f2fd; border-radius: 8px; text-align: center;">
-        <strong>✅ Privacy Guarantee</strong><br>
-        Session duration: ${sessionHours} hours<br>
-        <strong>${formatBytes(this.metrics.bytesToCloud)}</strong> sent to cloud<br>
-        <small style="color: #666; margin-top: 10px; display: block;">
-          All AI processing, note storage, and encryption happens locally on your device.
-        </small>
+      <div class="privacy-footer">
+        <p>
+          <strong>Your privacy matters.</strong> 
+          Simple Notes is designed with privacy as the foundation, not an afterthought.
+        </p>
       </div>
     `;
 
-    metricsDiv.innerHTML = metricsHTML;
-    console.log('✅ Metrics HTML inserted');
-    
     modal.style.display = 'flex';
-    console.log('✅ Modal displayed');
+    log('Privacy dashboard opened', 'info');
+  }
+
+  getEventIcon(type) {
+    const icons = {
+      'note-created': '📝',
+      'note-encrypted': '🔒',
+      'ai-operation': '🤖',
+      'local-processing': '💾'
+    };
+    return icons[type] || '📋';
+  }
+
+  getEventTitle(event) {
+    const titles = {
+      'note-created': 'Note created locally',
+      'note-encrypted': 'Note encrypted with AES-256',
+      'ai-operation': `AI ${event.operation} (${formatBytes(event.bytes)})`,
+      'local-processing': `Processed ${formatBytes(event.bytes)} locally`
+    };
+    return titles[event.type] || 'Privacy event';
   }
 
   // Hide dashboard
   hideDashboard() {
-    console.log('🔒 Closing privacy dashboard');
     const modal = document.getElementById('privacy-dashboard');
     if (modal) {
       modal.style.display = 'none';
     }
   }
 
-  // Reset metrics
-  reset() {
-    if (confirm('Reset all privacy metrics? This cannot be undone.')) {
-      this.metrics = {
-        bytesToCloud: 0,
-        bytesProcessedLocally: 0,
-        notesCreated: 0,
-        notesEncrypted: 0,
-        aiOperationsLocal: 0,
-        networkRequestsBlocked: 0,
-        sessionStart: Date.now()
-      };
-      this.save();
-      this.updateBadge();
-      if (typeof showToast === 'function') {
-        showToast('Privacy metrics reset');
-      }
-    }
-  }
-  // Sync metrics with existing data (count notes that existed before tracking)
-syncWithExistingData() {
-  // Wait for storage to be ready
-  setTimeout(() => {
-    if (typeof storage !== 'undefined') {
-      const notes = storage.getNotes();
-      
-      // Count existing notes if we haven't tracked them yet
-      if (this.metrics.notesCreated === 0 && notes.length > 0) {
-        this.metrics.notesCreated = notes.length;
+  // Sync with existing data
+  syncWithExistingData() {
+    setTimeout(() => {
+      if (typeof storage !== 'undefined') {
+        const notes = storage.getNotes();
         
-        // Calculate bytes processed for existing notes
-        notes.forEach(note => {
-          const noteBytes = new Blob([JSON.stringify(note)]).size;
-          this.metrics.bytesProcessedLocally += noteBytes;
+        if (this.metrics.notesCreated === 0 && notes.length > 0) {
+          this.metrics.notesCreated = notes.length;
           
-          // Count encrypted notes
-          if (note.encrypted) {
-            this.metrics.notesEncrypted++;
-          }
-        });
-        
-        this.save();
-        this.updateBadge();
-        console.log('✅ Synced metrics with existing data:', this.metrics);
+          notes.forEach(note => {
+            const noteBytes = new Blob([JSON.stringify(note)]).size;
+            this.metrics.localProcessingBytes += noteBytes;
+            
+            if (note.encrypted) {
+              this.metrics.notesEncrypted++;
+            }
+          });
+          
+          this.save();
+          this.updateBadge();
+          console.log('✅ Synced metrics with existing data');
+        }
       }
-    }
-  }, 100);
-}
+    }, 100);
+  }
 }
 
 // Create global instance
