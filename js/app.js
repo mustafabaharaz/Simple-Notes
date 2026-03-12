@@ -30,6 +30,8 @@ class NotesApp {
     this.renderNotes();
     this.updateNotesCount();
     this.enableNoteDragDrop();
+    this.renderTrash();
+    storage.cleanupOldTrash(); // Auto-cleanup on startup
 
     // Show welcome screen if no notes
     if (storage.getNotes().length === 0) {
@@ -177,6 +179,13 @@ class NotesApp {
     });
 
     log('Event listeners setup complete', 'info');
+    // Empty trash button
+    document.getElementById('empty-trash-btn')?.addEventListener('click', () => {
+      if (confirm('Permanently delete all notes in trash? This cannot be undone.')) {
+        storage.emptyTrash();
+        this.renderTrash();
+      }
+    });
   }
 
   // Handle formatting actions
@@ -406,6 +415,7 @@ class NotesApp {
 
       this.renderNotes();
       this.renderFolders();
+      this.renderTrash();
       this.updateNotesCount();
       this.showWelcomeScreen();
     }
@@ -459,7 +469,88 @@ class NotesApp {
       });
     });
   }
+  // Render trash items
+  renderTrash() {
+    const trashList = document.getElementById('trash-list');
+    const trashCount = document.getElementById('trash-count');
+    const emptyTrashBtn = document.getElementById('empty-trash-btn');
+    
+    if (!trashList) return;
 
+    const trashItems = storage.getTrash();
+    trashCount.textContent = trashItems.length;
+
+    if (trashItems.length === 0) {
+      trashList.innerHTML = '<div class="trash-empty-state">Trash is empty</div>';
+      emptyTrashBtn.style.display = 'none';
+      return;
+    }
+
+    emptyTrashBtn.style.display = 'block';
+
+    trashList.innerHTML = trashItems.map(note => {
+      const deletedDate = new Date(note.deletedAt);
+      const daysAgo = Math.floor((new Date() - deletedDate) / (1000 * 60 * 60 * 24));
+      
+      return `
+        <div class="trash-item" data-note-id="${note.id}">
+          <div class="trash-item-title">${note.title}</div>
+          <div class="trash-item-date">
+            Deleted ${daysAgo === 0 ? 'today' : daysAgo + ' days ago'}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Add click handlers for trash items
+    trashList.querySelectorAll('.trash-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const noteId = item.dataset.noteId;
+        this.showTrashItemMenu(noteId, e);
+      });
+    });
+  }
+
+  // Show menu for trash item
+  showTrashItemMenu(noteId, event) {
+    event.stopPropagation();
+    
+    const menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.style.position = 'fixed';
+    menu.style.left = event.pageX + 'px';
+    menu.style.top = event.pageY + 'px';
+    menu.innerHTML = `
+      <div class="context-menu-item" data-action="restore">↩️ Restore</div>
+      <div class="context-menu-item danger" data-action="delete">🗑️ Delete Forever</div>
+    `;
+
+    document.body.appendChild(menu);
+
+    menu.querySelector('[data-action="restore"]').addEventListener('click', () => {
+      storage.restoreNote(noteId);
+      this.renderNotes();
+      this.renderTrash();
+      menu.remove();
+    });
+
+    menu.querySelector('[data-action="delete"]').addEventListener('click', () => {
+      if (confirm('Permanently delete this note? This cannot be undone.')) {
+        storage.permanentlyDeleteNote(noteId);
+        this.renderTrash();
+      }
+      menu.remove();
+    });
+
+    // Close menu when clicking outside
+    const closeMenu = (e) => {
+      if (!menu.contains(e.target)) {
+        menu.remove();
+        document.removeEventListener('click', closeMenu);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeMenu), 0);
+  }
   // Update notes count
   updateNotesCount() {
     const countBadge = document.getElementById('notes-count');

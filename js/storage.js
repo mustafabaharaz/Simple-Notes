@@ -19,6 +19,10 @@ class StorageManager {
         if (!parsed.folders) {
           parsed.folders = [];
         }
+        // Ensure trash exists
+        if (!parsed.trash) {
+          parsed.trash = {};
+        }
         
         log('Data loaded from storage', 'success');
         return parsed;
@@ -31,9 +35,9 @@ class StorageManager {
     // Return default structure
     return {
       notes: {},
+      trash: {},
       folders: [],
-      settings: {
-        theme: 'auto',
+      settings: {        theme: 'auto',
         autoSave: true,
         encryptionEnabled: false
       },
@@ -119,21 +123,101 @@ class StorageManager {
     return this.data.notes[id];
   }
 
-  // Delete note
-  deleteNote(id) {
-    if (!this.data.notes[id]) {
-      console.error('Note not found:', id);
-      return false;
-    }
-    
-    delete this.data.notes[id];
-    this.save();
-    
-    log(`Note deleted: ${id}`, 'warning');
-    showToast('Note deleted');
-    return true;
+// Soft delete note (move to trash)
+deleteNote(id) {
+  if (!this.data.notes[id]) {
+    console.error('Note not found:', id);
+    return false;
   }
+  
+  const note = this.data.notes[id];
+  note.deletedAt = new Date().toISOString();
+  
+  // Move to trash
+  this.data.trash[id] = note;
+  delete this.data.notes[id];
+  
+  this.save();
+  log(`Note moved to trash: ${id}`, 'warning');
+  showToast('Note moved to trash');
+  return true;
+}
 
+// Get trash items
+getTrash() {
+  return Object.values(this.data.trash).sort((a, b) => {
+    return new Date(b.deletedAt) - new Date(a.deletedAt);
+  });
+}
+
+// Restore note from trash
+restoreNote(id) {
+  if (!this.data.trash[id]) {
+    console.error('Note not found in trash:', id);
+    return false;
+  }
+  
+  const note = this.data.trash[id];
+  delete note.deletedAt;
+  note.modified = new Date().toISOString();
+  
+  // Move back to notes
+  this.data.notes[id] = note;
+  delete this.data.trash[id];
+  
+  this.save();
+  log(`Note restored: ${id}`, 'success');
+  showToast('Note restored');
+  return true;
+}
+
+// Permanently delete note from trash
+permanentlyDeleteNote(id) {
+  if (!this.data.trash[id]) {
+    console.error('Note not found in trash:', id);
+    return false;
+  }
+  
+  delete this.data.trash[id];
+  this.save();
+  
+  log(`Note permanently deleted: ${id}`, 'warning');
+  showToast('Note permanently deleted');
+  return true;
+}
+
+// Empty trash (delete all)
+emptyTrash() {
+  const count = Object.keys(this.data.trash).length;
+  this.data.trash = {};
+  this.save();
+  
+  log(`Trash emptied: ${count} notes`, 'warning');
+  showToast(`Deleted ${count} notes permanently`);
+  return true;
+}
+
+// Auto-cleanup old trash items (30 days)
+cleanupOldTrash() {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  let deleted = 0;
+  Object.keys(this.data.trash).forEach(id => {
+    const note = this.data.trash[id];
+    if (new Date(note.deletedAt) < thirtyDaysAgo) {
+      delete this.data.trash[id];
+      deleted++;
+    }
+  });
+  
+  if (deleted > 0) {
+    this.save();
+    log(`Auto-cleanup: ${deleted} old notes deleted from trash`, 'info');
+  }
+  
+  return deleted;
+}
   // Search notes
   searchNotes(query) {
     if (!query) return this.getNotes();
@@ -197,8 +281,8 @@ class StorageManager {
     if (confirm('⚠️ Delete ALL notes? This cannot be undone!')) {
       this.data = {
         notes: {},
-        folders: [],
-        settings: this.data.settings,
+        trash: {},
+        folders: [],        settings: this.data.settings,
         metadata: {
           version: '1.0.0',
           created: new Date().toISOString(),

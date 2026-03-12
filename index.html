@@ -34,13 +34,17 @@
         
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1>📝 Simple Notes</h1>
-                <div class="privacy-badge" id="privacy-badge">
-                    🛡️ <span id="privacy-status">100% Local</span>
-                </div>
-            </div>
-
+<div class="sidebar-header">
+    <div class="header-top">
+        <h1>📝 Simple Notes</h1>
+        <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Theme">
+            <span id="theme-icon">🌙</span>
+        </button>
+    </div>
+    <div class="privacy-badge" id="privacy-badge">
+        🛡️ <span id="privacy-status">100% Local</span>
+    </div>
+</div>
             <!-- Quick Actions -->
             <div class="quick-actions">
                 <button id="new-note-btn" class="btn btn-primary">
@@ -72,13 +76,7 @@
                         <span class="folder-name">All Notes</span>
                         <span class="folder-count" id="all-notes-count">0</span>
                     </div>
-                    
-                    <div class="folder-item special-folder" data-folder-id="unfiled">
-                        <span class="folder-icon">📄</span>
-                        <span class="folder-name">Unfiled</span>
-                        <span class="folder-count" id="unfiled-count">0</span>
-                    </div>
-                    
+                                        
                     <div class="folders-divider"></div>
                     
                     <div id="user-folders-list">
@@ -86,7 +84,19 @@
                     </div>
                 </div>
             </div>
-            
+            <!-- Trash Section -->
+            <div class="trash-section">
+            <div class="trash-header">
+                <h3>🗑️ Trash</h3>
+                <span class="trash-count" id="trash-count">0</span>
+            </div>
+            <div class="trash-list" id="trash-list">
+                <!-- Trash items will be rendered here -->
+            </div>
+            <button class="empty-trash-btn" id="empty-trash-btn" style="display: none;">
+                Empty Trash
+            </button>
+            </div>
         </aside>
 
         <!-- Main Content Area -->
@@ -310,10 +320,6 @@
         </main>
     </div>
 
-    <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
-        <span id="theme-icon">🌙</span>
-    </button>
 
     <!-- JavaScript Files -->
     <script src="js/utils/helpers.js"></script>

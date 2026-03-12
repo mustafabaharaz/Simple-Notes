@@ -1487,3 +1487,187 @@
     grid-template-columns: 1fr;
   }
 }
+/* ==========================================
+   PASSWORD MODAL (CENTERED)
+   ========================================== */
+
+.password-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+.password-modal-content {
+  background: var(--color-surface);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.password-modal-content h3 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  color: var(--color-text-primary);
+}
+
+.password-modal-content p {
+  margin: 0 0 20px 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.password-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.password-strength-indicator {
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.password-strength-bar {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.password-strength-bar.password-strength-weak {
+  width: 25%;
+  background: var(--color-danger);
+}
+
+.password-strength-bar.password-strength-medium {
+  width: 50%;
+  background: var(--color-warning);
+}
+
+.password-strength-bar.password-strength-good {
+  width: 75%;
+  background: var(--color-success);
+}
+
+.password-strength-bar.password-strength-strong {
+  width: 100%;
+  background: var(--color-primary);
+}
+
+.password-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.password-buttons .btn {
+  flex: 1;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.password-buttons .btn-secondary {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.password-buttons .btn-secondary:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.password-buttons .btn-primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.password-buttons .btn-primary:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* ==========================================
+   CONTEXT MENU
+   ========================================== */
+
+.context-menu {
+  position: fixed;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  min-width: 160px;
+  z-index: 10000;
+  animation: fadeIn 0.15s ease;
+}
+
+.context-menu-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.context-menu-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.context-menu-item.danger {
+  color: var(--color-danger);
+}
+
+.context-menu-item.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
