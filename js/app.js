@@ -38,6 +38,9 @@ class NotesApp {
       this.showWelcomeScreen();
     }
 
+    // Initialize drawing system
+    this.initDrawingSystem();
+
     log('App initialized successfully!', 'success');
   }
 
@@ -186,6 +189,11 @@ class NotesApp {
         this.renderTrash();
       }
     });
+    // Toggle drawing mode
+    document.getElementById('toggle-draw-btn')?.addEventListener('click', () => {
+      this.toggleDrawingMode();
+    });
+
   }
 
   // Handle formatting actions
@@ -364,7 +372,11 @@ class NotesApp {
     if (toolbar) {
       toolbar.style.display = 'flex';
     }
-    
+    // Show draw button
+    const drawBtn = document.getElementById('toggle-draw-btn');
+    if (drawBtn) {
+      drawBtn.style.display = 'inline-flex';
+    }
     this.renderNoteTagsCompact();
     this.renderFolderDropdown();
     this.updateButtonStates();
@@ -1147,6 +1159,617 @@ NotesApp.prototype.enableNoteDragDrop = function() {
     this.moveNoteToFolder(noteId, targetFolderId);
   });
 };
+
+// ==========================================
+// DRAWING SYSTEM
+  // ==========================================
+
+  NotesApp.prototype.initDrawingSystem = function() {
+    this.drawingMode = false;
+    this.canvas = document.getElementById('drawing-canvas');
+    this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+    this.isDrawing = false;
+    this.currentTool = 'pen';
+    this.currentColor = '#000000';
+    this.brushSize = 3;
+
+    if (!this.canvas || !this.ctx) return;
+
+    // Setup canvas size
+    this.resizeCanvas();
+    window.addEventListener('resize', () => this.resizeCanvas());
+
+    // Tool buttons
+    document.querySelectorAll('.drawing-tool-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tool = btn.dataset.tool;
+        
+        if (tool === 'clear') {
+          this.clearCanvas();
+        } else {
+          document.querySelectorAll('.drawing-tool-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.currentTool = tool;
+        }
+      });
+    });
+
+    // Color buttons
+    document.querySelectorAll('.color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentColor = btn.dataset.color;
+      });
+    });
+
+    // Brush size
+    const brushSlider = document.getElementById('brush-size');
+    const brushValue = document.getElementById('brush-size-value');
+    
+    brushSlider?.addEventListener('input', (e) => {
+      this.brushSize = parseInt(e.target.value);
+      brushValue.textContent = this.brushSize;
+    });
+
+    // Drawing events
+    this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+    this.canvas.addEventListener('mousemove', (e) => this.draw(e));
+    this.canvas.addEventListener('mouseup', () => this.stopDrawing());
+    this.canvas.addEventListener('mouseout', () => this.stopDrawing());
+
+    // Touch events
+    this.canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      this.startDrawing(e.touches[0]);
+    });
+    this.canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      this.draw(e.touches[0]);
+    });
+    this.canvas.addEventListener('touchend', () => this.stopDrawing());
+  }
+
+  NotesApp.prototype.resizeCanvas = function() {
+    if (!this.canvas) return;
+    
+    const noteContent = document.getElementById('note-content');
+    if (!noteContent) return;
+
+    // Save current drawing
+    const imageData = this.canvas.toDataURL();
+    
+    // Resize canvas to match note content
+    this.canvas.width = noteContent.offsetWidth;
+    this.canvas.height = noteContent.offsetHeight;
+
+    // Restore drawing
+    if (imageData && this.drawingMode) {
+      const img = new Image();
+      img.onload = () => {
+        this.ctx.drawImage(img, 0, 0);
+      };
+      img.src = imageData;
+    }
+  }
+
+  NotesApp.prototype.toggleDrawingMode = function() {
+    this.drawingMode = !this.drawingMode;
+    
+    const canvas = document.getElementById('drawing-canvas');
+    const toolbar = document.getElementById('drawing-toolbar');
+    const noteContent = document.getElementById('note-content');
+    const drawBtn = document.getElementById('toggle-draw-btn');
+
+    if (this.drawingMode) {
+      // Enable drawing mode
+      canvas.style.display = 'block';
+      canvas.style.pointerEvents = 'auto';
+      toolbar.style.display = 'flex';
+      noteContent.contentEditable = 'false';
+      noteContent.style.pointerEvents = 'none';
+      drawBtn.classList.add('active');
+      drawBtn.textContent = '📝 Edit';
+      
+      this.resizeCanvas();
+      this.loadDrawing();
+      
+      showToast('🎨 Drawing mode enabled');
+    } else {
+      // Disable drawing mode
+      canvas.style.display = 'none';
+      canvas.style.pointerEvents = 'none';
+      toolbar.style.display = 'none';
+      noteContent.contentEditable = 'true';
+      noteContent.style.pointerEvents = 'auto';
+      drawBtn.classList.remove('active');
+      drawBtn.textContent = '🎨 Draw';
+      
+      this.saveDrawing();
+      
+      showToast('📝 Edit mode enabled');
+    }
+  }
+
+  NotesApp.prototype.startDrawing = function(e) {
+    if (!this.drawingMode) return;
+    
+    this.isDrawing = true;
+    const rect = this.canvas.getBoundingClientRect();
+    const x = (e.clientX || e.pageX) - rect.left;
+    const y = (e.clientY || e.pageY) - rect.top;
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y);
+  }
+
+  NotesApp.prototype.draw = function(e) {
+    if (!this.isDrawing || !this.drawingMode) return;
+
+    const rect = this.canvas.getBoundingClientRect();
+    const x = (e.clientX || e.pageX) - rect.left;
+    const y = (e.clientY || e.pageY) - rect.top;
+
+    this.ctx.lineWidth = this.brushSize;
+    this.ctx.lineCap = 'round';
+    this.ctx.lineJoin = 'round';
+
+    if (this.currentTool === 'eraser') {
+      this.ctx.globalCompositeOperation = 'destination-out';
+      this.ctx.strokeStyle = 'rgba(0,0,0,1)';
+    } else {
+      this.ctx.globalCompositeOperation = 'source-over';
+      this.ctx.strokeStyle = this.currentColor;
+    }
+
+    this.ctx.lineTo(x, y);
+    this.ctx.stroke();
+  }
+
+  NotesApp.prototype.stopDrawing = function() {
+    if (this.isDrawing) {
+      this.isDrawing = false;
+      this.saveDrawing();
+    }
+  }
+
+  NotesApp.prototype.clearCanvas = function() {
+    if (confirm('Clear all drawings? This cannot be undone.')) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.saveDrawing();
+      showToast('Canvas cleared');
+    }
+  }
+
+  NotesApp.prototype.saveDrawing = function() {
+    if (!this.currentNote || !this.canvas) return;
+
+    const drawingData = this.canvas.toDataURL();
+    
+    storage.updateNote(this.currentNote.id, {
+      drawing: drawingData
+    });
+  }
+
+  NotesApp.prototype.loadDrawing = function() {
+    if (!this.currentNote || !this.canvas || !this.ctx) return;
+
+    const note = storage.getNote(this.currentNote.id);
+    if (note && note.drawing) {
+      const img = new Image();
+      img.onload = () => {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(img, 0, 0);
+      };
+      img.src = note.drawing;
+    } else {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  };
+// ==========================================
+// TAKE A BREAK SYSTEM
+// ==========================================
+
+class BreakActivities {
+  constructor() {
+    this.currentActivity = null;
+    this.meditationTimer = null;
+    this.meditationSeconds = 300; // 5 minutes default
+    this.meditationInterval = null;
+    this.breathingInterval = null;
+    this.breakTimerStart = null;
+    this.breakTimerInterval = null;
+    
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    // Open modal
+    document.getElementById('take-break-btn')?.addEventListener('click', () => {
+      this.openModal();
+    });
+
+    // Close modal
+    document.getElementById('break-modal-close')?.addEventListener('click', () => {
+      this.closeModal();
+    });
+
+    // Activity cards
+    document.querySelectorAll('.break-activity-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const activity = card.dataset.activity;
+        this.openActivity(activity);
+      });
+    });
+
+    // Back button
+    document.getElementById('back-to-activities')?.addEventListener('click', () => {
+      this.backToActivities();
+    });
+
+    // Drawing pad
+    this.setupDrawingPad();
+    
+    // Meditation timer
+    this.setupMeditationTimer();
+    
+    // Breathing exercise
+    this.setupBreathingExercise();
+    
+    // Memory game
+    this.setupMemoryGame();
+    
+    // Break timer
+    this.setupBreakTimer();
+
+    // Close on outside click
+    document.getElementById('break-modal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'break-modal') {
+        this.closeModal();
+      }
+    });
+  }
+
+  openModal() {
+    document.getElementById('break-modal').style.display = 'flex';
+    this.backToActivities();
+  }
+
+  closeModal() {
+    document.getElementById('break-modal').style.display = 'none';
+    this.stopAllActivities();
+  }
+
+  openActivity(activity) {
+    this.currentActivity = activity;
+    
+    // Hide activity grid, show activity view
+    document.querySelector('.break-activities').style.display = 'none';
+    document.getElementById('activity-view').style.display = 'block';
+    
+    // Hide all activity contents
+    document.querySelectorAll('.activity-content').forEach(content => {
+      content.style.display = 'none';
+    });
+    
+    // Show selected activity
+    document.getElementById(`${activity}-activity`).style.display = 'block';
+    
+    // Initialize activity
+    if (activity === 'drawing') {
+      this.initDrawingPad();
+    } else if (activity === 'puzzle') {
+      this.initMemoryGame();
+    }
+  }
+
+  backToActivities() {
+    document.querySelector('.break-activities').style.display = 'grid';
+    document.getElementById('activity-view').style.display = 'none';
+    this.stopAllActivities();
+  }
+
+  stopAllActivities() {
+    // Stop meditation timer
+    if (this.meditationInterval) {
+      clearInterval(this.meditationInterval);
+      this.meditationInterval = null;
+    }
+    
+    // Stop breathing exercise
+    if (this.breathingInterval) {
+      clearInterval(this.breathingInterval);
+      this.breathingInterval = null;
+    }
+    
+    // Stop break timer
+    if (this.breakTimerInterval) {
+      clearInterval(this.breakTimerInterval);
+      this.breakTimerInterval = null;
+    }
+  }
+
+  // Drawing Pad
+  setupDrawingPad() {
+    this.canvas = document.getElementById('break-canvas');
+    this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+    this.isDrawing = false;
+    this.currentColor = '#000000';
+    this.brushSize = 3;
+
+    if (!this.canvas || !this.ctx) return;
+
+    // Color buttons
+    document.querySelectorAll('.color-btn-break').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.color-btn-break').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentColor = btn.dataset.color;
+      });
+    });
+
+    // Brush size
+    document.getElementById('break-brush-size')?.addEventListener('input', (e) => {
+      this.brushSize = parseInt(e.target.value);
+    });
+
+    // Clear button
+    document.getElementById('clear-break-canvas')?.addEventListener('click', () => {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    });
+
+    // Drawing events
+    this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+    this.canvas.addEventListener('mousemove', (e) => this.draw(e));
+    this.canvas.addEventListener('mouseup', () => this.stopDrawing());
+    this.canvas.addEventListener('mouseout', () => this.stopDrawing());
+
+    // Touch events
+    this.canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      this.startDrawing(e.touches[0]);
+    });
+    this.canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      this.draw(e.touches[0]);
+    });
+    this.canvas.addEventListener('touchend', () => this.stopDrawing());
+  }
+
+  initDrawingPad() {
+    if (!this.canvas) return;
+    this.canvas.width = this.canvas.offsetWidth;
+    this.canvas.height = this.canvas.offsetHeight;
+  }
+
+  startDrawing(e) {
+    this.isDrawing = true;
+    const rect = this.canvas.getBoundingClientRect();
+    const x = (e.clientX || e.pageX) - rect.left;
+    const y = (e.clientY || e.pageY) - rect.top;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y);
+  }
+
+  draw(e) {
+    if (!this.isDrawing) return;
+    const rect = this.canvas.getBoundingClientRect();
+    const x = (e.clientX || e.pageX) - rect.left;
+    const y = (e.clientY || e.pageY) - rect.top;
+    this.ctx.lineWidth = this.brushSize;
+    this.ctx.lineCap = 'round';
+    this.ctx.strokeStyle = this.currentColor;
+    this.ctx.lineTo(x, y);
+    this.ctx.stroke();
+  }
+
+  stopDrawing() {
+    this.isDrawing = false;
+  }
+
+  // Meditation Timer
+  setupMeditationTimer() {
+    document.getElementById('meditation-start')?.addEventListener('click', () => {
+      this.startMeditation();
+    });
+
+    document.getElementById('meditation-pause')?.addEventListener('click', () => {
+      this.pauseMeditation();
+    });
+
+    document.getElementById('meditation-reset')?.addEventListener('click', () => {
+      this.resetMeditation();
+    });
+
+    document.querySelectorAll('.timer-presets button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.timer-presets button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.meditationSeconds = parseInt(btn.dataset.minutes) * 60;
+        this.updateMeditationDisplay();
+      });
+    });
+  }
+
+  startMeditation() {
+    document.getElementById('meditation-start').style.display = 'none';
+    document.getElementById('meditation-pause').style.display = 'inline-block';
+
+    this.meditationInterval = setInterval(() => {
+      this.meditationSeconds--;
+      this.updateMeditationDisplay();
+
+      if (this.meditationSeconds <= 0) {
+        this.pauseMeditation();
+        showToast('🧘 Meditation complete!');
+      }
+    }, 1000);
+  }
+
+  pauseMeditation() {
+    clearInterval(this.meditationInterval);
+    this.meditationInterval = null;
+    document.getElementById('meditation-start').style.display = 'inline-block';
+    document.getElementById('meditation-pause').style.display = 'none';
+  }
+
+  resetMeditation() {
+    this.pauseMeditation();
+    const activePreset = document.querySelector('.timer-presets button.active');
+    this.meditationSeconds = parseInt(activePreset.dataset.minutes) * 60;
+    this.updateMeditationDisplay();
+  }
+
+  updateMeditationDisplay() {
+    const minutes = Math.floor(this.meditationSeconds / 60);
+    const seconds = this.meditationSeconds % 60;
+    document.getElementById('meditation-timer').textContent = 
+      `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  // Breathing Exercise
+  setupBreathingExercise() {
+    document.getElementById('breathing-start')?.addEventListener('click', () => {
+      this.startBreathing();
+    });
+
+    document.getElementById('breathing-stop')?.addEventListener('click', () => {
+      this.stopBreathing();
+    });
+  }
+
+  startBreathing() {
+    document.getElementById('breathing-start').style.display = 'none';
+    document.getElementById('breathing-stop').style.display = 'inline-block';
+
+    const circle = document.getElementById('breathing-circle');
+    const instruction = document.getElementById('breathing-instruction');
+    
+    let phase = 0; // 0: inhale, 1: hold, 2: exhale, 3: hold
+
+    const runCycle = () => {
+      if (phase === 0) {
+        instruction.textContent = 'Breathe In...';
+        circle.classList.remove('exhale');
+        circle.classList.add('inhale');
+      } else if (phase === 1) {
+        instruction.textContent = 'Hold...';
+      } else if (phase === 2) {
+        instruction.textContent = 'Breathe Out...';
+        circle.classList.remove('inhale');
+        circle.classList.add('exhale');
+      } else if (phase === 3) {
+        instruction.textContent = 'Hold...';
+      }
+
+      phase = (phase + 1) % 4;
+    };
+
+    runCycle();
+    this.breathingInterval = setInterval(runCycle, 4000);
+  }
+
+  stopBreathing() {
+    clearInterval(this.breathingInterval);
+    this.breathingInterval = null;
+    document.getElementById('breathing-start').style.display = 'inline-block';
+    document.getElementById('breathing-stop').style.display = 'none';
+    document.getElementById('breathing-instruction').textContent = 'Click Start';
+    document.getElementById('breathing-circle').classList.remove('inhale', 'exhale');
+  }
+
+  // Memory Game
+  setupMemoryGame() {
+    document.getElementById('new-game')?.addEventListener('click', () => {
+      this.initMemoryGame();
+    });
+  }
+
+  initMemoryGame() {
+    const emojis = ['🎨', '🎭', '🎪', '🎬', '🎮', '🎯', '🎲', '🎸'];
+    const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+    
+    const gameContainer = document.getElementById('memory-game');
+    gameContainer.innerHTML = '';
+
+    let flippedCards = [];
+    let matchedPairs = 0;
+
+    cards.forEach((emoji, index) => {
+      const card = document.createElement('div');
+      card.className = 'memory-card';
+      card.dataset.emoji = emoji;
+      card.dataset.index = index;
+      
+      card.addEventListener('click', () => {
+        if (card.classList.contains('flipped') || card.classList.contains('matched') || flippedCards.length === 2) {
+          return;
+        }
+
+        card.classList.add('flipped');
+        card.textContent = emoji;
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+          if (flippedCards[0].dataset.emoji === flippedCards[1].dataset.emoji) {
+            flippedCards.forEach(c => c.classList.add('matched'));
+            matchedPairs++;
+            flippedCards = [];
+
+            if (matchedPairs === emojis.length) {
+              setTimeout(() => showToast('🎉 You won!'), 500);
+            }
+          } else {
+            setTimeout(() => {
+              flippedCards.forEach(c => {
+                c.classList.remove('flipped');
+                c.textContent = '';
+              });
+              flippedCards = [];
+            }, 1000);
+          }
+        }
+      });
+
+      gameContainer.appendChild(card);
+    });
+  }
+
+  // Break Timer
+  setupBreakTimer() {
+    document.getElementById('timer-start')?.addEventListener('click', () => {
+      this.startBreakTimer();
+    });
+
+    document.getElementById('timer-stop')?.addEventListener('click', () => {
+      this.stopBreakTimer();
+    });
+  }
+
+  startBreakTimer() {
+    this.breakTimerStart = Date.now();
+    document.getElementById('timer-start').style.display = 'none';
+    document.getElementById('timer-stop').style.display = 'inline-block';
+
+    this.breakTimerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - this.breakTimerStart) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      document.getElementById('break-timer').textContent = 
+        `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
+  }
+
+  stopBreakTimer() {
+    clearInterval(this.breakTimerInterval);
+    this.breakTimerInterval = null;
+    document.getElementById('timer-start').style.display = 'inline-block';
+    document.getElementById('timer-stop').style.display = 'none';
+  }
+}
+
+// Initialize break activities
+window.breakActivities = new BreakActivities();
 // ========================================
 // INITIALIZATION
 // ========================================

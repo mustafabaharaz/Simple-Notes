@@ -47,12 +47,9 @@
     </div>
             <!-- Quick Actions -->
             <div class="quick-actions">
-                <button id="new-note-btn" class="btn btn-primary">
-                    📝 New Note
-                </button>
-                <button id="privacy-dashboard-btn" class="btn btn-secondary">
-                    🔒 Privacy Dashboard
-                </button>
+                <button id="new-note-btn" class="btn btn-primary">📝 New Note</button>
+                <button id="privacy-dashboard-btn" class="btn btn-secondary"> 🔒 Privacy Dashboard</button>
+                <button id="take-break-btn">🧘 Take a Break</button>
             </div>
 
             <!-- Notes List -->
@@ -306,6 +303,32 @@
 
                 <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
                 </div>
+                <!-- Drawing Canvas Overlay -->
+                <canvas id="drawing-canvas" class="drawing-canvas" style="display: none;"></canvas>
+                
+                <!-- Drawing Toolbar -->
+                <div id="drawing-toolbar" class="drawing-toolbar" style="display: none;">
+                    <div class="drawing-tools">
+                        <button class="drawing-tool-btn active" data-tool="pen" title="Pen">✏️</button>
+                        <button class="drawing-tool-btn" data-tool="eraser" title="Eraser">🧹</button>
+                        <button class="drawing-tool-btn" data-tool="clear" title="Clear All">🗑️</button>
+                    </div>
+                    
+                    <div class="drawing-colors">
+                        <button class="color-btn active" data-color="#000000" style="background: #000000;" title="Black"></button>
+                        <button class="color-btn" data-color="#FF0000" style="background: #FF0000;" title="Red"></button>
+                        <button class="color-btn" data-color="#0000FF" style="background: #0000FF;" title="Blue"></button>
+                        <button class="color-btn" data-color="#00FF00" style="background: #00FF00;" title="Green"></button>
+                        <button class="color-btn" data-color="#FFFF00" style="background: #FFFF00;" title="Yellow"></button>
+                        <button class="color-btn" data-color="#FF00FF" style="background: #FF00FF;" title="Purple"></button>
+                    </div>
+                    
+                    <div class="drawing-sizes">
+                        <label>Size:</label>
+                        <input type="range" id="brush-size" min="1" max="20" value="3" class="brush-size-slider">
+                        <span id="brush-size-value">3</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Privacy Dashboard (modal) -->
@@ -317,6 +340,116 @@
                     </div>
                     <div id="privacy-metrics" class="privacy-metrics">
                         <!-- Privacy metrics will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+            <!-- Take a Break Modal -->
+            <div id="break-modal" class="modal">
+                <div class="modal-content break-modal-content">
+                    <div class="modal-header">
+                        <h2>🧘 Take a Break</h2>
+                        <button class="modal-close" id="break-modal-close">&times;</button>
+                    </div>
+                    
+                    <div class="break-activities">
+                        <div class="break-activity-card" data-activity="drawing">
+                            <div class="activity-icon">🎨</div>
+                            <h3>Drawing Pad</h3>
+                            <p>Sketch and doodle freely</p>
+                        </div>
+                        
+                        <div class="break-activity-card" data-activity="meditation">
+                            <div class="activity-icon">🧘</div>
+                            <h3>Meditation Timer</h3>
+                            <p>Mindful breathing sessions</p>
+                        </div>
+                        
+                        <div class="break-activity-card" data-activity="breathing">
+                            <div class="activity-icon">🫁</div>
+                            <h3>Breathing Exercise</h3>
+                            <p>Guided breathing patterns</p>
+                        </div>
+                        
+                        <div class="break-activity-card" data-activity="puzzle">
+                            <div class="activity-icon">🎮</div>
+                            <h3>Quick Puzzle</h3>
+                            <p>Simple brain teaser</p>
+                        </div>
+                        
+                        <div class="break-activity-card" data-activity="timer">
+                            <div class="activity-icon">☕</div>
+                            <h3>Break Timer</h3>
+                            <p>Timed rest reminders</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Activity Views (hidden by default) -->
+                    <div id="activity-view" class="activity-view" style="display: none;">
+                        <button class="back-btn" id="back-to-activities">← Back</button>
+                        
+                        <!-- Drawing Pad View -->
+                        <div id="drawing-activity" class="activity-content" style="display: none;">
+                            <h3>🎨 Drawing Pad</h3>
+                            <canvas id="break-canvas" class="break-canvas"></canvas>
+                            <div class="drawing-controls">
+                                <button class="color-btn-break active" data-color="#000000" style="background: #000000;"></button>
+                                <button class="color-btn-break" data-color="#FF0000" style="background: #FF0000;"></button>
+                                <button class="color-btn-break" data-color="#0000FF" style="background: #0000FF;"></button>
+                                <button class="color-btn-break" data-color="#00FF00" style="background: #00FF00;"></button>
+                                <button class="color-btn-break" data-color="#FFFF00" style="background: #FFFF00;"></button>
+                                <input type="range" id="break-brush-size" min="1" max="20" value="3">
+                                <button id="clear-break-canvas">Clear</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Meditation Timer View -->
+                        <div id="meditation-activity" class="activity-content" style="display: none;">
+                            <h3>🧘 Meditation Timer</h3>
+                            <div class="meditation-timer">
+                                <div class="timer-display" id="meditation-timer">5:00</div>
+                                <div class="timer-controls">
+                                    <button id="meditation-start">Start</button>
+                                    <button id="meditation-pause" style="display: none;">Pause</button>
+                                    <button id="meditation-reset">Reset</button>
+                                </div>
+                                <div class="timer-presets">
+                                    <button data-minutes="3">3 min</button>
+                                    <button data-minutes="5" class="active">5 min</button>
+                                    <button data-minutes="10">10 min</button>
+                                    <button data-minutes="15">15 min</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Breathing Exercise View -->
+                        <div id="breathing-activity" class="activity-content" style="display: none;">
+                            <h3>🫁 Breathing Exercise</h3>
+                            <div class="breathing-exercise">
+                                <div class="breathing-circle" id="breathing-circle"></div>
+                                <div class="breathing-instruction" id="breathing-instruction">Click Start</div>
+                                <button id="breathing-start">Start</button>
+                                <button id="breathing-stop" style="display: none;">Stop</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Puzzle View -->
+                        <div id="puzzle-activity" class="activity-content" style="display: none;">
+                            <h3>🎮 Memory Game</h3>
+                            <div id="memory-game" class="memory-game"></div>
+                            <button id="new-game">New Game</button>
+                        </div>
+                        
+                        <!-- Timer View -->
+                        <div id="timer-activity" class="activity-content" style="display: none;">
+                            <h3>☕ Break Timer</h3>
+                            <div class="break-timer">
+                                <div class="timer-display" id="break-timer">0:00</div>
+                                <div class="timer-controls">
+                                    <button id="timer-start">Start</button>
+                                    <button id="timer-stop" style="display: none;">Stop</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -336,8 +469,8 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/Simple-Notes/service-worker.js')
-                    .then(reg => console.log('✅ Service Worker registered'))
+            navigator.serviceWorker.register('/service-worker.js')                    
+            .then(reg => console.log('✅ Service Worker registered'))
                     .catch(err => console.log('❌ Service Worker failed:', err));
             });
         }
