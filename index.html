@@ -48,6 +48,7 @@
             <!-- Quick Actions -->
             <div class="quick-actions">
                 <button id="new-note-btn" class="btn btn-primary">📝 New Note</button>
+                <button id="templates-btn">📋 Templates</button>
                 <button id="privacy-dashboard-btn" class="btn btn-secondary"> 🔒 Privacy Dashboard</button>
                 <button id="take-break-btn">🧘 Take a Break</button>
             </div>
@@ -293,6 +294,28 @@
                         <input type="text" id="tag-input-compact" class="tag-input-compact" placeholder="Add tag..." maxlength="20">
                         <div class="tags-display-compact" id="note-tags-display"></div>
                     </div>
+                                <!-- Voice-to-Text Button (in toolbar, hidden by default) -->
+                    <div id="voice-to-text-section" class="toolbar-section" style="display: none;">
+                        <select id="voice-language" class="toolbar-select" title="Voice Language">
+                            <option value="en-US">🇺🇸 English (US)</option>
+                            <option value="en-GB">🇬🇧 English (UK)</option>
+                            <option value="es-ES">🇪🇸 Spanish</option>
+                            <option value="fr-FR">🇫🇷 French</option>
+                            <option value="de-DE">🇩🇪 German</option>
+                            <option value="it-IT">🇮🇹 Italian</option>
+                            <option value="pt-BR">🇧🇷 Portuguese</option>
+                            <option value="ja-JP">🇯🇵 Japanese</option>
+                            <option value="ko-KR">🇰🇷 Korean</option>
+                            <option value="zh-CN">🇨🇳 Chinese</option>
+                            <option value="ar-SA">🇸🇦 Arabic</option>
+                            <option value="hi-IN">🇮🇳 Hindi</option>
+                            <option value="ru-RU">🇷🇺 Russian</option>
+                            <option value="tr-TR">🇹🇷 Turkish</option>
+                        </select>
+                        <button class="toolbar-btn" id="voice-btn" title="Voice to Text">
+                            🎤 <span id="voice-status">Voice</span>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Suggested Tags Row -->
@@ -453,6 +476,36 @@
                     </div>
                 </div>
             </div>
+            <!-- Templates Modal -->
+            <div id="templates-modal" class="modal">
+                <div class="modal-content templates-modal-content">
+                    <div class="modal-header">
+                        <h2>📋 Note Templates</h2>
+                        <button class="modal-close" id="templates-modal-close">&times;</button>
+                    </div>
+                    
+                    <div class="templates-grid">
+                        <div class="template-card" data-template="journal">
+                            <div class="template-icon">📔</div>
+                            <h3>Daily Journal</h3>
+                            <p>Reflect on your day with guided prompts</p>
+                        </div>
+                        
+                        <div class="template-card" data-template="meeting">
+                            <div class="template-icon">🤝</div>
+                            <h3>Meeting Notes</h3>
+                            <p>Capture discussions and action items</p>
+                        </div>
+                        
+                        <div class="template-card" data-template="brainstorm">
+                            <div class="template-icon">💡</div>
+                            <h3>Brainstorming</h3>
+                            <p>Stream of consciousness idea capture</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 

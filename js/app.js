@@ -380,6 +380,12 @@ class NotesApp {
     this.renderNoteTagsCompact();
     this.renderFolderDropdown();
     this.updateButtonStates();
+
+    // Check if note supports voice-to-text
+    if (window.templatesSystem) {
+      window.templatesSystem.checkVoiceSupport(note);
+    }
+ 
   }
 
   // Auto-save note
@@ -604,6 +610,7 @@ class NotesApp {
     const savedTheme = localStorage.getItem('theme') || 'light';
     this.setTheme(savedTheme);
   }
+ 
 }
 
 // ========================================
@@ -1770,6 +1777,396 @@ class BreakActivities {
 
 // Initialize break activities
 window.breakActivities = new BreakActivities();
+// ==========================================
+// TEMPLATES SYSTEM
+// ==========================================
+
+class TemplatesSystem {
+  constructor(notesApp) {
+    this.app = notesApp;
+    this.templates = this.defineTemplates();
+    this.recognition = null;
+    this.isListening = false;
+    
+    this.setupEventListeners();
+    this.initVoiceRecognition();
+  }
+
+  defineTemplates() {
+    const today = new Date().toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+
+    return {
+      journal: {
+        title: `Daily Journal - ${today}`,
+        content: `<h2>📔 Daily Journal Entry</h2>
+<p><strong>Date:</strong> ${today}</p>
+
+<h3>🌅 Morning Reflection</h3>
+<p><em>What made you get up this morning? What are you looking forward to today?</em></p>
+<p><br></p>
+
+<h3>🙏 Gratitude</h3>
+<p><em>What are you grateful for today?</em></p>
+<p><br></p>
+
+<h3>🎯 Today's Focus</h3>
+<p><em>What's the one thing that would make today great?</em></p>
+<p><br></p>
+
+<h3>💭 Thoughts & Feelings</h3>
+<p><em>How are you feeling right now? What's on your mind?</em></p>
+<p><br></p>
+
+<h3>🌙 Evening Reflection</h3>
+<p><em>What will let you sleep peacefully tonight? What did you accomplish?</em></p>
+<p><br></p>
+
+<h3>📝 Free Writing</h3>
+<p><em>Any other thoughts, ideas, or reflections...</em></p>
+<p><br></p>`,
+        hasVoice: true
+      },
+
+      meeting: {
+        title: `Meeting Notes - ${today}`,
+        content: `<h2>🤝 Meeting Notes</h2>
+<p><strong>Date:</strong> ${today}</p>
+<p><strong>Time:</strong> </p>
+<p><strong>Location:</strong> </p>
+
+<h3>👥 Attendees</h3>
+<ul>
+<li></li>
+<li></li>
+</ul>
+
+<h3>📋 Agenda</h3>
+<ol>
+<li></li>
+<li></li>
+</ol>
+
+<h3>💬 Discussion Points</h3>
+<p><em>Use voice-to-text to capture key points during the meeting!</em></p>
+<p><br></p>
+
+<h3>✅ Action Items</h3>
+<ul>
+<li>[ ] </li>
+<li>[ ] </li>
+</ul>
+
+<h3>📝 Additional Notes</h3>
+<p><br></p>`,
+        hasVoice: true
+      },
+
+      brainstorm: {
+        title: `Brainstorming - ${today}`,
+        content: `<h2>💡 Brainstorming Session</h2>
+<p><strong>Date:</strong> ${today}</p>
+
+<h3>🎯 Topic / Challenge</h3>
+<p><em>What are you brainstorming about?</em></p>
+<p><br></p>
+
+<h3>💭 Stream of Consciousness</h3>
+<p><em>Click the voice button 🎤 and just speak your thoughts! No filtering, no judgment - let the ideas flow!</em></p>
+<p><br></p>
+
+<h3>✨ Key Ideas</h3>
+<ul>
+<li></li>
+<li></li>
+<li></li>
+</ul>
+
+<h3>🔥 Best Ideas to Explore</h3>
+<ol>
+<li></li>
+<li></li>
+</ol>
+
+<h3>🚀 Next Steps</h3>
+<p><br></p>`,
+        hasVoice: true
+      }
+    };
+  }
+
+  setupEventListeners() {
+    // Open templates modal
+    document.getElementById('templates-btn')?.addEventListener('click', () => {
+      this.openModal();
+    });
+
+    // Close templates modal
+    document.getElementById('templates-modal-close')?.addEventListener('click', () => {
+      this.closeModal();
+    });
+
+    // Template cards
+    document.querySelectorAll('.template-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const templateType = card.dataset.template;
+        this.createFromTemplate(templateType);
+      });
+    });
+
+    // Voice button
+    document.getElementById('voice-btn')?.addEventListener('click', () => {
+      this.toggleVoice();
+    });
+
+    // Language selector
+    document.getElementById('voice-language')?.addEventListener('change', (e) => {
+      this.changeLanguage(e.target.value);
+    });
+
+    // Close on outside click
+    document.getElementById('templates-modal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'templates-modal') {
+        this.closeModal();
+      }
+    });
+  }
+
+  openModal() {
+    document.getElementById('templates-modal').style.display = 'flex';
+  }
+
+  closeModal() {
+    document.getElementById('templates-modal').style.display = 'none';
+  }
+
+  createFromTemplate(templateType) {
+    const template = this.templates[templateType];
+    if (!template) return;
+
+    // Create new note with template content
+    const note = storage.createNote(template.title, template.content);
+    
+    // Mark as template note
+    storage.updateNote(note.id, { 
+      isTemplate: true, 
+      templateType: templateType,
+      hasVoice: template.hasVoice 
+    });
+
+    // Close modal
+    this.closeModal();
+
+    // Open the new note
+    this.app.renderNotes();
+    this.app.openNote(note.id);
+
+    // Show voice button if template supports it
+    if (template.hasVoice) {
+      this.showVoiceButton();
+    }
+
+    showToast(`✓ Created ${template.title.split(' - ')[0]}`);
+  }
+
+  showVoiceButton() {
+    const voiceSection = document.getElementById('voice-to-text-section');
+    if (voiceSection) {
+      voiceSection.style.display = 'flex';
+    }
+    this.loadSavedLanguage();
+  }
+    
+
+  hideVoiceButton() {
+    const voiceSection = document.getElementById('voice-to-text-section');
+    if (voiceSection) {
+      voiceSection.style.display = 'none';
+    }
+    this.stopVoice();
+  }
+
+  // Voice Recognition
+  initVoiceRecognition() {
+    // Check if browser supports speech recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      console.warn('Speech recognition not supported in this browser');
+      return;
+    }
+
+    this.recognition = new SpeechRecognition();
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+    // Load saved language or default to English
+    this.currentLanguage = localStorage.getItem('voiceLanguage') || 'en-US';
+    this.recognition.lang = this.currentLanguage;
+
+    let finalTranscript = '';
+
+    this.recognition.onresult = (event) => {
+      let interimTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      // Insert text into editor
+      if (finalTranscript) {
+        this.insertVoiceText(finalTranscript);
+        finalTranscript = '';
+      }
+    };
+
+    this.recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      if (event.error === 'no-speech') {
+        showToast('No speech detected. Try again.', 'warning');
+      } else if (event.error === 'not-allowed') {
+        showToast('Microphone access denied', 'error');
+      }
+      this.stopVoice();
+    };
+
+    this.recognition.onend = () => {
+      this.isListening = false;
+      this.updateVoiceButton();
+    };
+  }
+
+  toggleVoice() {
+    if (!this.recognition) {
+      showToast('Voice recognition not supported in this browser', 'error');
+      return;
+    }
+
+    if (this.isListening) {
+      this.stopVoice();
+    } else {
+      this.startVoice();
+    }
+  }
+
+  startVoice() {
+    try {
+      this.recognition.start();
+      this.isListening = true;
+      this.updateVoiceButton();
+      showToast('🎤 Listening... Speak now!');
+    } catch (error) {
+      console.error('Failed to start voice recognition:', error);
+      showToast('Failed to start voice recognition', 'error');
+    }
+  }
+
+  stopVoice() {
+    if (this.recognition && this.isListening) {
+      this.recognition.stop();
+      this.isListening = false;
+      this.updateVoiceButton();
+    }
+  }
+
+  updateVoiceButton() {
+    const voiceBtn = document.getElementById('voice-btn');
+    const voiceStatus = document.getElementById('voice-status');
+    
+    if (this.isListening) {
+      voiceBtn.classList.add('listening');
+      voiceStatus.textContent = 'Listening...';
+    } else {
+      voiceBtn.classList.remove('listening');
+      voiceStatus.textContent = 'Voice';
+    }
+  }
+
+  insertVoiceText(text) {
+    const editor = document.getElementById('note-content');
+    if (!editor) return;
+
+    // Focus editor
+    editor.focus();
+
+    // Insert text at cursor position
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      
+      const textNode = document.createTextNode(text);
+      range.insertNode(textNode);
+      
+      // Move cursor to end of inserted text
+      range.setStartAfter(textNode);
+      range.setEndAfter(textNode);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } else {
+      // Fallback: append to end
+      editor.innerHTML += text;
+    }
+
+    // Trigger auto-save
+    if (this.app) {
+      this.app.autoSaveNote();
+    }
+  }
+
+  changeLanguage(language) {
+    this.currentLanguage = language;
+    localStorage.setItem('voiceLanguage', language);
+    
+    if (this.recognition) {
+      this.recognition.lang = language;
+    }
+    
+    // If currently listening, restart with new language
+    if (this.isListening) {
+      this.stopVoice();
+      setTimeout(() => this.startVoice(), 100);
+    }
+    
+    const langName = document.querySelector(`#voice-language option[value="${language}"]`).text;
+    showToast(`🌍 Voice language: ${langName}`);
+  }
+
+  loadSavedLanguage() {
+    const savedLanguage = localStorage.getItem('voiceLanguage') || 'en-US';
+    const selector = document.getElementById('voice-language');
+    if (selector) {
+      selector.value = savedLanguage;
+    }
+  }
+
+  // Check if current note supports voice
+  checkVoiceSupport(note) {
+    if (note && note.hasVoice) {
+      this.showVoiceButton();
+    } else {
+      this.hideVoiceButton();
+    }
+  }
+}
+
+// Initialize templates system (need to wait for NotesApp to be created)
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    if (window.app) {
+      window.templatesSystem = new TemplatesSystem(window.app);
+    }
+  }, 100);
+});
 // ========================================
 // INITIALIZATION
 // ========================================
