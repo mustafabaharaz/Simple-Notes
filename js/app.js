@@ -473,19 +473,59 @@ class NotesApp {
     }
 
     notesList.innerHTML = notes.map(note => {
-      const preview = truncate(stripHtml(note.content), 60);
+      const preview = truncate(stripHtml(note.content), 120);
       const isActive = this.currentNote?.id === note.id;
+
+      // Smart date label
+      const date = new Date(note.modified || note.created || Date.now());
+      const now = new Date();
+      const isToday = date.toDateString() === now.toDateString();
+      const isYesterday = date.toDateString() === new Date(now - 86400000).toDateString();
+      let dateLabel;
+      if (isToday) {
+        dateLabel = 'Today, ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else if (isYesterday) {
+        dateLabel = 'Yesterday';
+      } else {
+        dateLabel = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      }
+
+      // Time badge
+      const timeBadge = note.timeSpent
+        ? `<span class="note-item-time">${this.formatTimeSpent(note.timeSpent)}</span>`
+        : '';
+
+      // Encrypted badge + preview
+      const encryptedBadge = note.encrypted
+        ? `<span class="note-item-badge badge-encrypted">🔒 Encrypted</span>`
+        : '';
+      const previewClass = note.encrypted ? 'note-item-preview is-encrypted' : 'note-item-preview';
+      const previewText = note.encrypted ? 'Contents hidden — click to decrypt' : (preview || 'No content yet');
+
+      // Tags (max 4)
+      const tagsHTML = (note.tags && note.tags.length > 0)
+        ? `<div class="note-item-tags">
+            ${note.tags.slice(0, 4).map(tag =>
+              `<span class="note-item-tag">${tag}</span>`
+            ).join('')}
+           </div>`
+        : '';
 
       return `
         <div class="note-item ${isActive ? 'active' : ''}" data-note-id="${note.id}">
-          <div class="note-item-title">${note.title || 'Untitled Note'}</div>
-          <div class="note-item-meta">
-            <span>📅 ${formatDate(note.modified)}</span>
-            ${note.timeSpent ? `<span class="time-badge">⏱️ ${this.formatTimeSpent(note.timeSpent)}</span>` : ''}
-            ${note.encrypted ? '<span class="tag tag-encrypted">🔒 Encrypted</span>' : ''}
+          <div class="note-item-header">
+            <div class="note-item-title">${note.title || 'Untitled Note'}</div>
+            ${encryptedBadge}
           </div>
+          <div class="${previewClass}">${previewText}</div>
+          <div class="note-item-footer">
+            <div class="note-item-date">${dateLabel}</div>
+            <div class="note-item-right">${timeBadge}</div>
+          </div>
+          ${tagsHTML}
         </div>
-      `;    }).join('');
+      `;
+    }).join('');
     notesList.querySelectorAll('.note-item').forEach(item => {
   item.addEventListener('click', () => {
     const noteId = item.dataset.noteId;

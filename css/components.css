@@ -614,12 +614,52 @@
 .unified-toolbar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-md) var(--spacing-xl);
-  background: linear-gradient(180deg, var(--color-bg-tertiary) 0%, var(--color-surface) 100%);
+  gap: var(--spacing-sm);
+  padding: 8px 16px;
+  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border-light);
   flex-wrap: wrap;
-  min-height: 60px;
+  min-height: 48px; /* tighter than before */
+  overflow-x: auto;
+}
+
+/* Tighter toolbar buttons */
+.toolbar-btn {
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.toolbar-btn:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.toolbar-btn.active {
+  background: var(--color-primary-light);
+  border-color: rgba(79, 70, 229, 0.3);
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .toolbar-btn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .toolbar-btn.active {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(165, 180, 252, 0.3);
+  color: #a5b4fc;
 }
 
 .toolbar-section {
@@ -793,97 +833,6 @@
     opacity: 1;
     max-height: 100px;
   }
-}
-/* ==========================================
-   TOOLBAR STYLES
-   ========================================== */
-
-.unified-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 20px;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  flex-wrap: wrap;
-}
-
-.toolbar-section {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.toolbar-btn {
-  padding: 6px 12px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  color: var(--color-text-primary);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
-}
-
-.toolbar-btn:hover {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-primary);
-}
-
-.toolbar-btn.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-}
-
-.toolbar-btn.active:hover {
-  background: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
-}
-
-.toolbar-divider {
-  width: 1px;
-  height: 24px;
-  background: var(--color-border);
-  margin: 0 4px;
-}
-
-.toolbar-select {
-  padding: 6px 10px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  color: var(--color-text-primary);
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.tag-input-compact {
-  padding: 6px 10px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  color: var(--color-text-primary);
-  font-size: 14px;
-  min-width: 120px;
-}
-
-.ai-suggest-btn-compact {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-  color: white;
-  border: none;
-}
-
-.ai-suggest-btn-compact:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-}
-
-.tags-display-compact {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
 }
 /* ==========================================
    FOLDERS SECTION
@@ -1782,10 +1731,7 @@
 .note-content {
   position: relative;
 }
-/* TEMPORARY DEBUG */
-* {
-  pointer-events: auto !important;
-}
+
 /* ==========================================
    TAKE A BREAK MODAL
    ========================================== */

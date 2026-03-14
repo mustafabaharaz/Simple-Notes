@@ -34,25 +34,36 @@
         
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-           <div class="privacy-badge-large" id="privacy-badge">
-            <div class="shield-container">
-                <div class="shield-glow-3"></div>
-                <div class="shield-glow-2"></div>
-                <div class="shield-glow-1"></div>
-                <div class="shield-icon">🛡️</div>
+        <div class="sidebar-header">
+            <div class="app-logo" id="privacy-badge">
+                <div class="app-logo-icon">🛡️</div>
+                <div class="app-logo-text">
+                    <span class="app-logo-name">Simple Notes</span>
+                    <span class="app-logo-tagline">Private &amp; local</span>
+                </div>
             </div>
-            <div class="app-name">Simple Notes</div>
+        </div>            
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button id="new-note-btn" class="qa-btn qa-btn-primary">
+                <span class="qa-icon">📝</span>
+                <span>New Note</span>
+            </button>
+            <div class="qa-secondary-row">
+                <button id="templates-btn" class="qa-btn qa-btn-secondary" title="Templates">
+                    <span class="qa-icon">📋</span>
+                    <span>Templates</span>
+                </button>
+                <button id="privacy-dashboard-btn" class="qa-btn qa-btn-secondary" title="Privacy Dashboard">
+                    <span class="qa-icon">🔒</span>
+                    <span>Privacy</span>
+                </button>
+                <button id="take-break-btn" class="qa-btn qa-btn-secondary" title="Take a Break">
+                    <span class="qa-icon">🧘</span>
+                    <span>Break</span>
+                </button>
             </div>
-    </div>
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-                <button id="new-note-btn" class="btn btn-primary">📝 New Note</button>
-                <button id="templates-btn">📋 Templates</button>
-                <button id="privacy-dashboard-btn" class="btn btn-secondary"> 🔒 Privacy Dashboard</button>
-                <button id="take-break-btn">🧘 Take a Break</button>
-            </div>
-
+        </div>
             <!-- Notes List -->
             <div class="notes-section">
                 <h3>Your Notes <span id="notes-count" class="count-badge">0</span></h3>
@@ -106,30 +117,30 @@
                     <div class="welcome-hero">
                         <div class="hero-badge">
                             <span class="badge-dot"></span>
-                            Privacy-First Technology
+                            Privacy-First &bull; Local AI &bull; Zero Cloud
                         </div>
-                        
+
                         <h1 class="hero-title">
-                            Your Notes.
-                            <span class="gradient-text">Your Privacy.</span>
-                            <span class="gradient-text">Your Control.</span>
+                            Notes that stay
+                            <span class="gradient-text">yours.</span>
                         </h1>
-                        
+
                         <p class="hero-subtitle">
-                            Experience the future of note-taking with AI-powered organization,<br>
-                            military-grade encryption, and absolute privacy—all without cloud storage.
+                            AI-powered note-taking with military-grade encryption.
+                            Everything stays on your device — always.
                         </p>
-                        
+
                         <div class="hero-cta">
                             <button id="get-started-btn" class="btn-primary-large">
-                                <span class="btn-icon">✨</span>
-                                <span>Start Writing Now</span>
+                                Start writing
                                 <span class="btn-arrow">→</span>
                             </button>
                             <div class="cta-subtext">
-                                <span class="check-icon">✓</span> No sign-up required
+                                <span class="check-icon">✓</span> No account needed
                                 <span class="dot-separator">•</span>
                                 <span class="check-icon">✓</span> Works offline
+                                <span class="dot-separator">•</span>
+                                <span class="check-icon">✓</span> Free forever
                             </div>
                         </div>
                     </div>
@@ -266,28 +277,25 @@
                         <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)"><em>I</em></button>
                         <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)"><u>U</u></button>
                         <div class="toolbar-divider"></div>
-                        <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">• List</button>
+                        <button class="toolbar-btn" data-action="bullet-list" title="Bullet List">&#8226; List</button>
                         <button class="toolbar-btn" data-action="numbered-list" title="Numbered List">1. List</button>
-                    </div>
-                    
-                    <div class="toolbar-section toolbar-paragraph">
-                        <button class="toolbar-btn" data-action="align-left" title="Align Left">⬅</button>
-                        <button class="toolbar-btn" data-action="align-center" title="Center">↔</button>
-                        <button class="toolbar-btn" data-action="align-right" title="Align Right">➡</button>
                         <div class="toolbar-divider"></div>
-                        <button class="toolbar-btn" data-action="indent" title="Indent">→|</button>
-                        <button class="toolbar-btn" data-action="outdent" title="Outdent">|←</button>
+                        <button class="toolbar-btn" data-action="align-left" title="Align Left">Left</button>
+                        <button class="toolbar-btn" data-action="align-center" title="Center">Center</button>
+                        <button class="toolbar-btn" data-action="align-right" title="Align Right">Right</button>
+                        <div class="toolbar-divider"></div>
+                        <button class="toolbar-btn" data-action="indent" title="Indent">Indent</button>
+                        <button class="toolbar-btn" data-action="outdent" title="Outdent">Outdent</button>
                         <div class="toolbar-divider"></div>
                         <select class="toolbar-select" id="line-spacing" title="Line Spacing">
-                            <option value="1">1.0</option>
-                            <option value="1.15">1.15</option>
-                            <option value="1.5" selected>1.5</option>
-                            <option value="2">2.0</option>
+                            <option value="1">1.0×</option>
+                            <option value="1.15">1.15×</option>
+                            <option value="1.5" selected>1.5×</option>
+                            <option value="2">2.0×</option>
                         </select>
                         <div class="toolbar-divider"></div>
-                        <button class="toolbar-btn" data-action="date" title="Insert Date">📅</button>
+                        <button class="toolbar-btn" data-action="date" title="Insert Date">Date</button>
                     </div>
-
                     <div class="toolbar-section toolbar-folder">
                         <label for="note-folder-select" style="font-size: 12px; color: var(--color-text-secondary);">Folder:</label>
                         <select class="toolbar-select" id="note-folder-select">

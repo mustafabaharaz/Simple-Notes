@@ -386,6 +386,6 @@ cleanupOldTrash() {
 }
 
 // Create global instance
-const storage = new StorageManager();
+window.storage = new StorageManager();
 
 console.log('✅ Storage manager loaded');
