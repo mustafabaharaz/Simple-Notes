@@ -2038,51 +2038,126 @@
 .templates-grid,
 .break-activities {
   display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin-top: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .template-card,
 .break-activity-card {
-  padding: 28px 20px;
+  padding: 20px 16px;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-fast);
   position: relative;
+  overflow: hidden;
+}
+
+/* Gradient top bar on hover — matches sidebar card accent style */
+.template-card::before,
+.break-activity-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 
 .template-card:hover,
 .break-activity-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-primary);
-  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.15);
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.02) 0%, rgba(147, 51, 234, 0.02) 100%);
+  transform: translateY(-3px);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-md);
 }
 
+.template-card:hover::before,
+.break-activity-card:hover::before {
+  opacity: 1;
+}
+
+/* Icon inside a colored rounded square — replaces raw emoji */
 .template-icon,
 .activity-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
-  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 12px;
+  /* default — overridden per card below */
+  background: var(--color-primary-light);
+}
+
+/* Template card icon colors */
+.template-card[data-template="journal"] .template-icon {
+  background: linear-gradient(135deg, #EEF2FF, #E0F2FE);
+}
+.template-card[data-template="meeting"] .template-icon {
+  background: linear-gradient(135deg, #E0F2FE, #D1FAE5);
+}
+.template-card[data-template="brainstorm"] .template-icon {
+  background: linear-gradient(135deg, #FEF3C7, #FEE2E2);
+}
+
+/* Break card icon colors */
+.break-activity-card[data-activity="drawing"] .activity-icon {
+  background: linear-gradient(135deg, #FDF2F8, #FEF3C7);
+}
+.break-activity-card[data-activity="meditation"] .activity-icon {
+  background: linear-gradient(135deg, #EEF2FF, #E0F2FE);
+}
+.break-activity-card[data-activity="breathing"] .activity-icon {
+  background: linear-gradient(135deg, #E0F2FE, #D1FAE5);
+}
+.break-activity-card[data-activity="puzzle"] .activity-icon {
+  background: linear-gradient(135deg, #D1FAE5, #E0F2FE);
+}
+.break-activity-card[data-activity="timer"] .activity-icon {
+  background: linear-gradient(135deg, #FEF3C7, #FEE2E2);
+}
+.break-activity-card[data-activity="movement"] .activity-icon {
+  background: linear-gradient(135deg, #FDF2F8, #EEF2FF);
 }
 
 .template-card h3,
 .break-activity-card h3 {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .template-card p,
 .break-activity-card p {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--color-text-secondary);
   line-height: 1.4;
+  margin: 0;
+}
+
+/* Dark mode */
+[data-theme="dark"] .template-card,
+[data-theme="dark"] .break-activity-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .template-card:hover,
+[data-theme="dark"] .break-activity-card:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .template-icon,
+[data-theme="dark"] .activity-icon {
+  opacity: 0.85;
 }
 
 /* Voice-to-Text Button */
