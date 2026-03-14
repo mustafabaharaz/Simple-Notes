@@ -310,7 +310,7 @@
                     </div>
                     
                     <div class="toolbar-section toolbar-tags">
-                        <button class="toolbar-btn ai-suggest-btn-compact" id="ai-suggest-tags-btn-compact">🤖 Tags</button>
+                        <button class="toolbar-btn ai-suggest-btn-compact" id="ai-suggest-tags-btn-compact" title="AI suggest tags">🤖</button>
                         <input type="text" id="tag-input-compact" class="tag-input-compact" placeholder="Add tag..." maxlength="20">
                         <div class="tags-display-compact" id="note-tags-display"></div>
                     </div>
@@ -342,8 +342,8 @@
                 <div id="suggested-tags-row" class="suggested-tags-row" style="display: none;">
                     <span class="suggested-label">🤖 Suggested:</span>
                     <div id="suggested-tags-compact"></div>
+                    <button id="close-suggested-tags" class="close-suggested-btn" title="Dismiss">✕</button>
                 </div>
-
                 <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
                 </div>
                 <!-- Drawing Canvas Overlay -->

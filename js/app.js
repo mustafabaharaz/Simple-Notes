@@ -772,7 +772,11 @@ NotesApp.prototype.suggestAITagsCompact = function() {
 
   const container = document.getElementById('suggested-tags-compact');
   const row = document.getElementById('suggested-tags-row');
-  
+
+  document.getElementById('close-suggested-tags').onclick = () => {
+    row.style.display = 'none';
+    document.getElementById('suggested-tags-compact').innerHTML = '';
+  };  
   container.innerHTML = suggestedTags.map(tag => 
     `<span class="suggested-tag-compact" data-tag="${tag}">${tag}</span>`
   ).join('');
