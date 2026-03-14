@@ -2459,6 +2459,38 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     window.app = new NotesApp();
     app.loadTheme();
+
+    // ── Sidebar toggle for mobile ──
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    function openSidebar() {
+      sidebar.classList.add('is-open');
+      overlay.classList.add('is-visible');
+      sidebarToggle.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('is-open');
+      overlay.classList.remove('is-visible');
+      sidebarToggle.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.contains('is-open') ? closeSidebar() : openSidebar();
+    });
+
+    overlay.addEventListener('click', closeSidebar);
+
+    document.getElementById('notes-list').addEventListener('click', () => {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
   });
 } else {
   window.app = new NotesApp();
