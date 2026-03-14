@@ -8,6 +8,9 @@ class NotesApp {
     this.currentNote = null;
     this.activeTagFilter = null;
     this.autoSaveTimeout = null;
+    this.timeTracker = null;           
+    this.timeTrackerInterval = null;  
+    this.noteStartTime = null;         
     this.init();
   }
 
@@ -326,6 +329,9 @@ class NotesApp {
     const note = storage.getNote(noteId);
     if (!note) return;
 
+    // Stop tracking previous note
+    this.stopTimeTracking();  
+
     this.currentNote = note;
 
     document.getElementById('welcome-screen').style.display = 'none';
@@ -385,6 +391,8 @@ class NotesApp {
     if (window.templatesSystem) {
       window.templatesSystem.checkVoiceSupport(note);
     }
+    // Start time tracking for this note
+    this.startTimeTracking(note);
  
   }
 
@@ -469,23 +477,28 @@ class NotesApp {
       const isActive = this.currentNote?.id === note.id;
 
       return `
-        <div class="note-item ${isActive ? 'active' : ''}" data-note-id="${note.id}" draggable="true">
-          <div class="note-item-title">${note.title}</div>
-          <div class="note-item-preview">${preview || 'No content'}</div>
+        <div class="note-item ${isActive ? 'active' : ''}" data-note-id="${note.id}">
+          <div class="note-item-title">${note.title || 'Untitled Note'}</div>
           <div class="note-item-meta">
             <span>📅 ${formatDate(note.modified)}</span>
+            ${note.timeSpent ? `<span class="time-badge">⏱️ ${this.formatTimeSpent(note.timeSpent)}</span>` : ''}
             ${note.encrypted ? '<span class="tag tag-encrypted">🔒 Encrypted</span>' : ''}
           </div>
         </div>
-      `;
-    }).join('');
-
+      `;    }).join('');
     notesList.querySelectorAll('.note-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const noteId = item.dataset.noteId;
-        this.openNote(noteId);
-      });
-    });
+  item.addEventListener('click', () => {
+    const noteId = item.dataset.noteId;
+    this.openNote(noteId);
+  });
+  
+  // Right-click context menu
+  item.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    const noteId = item.dataset.noteId;
+    this.showNoteContextMenu(e, noteId);
+  });
+});
   }
   // Render trash items
   renderTrash() {
@@ -610,12 +623,94 @@ class NotesApp {
     const savedTheme = localStorage.getItem('theme') || 'light';
     this.setTheme(savedTheme);
   }
- 
+  
 }
 
 // ========================================
 // PROTOTYPE METHODS - AI & Tags
 // ========================================
+NotesApp.prototype.showNoteContextMenu = function(e, noteId) {
+  const menu = document.getElementById('note-context-menu');
+  if (!menu) return;
+
+  // Position menu
+  menu.style.left = e.pageX + 'px';
+  menu.style.top = e.pageY + 'px';
+  menu.style.display = 'block';
+
+  // Remove old listeners
+  const newMenu = menu.cloneNode(true);
+  menu.parentNode.replaceChild(newMenu, menu);
+
+  // Add action listeners
+  newMenu.querySelectorAll('.context-menu-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const action = item.dataset.action;
+      
+      if (action === 'rename') {
+        this.renameNote(noteId);
+      } else if (action === 'move') {
+        this.moveNoteToFolderPrompt(noteId);
+      } else if (action === 'delete') {
+        this.deleteNoteById(noteId);
+      }
+      
+      newMenu.style.display = 'none';
+    });
+  });
+
+  // Close menu on outside click
+  const closeMenu = (event) => {
+    if (!newMenu.contains(event.target)) {
+      newMenu.style.display = 'none';
+      document.removeEventListener('click', closeMenu);
+    }
+  };
+  setTimeout(() => document.addEventListener('click', closeMenu), 0);
+};
+
+NotesApp.prototype.renameNote = function(noteId) {
+  const note = storage.getNote(noteId);
+  if (!note) return;
+
+  const newTitle = prompt('Enter new title:', note.title);
+  if (newTitle && newTitle.trim()) {
+    storage.updateNote(noteId, { title: newTitle.trim() });
+    this.renderNotes();
+    showToast('✓ Note renamed');
+  }
+};
+
+NotesApp.prototype.moveNoteToFolderPrompt = function(noteId) {
+  const folders = storage.getFolders();
+  if (folders.length === 0) {
+    showToast('No folders available. Create a folder first.', 'warning');
+    return;
+  }
+
+  const folderList = folders.map((f, i) => `${i + 1}. ${f.name}`).join('\n');
+  const choice = prompt(`Select folder:\n${folderList}\n\nEnter number:`);
+  
+  if (choice) {
+    const index = parseInt(choice) - 1;
+    if (index >= 0 && index < folders.length) {
+      this.moveNoteToFolder(noteId, folders[index].id);
+    }
+  }
+};
+
+NotesApp.prototype.deleteNoteById = function(noteId) {
+  if (confirm('Move this note to trash?')) {
+    storage.deleteNote(noteId);
+    this.renderNotes();
+    this.renderTrash();
+    
+    if (this.currentNote?.id === noteId) {
+      this.showWelcomeScreen();
+    }
+  }
+};
+
 
 NotesApp.prototype.suggestAITagsCompact = function() {
   if (!this.currentNote) {
@@ -736,6 +831,80 @@ NotesApp.prototype.addTagFromCompactInput = function() {
   this.addTag(tag);
   input.value = '';
   this.renderNoteTagsCompact();
+};
+
+// ==========================================
+// TIME TRACKING SYSTEM
+// ==========================================
+
+NotesApp.prototype.startTimeTracking = function(note) {
+  // Stop any existing timer
+  this.stopTimeTracking();
+  
+  // Initialize time spent if not exists
+  if (!note.timeSpent) {
+    note.timeSpent = 0;
+  }
+  
+  // Record start time
+  this.noteStartTime = Date.now();
+  
+  // Update display every second
+  this.timeTrackerInterval = setInterval(() => {
+    this.updateTimeDisplay();
+  }, 1000);
+  
+  // Initial display
+  this.updateTimeDisplay();
+};
+
+NotesApp.prototype.stopTimeTracking = function() {
+  if (this.timeTrackerInterval) {
+    clearInterval(this.timeTrackerInterval);
+    this.timeTrackerInterval = null;
+  }
+  
+  // Save accumulated time
+  if (this.currentNote && this.noteStartTime) {
+    const elapsed = Math.floor((Date.now() - this.noteStartTime) / 1000);
+    this.currentNote.timeSpent = (this.currentNote.timeSpent || 0) + elapsed;
+    
+    storage.updateNote(this.currentNote.id, {
+      timeSpent: this.currentNote.timeSpent
+    });
+    
+    this.noteStartTime = null;
+  }
+};
+
+NotesApp.prototype.updateTimeDisplay = function() {
+  const display = document.getElementById('time-display');
+  if (!display || !this.currentNote) return;
+  
+  // Calculate current session time
+  const sessionTime = this.noteStartTime ? Math.floor((Date.now() - this.noteStartTime) / 1000) : 0;
+  
+  // Add to previously saved time
+  const totalSeconds = (this.currentNote.timeSpent || 0) + sessionTime;
+  
+  // Format as HH:MM:SS
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  
+  display.textContent = `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
+
+NotesApp.prototype.formatTimeSpent = function(seconds) {
+  if (!seconds) return '0m';
+  
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
 };
 
 // ========================================
@@ -1386,6 +1555,8 @@ class BreakActivities {
     this.breathingInterval = null;
     this.breakTimerStart = null;
     this.breakTimerInterval = null;
+    this.currentExerciseIndex = 0;  
+    this.exerciseTimer = null;      
     
     this.setupEventListeners();
   }
@@ -1428,6 +1599,7 @@ class BreakActivities {
     
     // Break timer
     this.setupBreakTimer();
+    this.setupMovementExercise();
 
     // Close on outside click
     document.getElementById('break-modal')?.addEventListener('click', (e) => {
@@ -1753,6 +1925,80 @@ class BreakActivities {
     });
   }
 
+  // Movement Exercise
+  setupMovementExercise() {
+    this.exercises = [
+      { icon: '🙆‍♂️', name: 'Neck Stretch', instruction: 'Gently tilt your head to each side, holding for 10 seconds' },
+      { icon: '💪', name: 'Shoulder Rolls', instruction: 'Roll your shoulders backward 10 times, then forward 10 times' },
+      { icon: '🤸‍♂️', name: 'Standing Stretch', instruction: 'Stand up, reach arms overhead, and stretch tall for 15 seconds' },
+      { icon: '🦵', name: 'Leg Raises', instruction: 'While seated, extend one leg straight and hold for 10 seconds. Alternate legs' },
+      { icon: '👐', name: 'Wrist Circles', instruction: 'Rotate your wrists in circles, 10 times each direction' },
+      { icon: '🚶‍♂️', name: 'Walk Around', instruction: 'Stand up and walk around your space for 30 seconds' },
+      { icon: '🧘‍♀️', name: 'Seated Twist', instruction: 'Sit tall, twist your torso gently to each side, holding for 10 seconds' },
+      { icon: '👀', name: 'Eye Rest', instruction: 'Look away from screen. Focus on something 20 feet away for 20 seconds' }
+    ];
+
+    document.getElementById('prev-exercise')?.addEventListener('click', () => {
+      this.previousExercise();
+    });
+
+    document.getElementById('next-exercise')?.addEventListener('click', () => {
+      this.nextExercise();
+    });
+
+    document.getElementById('start-exercise')?.addEventListener('click', () => {
+      this.startExerciseTimer();
+    });
+
+    // Initialize display with first exercise
+    this.currentExerciseIndex = 0;
+    this.showExercise(0);
+  }
+
+  showExercise(index) {
+    const exercise = this.exercises[index];
+    document.querySelector('.exercise-icon').textContent = exercise.icon;
+    document.querySelector('.exercise-name').textContent = exercise.name;
+    document.querySelector('.exercise-instruction').textContent = exercise.instruction;
+  }
+
+  previousExercise() {
+    this.currentExerciseIndex = (this.currentExerciseIndex - 1 + this.exercises.length) % this.exercises.length;
+    this.showExercise(this.currentExerciseIndex);
+  }
+
+  nextExercise() {
+    this.currentExerciseIndex = (this.currentExerciseIndex + 1) % this.exercises.length;
+    this.showExercise(this.currentExerciseIndex);
+  }
+
+  startExerciseTimer() {
+    let timeLeft = 30;
+    const timerDisplay = document.getElementById('exercise-timer');
+    const startBtn = document.getElementById('start-exercise');
+
+    startBtn.style.display = 'none';
+    timerDisplay.style.display = 'block';
+    timerDisplay.textContent = timeLeft;
+
+    this.exerciseTimer = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = timeLeft;
+
+      if (timeLeft <= 0) {
+        clearInterval(this.exerciseTimer);
+        startBtn.style.display = 'inline-block';
+        timerDisplay.style.display = 'none';
+        showToast('✓ Exercise complete!');
+        
+        // Auto-advance to next exercise
+        setTimeout(() => {
+          this.nextExercise();
+        }, 1000);
+      }
+    }, 1000);
+  }
+
   startBreakTimer() {
     this.breakTimerStart = Date.now();
     document.getElementById('timer-start').style.display = 'none';
@@ -1776,7 +2022,9 @@ class BreakActivities {
 }
 
 // Initialize break activities
-window.breakActivities = new BreakActivities();
+
+
+
 // ==========================================
 // TEMPLATES SYSTEM
 // ==========================================
@@ -2149,15 +2397,11 @@ class TemplatesSystem {
     }
   }
 
-  // Check if current note supports voice
+// Check if current note supports voice (now ALL notes support it!)
   checkVoiceSupport(note) {
-    if (note && note.hasVoice) {
-      this.showVoiceButton();
-    } else {
-      this.hideVoiceButton();
-    }
-  }
-}
+    // Always show voice button for all notes
+    this.showVoiceButton();
+  }}
 
 // Initialize templates system (need to wait for NotesApp to be created)
 window.addEventListener('DOMContentLoaded', () => {
@@ -2180,5 +2424,16 @@ if (document.readyState === 'loading') {
   window.app = new NotesApp();
   app.loadTheme();
 }
+
+// Initialize Break Activities and Templates
+window.breakActivities = new BreakActivities();
+window.templatesSystem = new TemplatesSystem(window.app);
+
+// Save time tracking before page closes
+window.addEventListener('beforeunload', () => {
+  if (window.app) {
+    window.app.stopTimeTracking();
+  }
+});
 
 console.log('✅ Simple Notes App ready!');

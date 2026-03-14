@@ -237,22 +237,28 @@
             <!-- Note Editor Screen -->
             <div id="note-editor-screen" class="note-editor-screen" style="display: none;">
                 <div class="editor-header">
-                    <input type="text" id="note-title" class="note-title-input" placeholder="Note title...">
-                    <div class="editor-actions">
-                        <span id="save-status" class="save-status">✓ Saved</span>
-                        <button id="encrypt-note-btn" class="btn btn-small btn-success" style="display: none;">
-                            🔒 Encrypt Note
-                        </button>
-                        <button id="decrypt-note-btn" class="btn btn-small btn-warning" style="display: none;">
-                            🔓 Decrypt Note
-                        </button>
-                        <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
-                        <button class="toolbar-btn" id="theme-toggle" title="Toggle Theme">
-                        <span id="theme-icon">🌙</span>
-                        </button>
+                        <input type="text" id="note-title" class="note-title-input" placeholder="Note title...">
+                        
+                        <div class="time-tracker">
+                            <span class="time-icon">⏱️</span>
+                            <span id="time-display" class="time-display">0:00:00</span>
+                            <span class="time-label">time on note</span>
+                        </div>
+                        
+                        <div class="editor-actions">
+                            <span id="save-status" class="save-status">✓ Saved</span>
+                            <button id="encrypt-note-btn" class="btn btn-small btn-success" style="display: none;">
+                                🔒 Encrypt Note
+                            </button>
+                            <button id="decrypt-note-btn" class="btn btn-small btn-warning" style="display: none;">
+                                🔓 Decrypt Note
+                            </button>
+                            <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
+                            <button class="toolbar-btn" id="theme-toggle" title="Toggle Theme">
+                                <span id="theme-icon">🌙</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-
                 <!-- Unified Compact Toolbar -->
                 <div class="unified-toolbar" id="unified-toolbar" style="display: none;">
                     <div class="toolbar-section toolbar-formatting">
@@ -404,13 +410,18 @@
                             <h3>Break Timer</h3>
                             <p>Timed rest reminders</p>
                         </div>
+                        
+                        <div class="break-activity-card" data-activity="movement">
+                            <div class="activity-icon">🧘‍♂️</div>
+                            <h3>Physical Movement</h3>
+                            <p>Stretches and exercises</p>
+                        </div>
                     </div>
                     
-                    <!-- Activity Views (hidden by default) -->
+                    <!-- Activity Views -->
                     <div id="activity-view" class="activity-view" style="display: none;">
                         <button class="back-btn" id="back-to-activities">← Back</button>
                         
-                        <!-- Drawing Pad View -->
                         <div id="drawing-activity" class="activity-content" style="display: none;">
                             <h3>🎨 Drawing Pad</h3>
                             <canvas id="break-canvas" class="break-canvas"></canvas>
@@ -425,7 +436,6 @@
                             </div>
                         </div>
                         
-                        <!-- Meditation Timer View -->
                         <div id="meditation-activity" class="activity-content" style="display: none;">
                             <h3>🧘 Meditation Timer</h3>
                             <div class="meditation-timer">
@@ -444,7 +454,6 @@
                             </div>
                         </div>
                         
-                        <!-- Breathing Exercise View -->
                         <div id="breathing-activity" class="activity-content" style="display: none;">
                             <h3>🫁 Breathing Exercise</h3>
                             <div class="breathing-exercise">
@@ -455,14 +464,12 @@
                             </div>
                         </div>
                         
-                        <!-- Puzzle View -->
                         <div id="puzzle-activity" class="activity-content" style="display: none;">
                             <h3>🎮 Memory Game</h3>
                             <div id="memory-game" class="memory-game"></div>
                             <button id="new-game">New Game</button>
                         </div>
                         
-                        <!-- Timer View -->
                         <div id="timer-activity" class="activity-content" style="display: none;">
                             <h3>☕ Break Timer</h3>
                             <div class="break-timer">
@@ -473,14 +480,34 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <div id="movement-activity" class="activity-content" style="display: none;">
+                            <h3>🧘‍♂️ Physical Movement</h3>
+                            <div class="movement-exercise">
+                                <div class="exercise-display" id="exercise-display">
+                                    <div class="exercise-icon">🙆‍♂️</div>
+                                    <div class="exercise-name">Neck Stretch</div>
+                                    <div class="exercise-instruction">Gently tilt your head to each side, holding for 10 seconds</div>
+                                </div>
+                                <div class="exercise-controls">
+                                    <button id="prev-exercise">← Previous</button>
+                                    <button id="next-exercise">Next →</button>
+                                </div>
+                                <div class="exercise-timer">
+                                    <button id="start-exercise">Start Exercise</button>
+                                    <div class="timer-countdown" id="exercise-timer" style="display: none;">30</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
             <!-- Templates Modal -->
             <div id="templates-modal" class="modal">
-                <div class="modal-content templates-modal-content">
+                <div class="modal-content">
                     <div class="modal-header">
-                        <h2>📋 Note Templates</h2>
+                        <h2>📋 Templates</h2>
                         <button class="modal-close" id="templates-modal-close">&times;</button>
                     </div>
                     
@@ -488,45 +515,39 @@
                         <div class="template-card" data-template="journal">
                             <div class="template-icon">📔</div>
                             <h3>Daily Journal</h3>
-                            <p>Reflect on your day with guided prompts</p>
+                            <p>Personal reflection template</p>
                         </div>
                         
                         <div class="template-card" data-template="meeting">
-                            <div class="template-icon">🤝</div>
+                            <div class="template-icon">📝</div>
                             <h3>Meeting Notes</h3>
-                            <p>Capture discussions and action items</p>
+                            <p>Structured meeting format</p>
                         </div>
                         
                         <div class="template-card" data-template="brainstorm">
                             <div class="template-icon">💡</div>
-                            <h3>Brainstorming</h3>
-                            <p>Stream of consciousness idea capture</p>
+                            <h3>Brainstorm</h3>
+                            <p>Idea collection template</p>
                         </div>
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
+    <!-- Context Menu for Notes -->
+    <div id="note-context-menu" class="context-menu" style="display: none;">
+        <div class="context-menu-item" data-action="rename">✏️ Rename</div>
+        <div class="context-menu-item" data-action="move">📁 Move to Folder</div>
+        <div class="context-menu-item" data-action="delete">🗑️ Delete</div>
+    </div>
 
     <!-- JavaScript Files -->
-    <script src="js/utils/helpers.js"></script>
-    <script src="js/ai/tagging.js"></script>
-    <script src="js/utils/security.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/privacy.js"></script>
+    <script src="js/ai/tagging.js"></script>
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/utils/security.js"></script>
     <script src="js/app.js"></script>
-
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')                    
-            .then(reg => console.log('✅ Service Worker registered'))
-                    .catch(err => console.log('❌ Service Worker failed:', err));
-            });
-        }
-    </script>
 </body>
 </html>
