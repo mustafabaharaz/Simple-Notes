@@ -318,6 +318,6 @@ class PrivacyMonitor {
 }
 
 // Create global instance
-const privacyMonitor = new PrivacyMonitor();
+window.privacyMonitor = new PrivacyMonitor();
 
 console.log('✅ Privacy monitor loaded - protecting your data!');

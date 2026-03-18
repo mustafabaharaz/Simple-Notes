@@ -2248,7 +2248,7 @@ class TemplatesSystem {
     this.closeModal();
 
     // Open the new note
-    this.app.renderNotes();
+    if (typeof this.app.renderNotes === 'function') this.app.renderNotes();
     this.app.openNote(note.id);
 
     // Show voice button if template supports it
