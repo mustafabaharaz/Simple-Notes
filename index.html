@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
     <!-- App Loading Screen -->
@@ -111,6 +112,11 @@
             <button class="empty-trash-btn" id="empty-trash-btn" style="display: none;">
                 Empty Trash
             </button>
+            </div>
+            <div id="auth-user-strip">
+            <span>👤</span>
+            <span id="auth-user-email">Loading…</span>
+            <button id="sign-out-btn">Sign out</button>
             </div>
         </aside>
 
@@ -557,11 +563,27 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="js/storage.js"></script>
+    <!-- JavaScript Files -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/supabase-storage.js"></script>
     <script src="js/privacy.js"></script>
     <script src="js/ai/tagging.js"></script>
     <script src="js/utils/helpers.js"></script>
     <script src="js/utils/security.js"></script>
     <script src="js/app.js"></script>
+
+    <!-- ADD THIS LAST ↓ -->
+    <script type="module">
+      import { auth } from './js/auth.js';
+
+      auth.injectAuthModal();
+
+      auth.onChange(async (user) => {
+        if (user) {
+          await window.storage?.migrateFromLocalStorage?.();
+        }
+      });
+    </script>
 </body>
 </html>

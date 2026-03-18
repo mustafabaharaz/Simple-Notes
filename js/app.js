@@ -387,13 +387,13 @@ class NotesApp {
     this.renderFolderDropdown();
     this.updateButtonStates();
 
-    // Check if note supports voice-to-text
-    if (window.templatesSystem) {
-      window.templatesSystem.checkVoiceSupport(note);
-    }
+// Always show voice-to-text when a note is open
+    const voiceSection = document.getElementById('voice-to-text-section');
+    if (voiceSection) voiceSection.style.display = 'flex';
+    if (window.templatesSystem) window.templatesSystem.loadSavedLanguage();
+
     // Start time tracking for this note
     this.startTimeTracking(note);
- 
   }
 
   // Auto-save note
@@ -452,7 +452,6 @@ class NotesApp {
     const notesList = document.getElementById('notes-list');
     if (!notesList) return;
 
-    // Get notes based on active folder filter
     let notes;
     if (!this.activeFolderId || this.activeFolderId === 'all') {
       notes = storage.getNotes();
@@ -476,7 +475,6 @@ class NotesApp {
       const preview = truncate(stripHtml(note.content), 120);
       const isActive = this.currentNote?.id === note.id;
 
-      // Smart date label
       const date = new Date(note.modified || note.created || Date.now());
       const now = new Date();
       const isToday = date.toDateString() === now.toDateString();
@@ -490,19 +488,16 @@ class NotesApp {
         dateLabel = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
       }
 
-      // Time badge
       const timeBadge = note.timeSpent
         ? `<span class="note-item-time">${this.formatTimeSpent(note.timeSpent)}</span>`
         : '';
 
-      // Encrypted badge + preview
       const encryptedBadge = note.encrypted
         ? `<span class="note-item-badge badge-encrypted">🔒 Encrypted</span>`
         : '';
       const previewClass = note.encrypted ? 'note-item-preview is-encrypted' : 'note-item-preview';
       const previewText = note.encrypted ? 'Contents hidden — click to decrypt' : (preview || 'No content yet');
 
-      // Tags (max 4)
       const tagsHTML = (note.tags && note.tags.length > 0)
         ? `<div class="note-item-tags">
             ${note.tags.slice(0, 4).map(tag =>
@@ -512,7 +507,7 @@ class NotesApp {
         : '';
 
       return `
-        <div class="note-item ${isActive ? 'active' : ''}" data-note-id="${note.id}">
+        <div class="note-item ${isActive ? 'active' : ''}" data-note-id="${note.id}" draggable="true">
           <div class="note-item-header">
             <div class="note-item-title">${note.title || 'Untitled Note'}</div>
             ${encryptedBadge}
@@ -526,20 +521,21 @@ class NotesApp {
         </div>
       `;
     }).join('');
+
     notesList.querySelectorAll('.note-item').forEach(item => {
-  item.addEventListener('click', () => {
-    const noteId = item.dataset.noteId;
-    this.openNote(noteId);
-  });
-  
-  // Right-click context menu
-  item.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    const noteId = item.dataset.noteId;
-    this.showNoteContextMenu(e, noteId);
-  });
-});
+      item.addEventListener('click', () => {
+        const noteId = item.dataset.noteId;
+        this.openNote(noteId);
+      });
+
+      item.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const noteId = item.dataset.noteId;
+        this.showNoteContextMenu(e, noteId);
+      });
+    });
   }
+
   // Render trash items
   renderTrash() {
     const trashList = document.getElementById('trash-list');
@@ -573,7 +569,6 @@ class NotesApp {
       `;
     }).join('');
 
-    // Add click handlers for trash items
     trashList.querySelectorAll('.trash-item').forEach(item => {
       item.addEventListener('click', (e) => {
         const noteId = item.dataset.noteId;
@@ -613,7 +608,6 @@ class NotesApp {
       menu.remove();
     });
 
-    // Close menu when clicking outside
     const closeMenu = (e) => {
       if (!menu.contains(e.target)) {
         menu.remove();
@@ -622,6 +616,7 @@ class NotesApp {
     };
     setTimeout(() => document.addEventListener('click', closeMenu), 0);
   }
+
   // Update notes count
   updateNotesCount() {
     const countBadge = document.getElementById('notes-count');
@@ -663,11 +658,10 @@ class NotesApp {
     const savedTheme = localStorage.getItem('theme') || 'light';
     this.setTheme(savedTheme);
   }
-  
+
 }
 
-// ========================================
-// PROTOTYPE METHODS - AI & Tags
+// ========================================// PROTOTYPE METHODS - AI & Tags
 // ========================================
 NotesApp.prototype.showNoteContextMenu = function(e, noteId) {
   const menu = document.getElementById('note-context-menu');

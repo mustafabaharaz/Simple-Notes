@@ -1,0 +1,234 @@
+/* ============================================
+   AUTH.CSS  –  Auth modal styles
+   Simple Notes WebApp
+   Add to: css/components.css or a new auth.css
+   ============================================ */
+
+/* Overlay */
+#auth-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+/* Card */
+.auth-card {
+  background: var(--color-surface, #fff);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: authSlideIn 0.25s ease;
+}
+
+@keyframes authSlideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Logo + title */
+.auth-logo {
+  font-size: 3rem;
+  text-align: center;
+  line-height: 1;
+}
+
+.auth-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--color-text-primary, #111);
+  margin: 0;
+}
+
+.auth-subtitle {
+  font-size: 0.875rem;
+  text-align: center;
+  color: var(--color-text-secondary, #666);
+  margin: 0;
+}
+
+/* Tabs */
+.auth-tabs {
+  display: flex;
+  background: var(--color-background, #f5f5f7);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--color-text-secondary, #666);
+  transition: all 0.2s;
+}
+
+.auth-tab.active {
+  background: var(--color-surface, #fff);
+  color: var(--color-primary, #007AFF);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+/* Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.auth-field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #666);
+}
+
+.auth-field input {
+  padding: 0.65rem 0.875rem;
+  border: 1.5px solid var(--color-border, #e0e0e0);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  outline: none;
+  background: var(--color-background, #f5f5f7);
+  color: var(--color-text-primary, #111);
+  transition: border-color 0.15s;
+}
+
+.auth-field input:focus {
+  border-color: var(--color-primary, #007AFF);
+  background: var(--color-surface, #fff);
+}
+
+/* Error */
+.auth-error {
+  font-size: 0.8rem;
+  color: #ff3b30;
+  background: #fff2f2;
+  border: 1px solid #ffc9c7;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+}
+
+/* Buttons */
+.auth-btn-primary {
+  padding: 0.75rem;
+  background: var(--color-primary, #007AFF);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.auth-btn-primary:hover  { opacity: 0.9; }
+.auth-btn-primary:active { transform: scale(0.98); }
+.auth-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.auth-btn-secondary {
+  padding: 0.65rem;
+  background: var(--color-background, #f5f5f7);
+  color: var(--color-text-primary, #111);
+  border: 1.5px solid var(--color-border, #e0e0e0);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.auth-btn-secondary:hover { background: var(--color-surface-hover, #ebebeb); }
+
+/* Divider */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text-secondary, #999);
+  font-size: 0.75rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border, #e0e0e0);
+}
+
+/* Footer */
+.auth-footer {
+  text-align: center;
+  margin: 0;
+}
+
+.auth-link {
+  background: none;
+  border: none;
+  color: var(--color-primary, #007AFF);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Sign-out button (in sidebar) */
+#sign-out-btn {
+  padding: 0.4rem 0.75rem;
+  background: transparent;
+  border: 1.5px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--color-text-secondary, #666);
+  transition: all 0.15s;
+}
+
+#sign-out-btn:hover {
+  background: #fff0f0;
+  border-color: #ff3b30;
+  color: #ff3b30;
+}
+
+/* User info strip (sidebar footer) */
+#auth-user-strip {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--color-border, #e0e0e0);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+#auth-user-email {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-secondary, #666);
+}

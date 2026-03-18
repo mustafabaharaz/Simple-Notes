@@ -74,6 +74,7 @@ class PrivacyMonitor {
       const allowedDomains = [
         'cdnjs.cloudflare.com',
         'cdn.jsdelivr.net'
+        'isehwvujdmpizozhzwnk.supabase.co'
       ];
 
       const isAllowed = allowedDomains.some(domain => 

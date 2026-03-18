@@ -357,10 +357,9 @@
   z-index: 0;
 }
 
-/* Safari ignores height on contenteditable sometimes */
 .note-content {
   min-height: 200px;
-  -webkit-user-modify: read-write-plaintext-only;
+  text-align: left;
 }
 
 /* Fix Safari 100vh bug — it includes the browser chrome */
