@@ -571,17 +571,5 @@
     <script src="js/ai/tagging.js"></script>
     <script src="js/app.js"></script>
 
-    <!-- ADD THIS LAST ↓ -->
-    <script type="module">
-      import { auth } from './js/auth.js';
-
-      auth.injectAuthModal();
-
-      auth.onChange(async (user) => {
-        if (user) {
-          await window.storage?.migrateFromLocalStorage?.();
-        }
-      });
-    </script>
 </body>
 </html>
