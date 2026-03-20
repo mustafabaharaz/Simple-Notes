@@ -306,8 +306,7 @@ class NotesApp {
       storage.updateNote(note.id, { folderId: this.activeFolderId });
     }
     
-    privacyMonitor.trackNoteCreated();
-    
+    if (window.privacyMonitor) window.if (window.privacyMonitor) window.privacyMonitor.trackNoteCreated();      
     this.renderNotes();
     this.renderFolders();
     this.updateNotesCount();
