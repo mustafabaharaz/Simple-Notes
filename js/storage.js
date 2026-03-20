@@ -14,36 +14,29 @@ class StorageManager {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        
-        // Ensure folders array exists
-        if (!parsed.folders) {
-          parsed.folders = [];
-        }
-        // Ensure trash exists
-        if (!parsed.trash) {
-          parsed.trash = {};
-        }
-        
-        log('Data loaded from storage', 'success');
+
+        if (!parsed.folders) parsed.folders = [];
+        if (!parsed.trash)   parsed.trash   = {};
+
         return parsed;
       }
     } catch (e) {
       console.error('Failed to load data:', e);
       showToast('Failed to load saved data', 'error');
     }
-    
-    // Return default structure
+
     return {
       notes: {},
       trash: {},
       folders: [],
-      settings: {        theme: 'auto',
-        autoSave: true,
+      settings: {
+        theme:             'auto',
+        autoSave:          true,
         encryptionEnabled: false
       },
       metadata: {
-        version: '1.0.0',
-        created: new Date().toISOString(),
+        version:      '1.0.0',
+        created:      new Date().toISOString(),
         lastModified: new Date().toISOString()
       }
     };
@@ -54,12 +47,10 @@ class StorageManager {
     try {
       this.data.metadata.lastModified = new Date().toISOString();
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.data));
-      log('Data saved to storage', 'success');
       return true;
     } catch (e) {
       console.error('Failed to save data:', e);
-      
-      // Check if quota exceeded
+
       if (e.name === 'QuotaExceededError') {
         showToast('Storage full! Please delete some notes.', 'error');
       } else {
@@ -83,25 +74,23 @@ class StorageManager {
 
   // Create new note
   createNote(title = '', content = '') {
-    const id = generateId();
+    const id  = generateId();
     const now = new Date().toISOString();
-    
+
     const note = {
       id,
-      title: title || 'Untitled Note',
-      content: content || '',
-      created: now,
-      modified: now,
+      title:     title || 'Untitled Note',
+      content:   content || '',
+      created:   now,
+      modified:  now,
       encrypted: false,
-      tags: [],
-      folderId: null,
-      color: null
+      tags:      [],
+      folderId:  null,
+      color:     null
     };
-    
+
     this.data.notes[id] = note;
     this.save();
-    
-    log(`Note created: ${id}`, 'success');
     return note;
   }
 
@@ -111,117 +100,107 @@ class StorageManager {
       console.error('Note not found:', id);
       return false;
     }
-    
+
     this.data.notes[id] = {
       ...this.data.notes[id],
       ...updates,
       modified: new Date().toISOString()
     };
-    
+
     this.save();
-    log(`Note updated: ${id}`, 'info');
     return this.data.notes[id];
   }
 
-// Soft delete note (move to trash)
-deleteNote(id) {
-  if (!this.data.notes[id]) {
-    console.error('Note not found:', id);
-    return false;
-  }
-  
-  const note = this.data.notes[id];
-  note.deletedAt = new Date().toISOString();
-  
-  // Move to trash
-  this.data.trash[id] = note;
-  delete this.data.notes[id];
-  
-  this.save();
-  log(`Note moved to trash: ${id}`, 'warning');
-  showToast('Note moved to trash');
-  return true;
-}
-
-// Get trash items
-getTrash() {
-  return Object.values(this.data.trash).sort((a, b) => {
-    return new Date(b.deletedAt) - new Date(a.deletedAt);
-  });
-}
-
-// Restore note from trash
-restoreNote(id) {
-  if (!this.data.trash[id]) {
-    console.error('Note not found in trash:', id);
-    return false;
-  }
-  
-  const note = this.data.trash[id];
-  delete note.deletedAt;
-  note.modified = new Date().toISOString();
-  
-  // Move back to notes
-  this.data.notes[id] = note;
-  delete this.data.trash[id];
-  
-  this.save();
-  log(`Note restored: ${id}`, 'success');
-  showToast('Note restored');
-  return true;
-}
-
-// Permanently delete note from trash
-permanentlyDeleteNote(id) {
-  if (!this.data.trash[id]) {
-    console.error('Note not found in trash:', id);
-    return false;
-  }
-  
-  delete this.data.trash[id];
-  this.save();
-  
-  log(`Note permanently deleted: ${id}`, 'warning');
-  showToast('Note permanently deleted');
-  return true;
-}
-
-// Empty trash (delete all)
-emptyTrash() {
-  const count = Object.keys(this.data.trash).length;
-  this.data.trash = {};
-  this.save();
-  
-  log(`Trash emptied: ${count} notes`, 'warning');
-  showToast(`Deleted ${count} notes permanently`);
-  return true;
-}
-
-// Auto-cleanup old trash items (30 days)
-cleanupOldTrash() {
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
-  let deleted = 0;
-  Object.keys(this.data.trash).forEach(id => {
-    const note = this.data.trash[id];
-    if (new Date(note.deletedAt) < thirtyDaysAgo) {
-      delete this.data.trash[id];
-      deleted++;
+  // Soft delete note (move to trash)
+  deleteNote(id) {
+    if (!this.data.notes[id]) {
+      console.error('Note not found:', id);
+      return false;
     }
-  });
-  
-  if (deleted > 0) {
+
+    const note = this.data.notes[id];
+    note.deletedAt = new Date().toISOString();
+
+    this.data.trash[id] = note;
+    delete this.data.notes[id];
+
     this.save();
-    log(`Auto-cleanup: ${deleted} old notes deleted from trash`, 'info');
+    showToast('Note moved to trash');
+    return true;
   }
-  
-  return deleted;
-}
+
+  // Get trash items
+  getTrash() {
+    return Object.values(this.data.trash).sort((a, b) => {
+      return new Date(b.deletedAt) - new Date(a.deletedAt);
+    });
+  }
+
+  // Restore note from trash
+  restoreNote(id) {
+    if (!this.data.trash[id]) {
+      console.error('Note not found in trash:', id);
+      return false;
+    }
+
+    const note = this.data.trash[id];
+    delete note.deletedAt;
+    note.modified = new Date().toISOString();
+
+    this.data.notes[id] = note;
+    delete this.data.trash[id];
+
+    this.save();
+    showToast('Note restored');
+    return true;
+  }
+
+  // Permanently delete note from trash
+  permanentlyDeleteNote(id) {
+    if (!this.data.trash[id]) {
+      console.error('Note not found in trash:', id);
+      return false;
+    }
+
+    delete this.data.trash[id];
+    this.save();
+
+    showToast('Note permanently deleted');
+    return true;
+  }
+
+  // Empty trash (delete all)
+  emptyTrash() {
+    const count = Object.keys(this.data.trash).length;
+    this.data.trash = {};
+    this.save();
+
+    showToast(`Deleted ${count} notes permanently`);
+    return true;
+  }
+
+  // Auto-cleanup old trash items (30 days)
+  cleanupOldTrash() {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    let deleted = 0;
+    Object.keys(this.data.trash).forEach(id => {
+      if (new Date(this.data.trash[id].deletedAt) < thirtyDaysAgo) {
+        delete this.data.trash[id];
+        deleted++;
+      }
+    });
+
+    if (deleted > 0) this.save();
+
+    return deleted;
+  }
+
   // Search notes
   searchNotes(query) {
     if (!query) return this.getNotes();
-    
+
     const lowerQuery = query.toLowerCase();
     return this.getNotes().filter(note => {
       return note.title.toLowerCase().includes(lowerQuery) ||
@@ -231,15 +210,14 @@ cleanupOldTrash() {
 
   // Get storage stats
   getStorageStats() {
-    const dataStr = JSON.stringify(this.data);
-    const bytes = new Blob([dataStr]).size;
-    
+    const bytes = new Blob([JSON.stringify(this.data)]).size;
+
     return {
-      totalNotes: Object.keys(this.data.notes).length,
-      storageUsed: bytes,
+      totalNotes:           Object.keys(this.data.notes).length,
+      storageUsed:          bytes,
       storageUsedFormatted: formatBytes(bytes),
-      estimatedLimit: 5 * 1024 * 1024, // 5MB typical limit
-      percentUsed: (bytes / (5 * 1024 * 1024)) * 100
+      estimatedLimit:       5 * 1024 * 1024,
+      percentUsed:          (bytes / (5 * 1024 * 1024)) * 100
     };
   }
 
@@ -248,7 +226,7 @@ cleanupOldTrash() {
     return {
       ...this.data,
       exportedAt: new Date().toISOString(),
-      version: '1.0.0'
+      version:    '1.0.0'
     };
   }
 
@@ -258,15 +236,13 @@ cleanupOldTrash() {
       if (mode === 'replace') {
         this.data = importedData;
       } else {
-        // Merge notes
         this.data.notes = {
           ...this.data.notes,
           ...importedData.notes
         };
       }
-      
+
       this.save();
-      log('Data imported successfully', 'success');
       showToast('Data imported successfully!');
       return true;
     } catch (e) {
@@ -280,17 +256,17 @@ cleanupOldTrash() {
   clearAll() {
     if (confirm('⚠️ Delete ALL notes? This cannot be undone!')) {
       this.data = {
-        notes: {},
-        trash: {},
-        folders: [],        settings: this.data.settings,
+        notes:   {},
+        trash:   {},
+        folders: [],
+        settings: this.data.settings,
         metadata: {
-          version: '1.0.0',
-          created: new Date().toISOString(),
+          version:      '1.0.0',
+          created:      new Date().toISOString(),
           lastModified: new Date().toISOString()
         }
       };
       this.save();
-      log('All data cleared', 'warning');
       showToast('All notes deleted', 'warning');
       return true;
     }
@@ -314,16 +290,14 @@ cleanupOldTrash() {
   // Create new folder
   createFolder(name) {
     const folder = {
-      id: generateId(),
-      name: name,
-      created: new Date().toISOString(),
+      id:       generateId(),
+      name:     name,
+      created:  new Date().toISOString(),
       modified: new Date().toISOString()
     };
 
     this.data.folders.push(folder);
     this.save();
-    
-    log(`Folder created: ${name}`, 'info');
     return folder;
   }
 
@@ -332,12 +306,9 @@ cleanupOldTrash() {
     const folder = this.getFolder(folderId);
     if (!folder) return null;
 
-    Object.assign(folder, updates, {
-      modified: new Date().toISOString()
-    });
+    Object.assign(folder, updates, { modified: new Date().toISOString() });
 
     this.save();
-    log(`Folder updated: ${folderId}`, 'info');
     return folder;
   }
 
@@ -349,17 +320,13 @@ cleanupOldTrash() {
     // Remove folder reference from all notes
     this.data.notes = Object.fromEntries(
       Object.entries(this.data.notes).map(([id, note]) => {
-        if (note.folderId === folderId) {
-          note.folderId = null;
-        }
+        if (note.folderId === folderId) note.folderId = null;
         return [id, note];
       })
     );
 
     this.data.folders.splice(index, 1);
     this.save();
-    
-    log(`Folder deleted: ${folderId}`, 'info');
     return true;
   }
 
@@ -378,14 +345,11 @@ cleanupOldTrash() {
 
     note.folderId = folderId;
     note.modified = new Date().toISOString();
-    
+
     this.save();
-    log(`Note moved to folder: ${noteId} -> ${folderId}`, 'info');
     return true;
   }
 }
 
 // Create global instance
 window.storage = new StorageManager();
-
-console.log('✅ Storage manager loaded');

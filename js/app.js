@@ -8,80 +8,63 @@ class NotesApp {
     this.currentNote = null;
     this.activeTagFilter = null;
     this.autoSaveTimeout = null;
-    this.timeTracker = null;           
-    this.timeTrackerInterval = null;  
-    this.noteStartTime = null;         
+    this.timeTracker = null;
+    this.timeTrackerInterval = null;
+    this.noteStartTime = null;
     this.init();
   }
 
   // Initialize app
   init() {
-    // Hide loading screen
     setTimeout(() => {
-      log('Initializing Simple Notes App...', 'info');
       document.getElementById('loading-screen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
-      log('App loaded successfully!', 'success');
     }, 1000);
 
-    // Setup event listeners
     this.setupEventListeners();
 
-    // Load and render notes and folders
-    this.activeFolderId = 'all'; // Default to All Notes
+    this.activeFolderId = 'all';
     this.renderFolders();
     this.renderNotes();
     this.updateNotesCount();
     this.enableNoteDragDrop();
     this.renderTrash();
-    storage.cleanupOldTrash(); // Auto-cleanup on startup
+    storage.cleanupOldTrash();
 
-    // Show welcome screen if no notes
     if (storage.getNotes().length === 0) {
       this.showWelcomeScreen();
     }
 
-    // Initialize drawing system
-    this.initDrawingSystem();
-
-    log('App initialized successfully!', 'success');
   }
 
   // Setup all event listeners
   setupEventListeners() {
-    // New note button
     document.getElementById('new-note-btn')?.addEventListener('click', () => {
       this.createNewNote();
     });
 
-    // Get started button
     document.getElementById('get-started-btn')?.addEventListener('click', () => {
       this.createNewNote();
     });
 
-    // Privacy dashboard button
     document.getElementById('privacy-dashboard-btn')?.addEventListener('click', () => {
       if (window.privacyMonitor) window.privacyMonitor.showDashboard();
     });
 
-    // Close privacy dashboard
     document.getElementById('close-privacy-dashboard')?.addEventListener('click', () => {
       privacyMonitor.hideDashboard();
     });
 
-    // Click outside modal to close
     document.getElementById('privacy-dashboard')?.addEventListener('click', (e) => {
       if (e.target.id === 'privacy-dashboard') {
         privacyMonitor.hideDashboard();
       }
     });
 
-    // Tag functionality - AI Tags button
     document.getElementById('ai-suggest-tags-btn-compact')?.addEventListener('click', () => {
       this.suggestAITagsCompact();
     });
-    
-    // Tag input - Enter key
+
     document.getElementById('tag-input-compact')?.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -89,15 +72,13 @@ class NotesApp {
       }
     });
 
-    // Paragraph formatting buttons
     document.querySelectorAll('[data-action]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         const action = btn.dataset.action;
         this.handleFormatAction(action);
       });
     });
 
-    // Update formatting button states on selection/typing
     const noteContent = document.getElementById('note-content');
     if (noteContent) {
       noteContent.addEventListener('mouseup', () => this.updateButtonStates());
@@ -111,12 +92,10 @@ class NotesApp {
       });
     }
 
-    // Line spacing
     document.getElementById('line-spacing')?.addEventListener('change', (e) => {
       this.setLineSpacing(e.target.value);
     });
 
-    // Note title input
     const titleInput = document.getElementById('note-title');
     if (titleInput) {
       titleInput.addEventListener('input', debounce(() => {
@@ -124,12 +103,10 @@ class NotesApp {
       }, 500));
     }
 
-    // Delete note button
     document.getElementById('delete-note-btn')?.addEventListener('click', () => {
       this.deleteCurrentNote();
     });
 
-    // Encryption buttons
     document.getElementById('encrypt-note-btn')?.addEventListener('click', () => {
       this.encryptCurrentNote();
     });
@@ -138,7 +115,6 @@ class NotesApp {
       this.decryptCurrentNote();
     });
 
-    // Theme toggle
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
       themeToggle.addEventListener('click', () => {
@@ -146,12 +122,10 @@ class NotesApp {
       });
     }
 
-    // Folder management
     document.getElementById('new-folder-btn')?.addEventListener('click', () => {
       this.createNewFolder();
     });
 
-    // Special folder clicks (All Notes, Unfiled)
     document.querySelectorAll('.special-folder').forEach(folder => {
       folder.addEventListener('click', () => {
         const folderId = folder.dataset.folderId;
@@ -159,7 +133,6 @@ class NotesApp {
       });
     });
 
-    // Folder dropdown change
     document.getElementById('note-folder-select')?.addEventListener('change', (e) => {
       if (this.currentNote) {
         const folderId = e.target.value || null;
@@ -167,7 +140,6 @@ class NotesApp {
       }
     });
 
-    // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
         e.preventDefault();
@@ -184,17 +156,11 @@ class NotesApp {
       }
     });
 
-    log('Event listeners setup complete', 'info');
-    // Empty trash button
     document.getElementById('empty-trash-btn')?.addEventListener('click', () => {
       if (confirm('Permanently delete all notes in trash? This cannot be undone.')) {
         storage.emptyTrash();
         this.renderTrash();
       }
-    });
-    // Toggle drawing mode
-    document.getElementById('toggle-draw-btn')?.addEventListener('click', () => {
-      this.toggleDrawingMode();
     });
 
   }
@@ -206,7 +172,7 @@ class NotesApp {
 
     editor.focus();
 
-    switch(action) {
+    switch (action) {
       case 'bold':
         document.execCommand('bold', false, null);
         break;
@@ -237,50 +203,27 @@ class NotesApp {
       case 'outdent':
         document.execCommand('outdent', false, null);
         break;
-      case 'date':
+      case 'date': {
         const now = new Date();
         const dateStr = now.toLocaleDateString();
         document.execCommand('insertText', false, dateStr);
         break;
+      }
     }
 
-    // Update button states after any formatting
     setTimeout(() => this.updateButtonStates(), 10);
     this.autoSaveNote();
   }
 
   // Update button active states
   updateButtonStates() {
-    const boldBtn = document.querySelector('[data-action="bold"]');
-    const italicBtn = document.querySelector('[data-action="italic"]');
+    const boldBtn      = document.querySelector('[data-action="bold"]');
+    const italicBtn    = document.querySelector('[data-action="italic"]');
     const underlineBtn = document.querySelector('[data-action="underline"]');
 
-    if (boldBtn) {
-      const isBold = document.queryCommandState('bold');
-      if (isBold) {
-        boldBtn.classList.add('active');
-      } else {
-        boldBtn.classList.remove('active');
-      }
-    }
-
-    if (italicBtn) {
-      const isItalic = document.queryCommandState('italic');
-      if (isItalic) {
-        italicBtn.classList.add('active');
-      } else {
-        italicBtn.classList.remove('active');
-      }
-    }
-
-    if (underlineBtn) {
-      const isUnderline = document.queryCommandState('underline');
-      if (isUnderline) {
-        underlineBtn.classList.add('active');
-      } else {
-        underlineBtn.classList.remove('active');
-      }
-    }
+    if (boldBtn)      boldBtn.classList.toggle('active', document.queryCommandState('bold'));
+    if (italicBtn)    italicBtn.classList.toggle('active', document.queryCommandState('italic'));
+    if (underlineBtn) underlineBtn.classList.toggle('active', document.queryCommandState('underline'));
   }
 
   // Set line spacing
@@ -289,7 +232,7 @@ class NotesApp {
     if (!editor) return;
 
     editor.style.lineHeight = spacing;
-    
+
     if (this.currentNote) {
       this.currentNote.lineSpacing = spacing;
       this.autoSaveNote();
@@ -299,21 +242,21 @@ class NotesApp {
   // Create new note
   createNewNote() {
     const note = storage.createNote('Untitled Note', '');
-    
-    // Assign to current folder if not viewing "All Notes"
+
     if (this.activeFolderId && this.activeFolderId !== 'all' && this.activeFolderId !== 'unfiled') {
       note.folderId = this.activeFolderId;
       storage.updateNote(note.id, { folderId: this.activeFolderId });
     }
-    
-    if (window.privacyMonitor) window.if (window.privacyMonitor) window.privacyMonitor.trackNoteCreated();      
+
+    if (window.privacyMonitor) window.privacyMonitor.trackNoteCreated();
+
     this.renderNotes();
     this.renderFolders();
     this.updateNotesCount();
     this.openNote(note.id);
-    
+
     showToast('New note created!');
-    
+
     setTimeout(() => {
       const titleInput = document.getElementById('note-title');
       if (titleInput) {
@@ -328,8 +271,7 @@ class NotesApp {
     const note = storage.getNote(noteId);
     if (!note) return;
 
-    // Stop tracking previous note
-    this.stopTimeTracking();  
+    this.stopTimeTracking();
 
     this.currentNote = note;
 
@@ -345,7 +287,7 @@ class NotesApp {
 
       document.getElementById('note-title').value = '🔒 Encrypted Note';
       document.getElementById('note-title').disabled = true;
-      
+
       document.getElementById('note-content').innerHTML = `
         <div style="text-align: center; padding: 60px 20px; color: var(--color-text-light);">
           <div style="font-size: 64px; margin-bottom: 20px;">🔒</div>
@@ -371,27 +313,17 @@ class NotesApp {
     });
     document.querySelector(`[data-note-id="${noteId}"]`)?.classList.add('active');
 
-    log(`Opened note: ${noteId}${note.encrypted ? ' (encrypted)' : ''}`, 'info');
-
     const toolbar = document.getElementById('unified-toolbar');
-    if (toolbar) {
-      toolbar.style.display = 'flex';
-    }
-    // Show draw button
-    const drawBtn = document.getElementById('toggle-draw-btn');
-    if (drawBtn) {
-      drawBtn.style.display = 'inline-flex';
-    }
+    if (toolbar) toolbar.style.display = 'flex';
+
     this.renderNoteTagsCompact();
     this.renderFolderDropdown();
     this.updateButtonStates();
 
-// Always show voice-to-text when a note is open
     const voiceSection = document.getElementById('voice-to-text-section');
     if (voiceSection) voiceSection.style.display = 'flex';
     if (window.templatesSystem) window.templatesSystem.loadSavedLanguage();
 
-    // Start time tracking for this note
     this.startTimeTracking(note);
   }
 
@@ -400,7 +332,7 @@ class NotesApp {
     if (!this.currentNote) return;
 
     clearTimeout(this.autoSaveTimeout);
-    
+
     this.autoSaveTimeout = setTimeout(() => {
       this.saveNote();
     }, 500);
@@ -410,7 +342,7 @@ class NotesApp {
   saveNote() {
     if (!this.currentNote) return;
 
-    const title = document.getElementById('note-title')?.value || 'Untitled Note';
+    const title   = document.getElementById('note-title')?.value || 'Untitled Note';
     const content = document.getElementById('note-content')?.innerHTML || '';
 
     storage.updateNote(this.currentNote.id, {
@@ -471,13 +403,14 @@ class NotesApp {
     }
 
     notesList.innerHTML = notes.map(note => {
-      const preview = truncate(stripHtml(note.content), 120);
+      const preview  = truncate(stripHtml(note.content), 120);
       const isActive = this.currentNote?.id === note.id;
 
-      const date = new Date(note.modified || note.created || Date.now());
-      const now = new Date();
-      const isToday = date.toDateString() === now.toDateString();
+      const date      = new Date(note.modified || note.created || Date.now());
+      const now       = new Date();
+      const isToday   = date.toDateString() === now.toDateString();
       const isYesterday = date.toDateString() === new Date(now - 86400000).toDateString();
+
       let dateLabel;
       if (isToday) {
         dateLabel = 'Today, ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -495,7 +428,7 @@ class NotesApp {
         ? `<span class="note-item-badge badge-encrypted">🔒 Encrypted</span>`
         : '';
       const previewClass = note.encrypted ? 'note-item-preview is-encrypted' : 'note-item-preview';
-      const previewText = note.encrypted ? 'Contents hidden — click to decrypt' : (preview || 'No content yet');
+      const previewText  = note.encrypted ? 'Contents hidden — click to decrypt' : (preview || 'No content yet');
 
       const tagsHTML = (note.tags && note.tags.length > 0)
         ? `<div class="note-item-tags">
@@ -523,24 +456,22 @@ class NotesApp {
 
     notesList.querySelectorAll('.note-item').forEach(item => {
       item.addEventListener('click', () => {
-        const noteId = item.dataset.noteId;
-        this.openNote(noteId);
+        this.openNote(item.dataset.noteId);
       });
 
       item.addEventListener('contextmenu', (e) => {
         e.preventDefault();
-        const noteId = item.dataset.noteId;
-        this.showNoteContextMenu(e, noteId);
+        this.showNoteContextMenu(e, item.dataset.noteId);
       });
     });
   }
 
   // Render trash items
   renderTrash() {
-    const trashList = document.getElementById('trash-list');
-    const trashCount = document.getElementById('trash-count');
+    const trashList    = document.getElementById('trash-list');
+    const trashCount   = document.getElementById('trash-count');
     const emptyTrashBtn = document.getElementById('empty-trash-btn');
-    
+
     if (!trashList) return;
 
     const trashItems = storage.getTrash();
@@ -557,7 +488,7 @@ class NotesApp {
     trashList.innerHTML = trashItems.map(note => {
       const deletedDate = new Date(note.deletedAt);
       const daysAgo = Math.floor((new Date() - deletedDate) / (1000 * 60 * 60 * 24));
-      
+
       return `
         <div class="trash-item" data-note-id="${note.id}">
           <div class="trash-item-title">${note.title}</div>
@@ -570,8 +501,7 @@ class NotesApp {
 
     trashList.querySelectorAll('.trash-item').forEach(item => {
       item.addEventListener('click', (e) => {
-        const noteId = item.dataset.noteId;
-        this.showTrashItemMenu(noteId, e);
+        this.showTrashItemMenu(item.dataset.noteId, e);
       });
     });
   }
@@ -579,12 +509,12 @@ class NotesApp {
   // Show menu for trash item
   showTrashItemMenu(noteId, event) {
     event.stopPropagation();
-    
+
     const menu = document.createElement('div');
     menu.className = 'context-menu';
     menu.style.position = 'fixed';
     menu.style.left = event.pageX + 'px';
-    menu.style.top = event.pageY + 'px';
+    menu.style.top  = event.pageY + 'px';
     menu.innerHTML = `
       <div class="context-menu-item" data-action="restore">↩️ Restore</div>
       <div class="context-menu-item danger" data-action="delete">🗑️ Delete Forever</div>
@@ -634,21 +564,17 @@ class NotesApp {
   // Toggle theme
   toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    this.setTheme(newTheme);
+    this.setTheme(currentTheme === 'dark' ? 'light' : 'dark');
   }
 
   // Set theme
   setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
-    
+
     const icon = document.getElementById('theme-icon');
-    if (icon) {
-      icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-    }
-    
-    console.log('🎨 Theme changed to: ' + theme);
+    if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+
     showToast(theme === 'dark' ? '🌙 Dark mode enabled' : '☀️ Light mode enabled');
   }
 
@@ -657,29 +583,27 @@ class NotesApp {
     const savedTheme = localStorage.getItem('theme') || 'light';
     this.setTheme(savedTheme);
   }
-
 }
 
-// ========================================// PROTOTYPE METHODS - AI & Tags
-// ========================================
+// ==========================================
+// PROTOTYPE METHODS - AI & Tags
+// ==========================================
+
 NotesApp.prototype.showNoteContextMenu = function(e, noteId) {
   const menu = document.getElementById('note-context-menu');
   if (!menu) return;
 
-  // Position menu
-  menu.style.left = e.pageX + 'px';
-  menu.style.top = e.pageY + 'px';
+  menu.style.left    = e.pageX + 'px';
+  menu.style.top     = e.pageY + 'px';
   menu.style.display = 'block';
 
-  // Remove old listeners
   const newMenu = menu.cloneNode(true);
   menu.parentNode.replaceChild(newMenu, menu);
 
-  // Add action listeners
   newMenu.querySelectorAll('.context-menu-item').forEach(item => {
     item.addEventListener('click', () => {
       const action = item.dataset.action;
-      
+
       if (action === 'rename') {
         this.renameNote(noteId);
       } else if (action === 'move') {
@@ -687,12 +611,11 @@ NotesApp.prototype.showNoteContextMenu = function(e, noteId) {
       } else if (action === 'delete') {
         this.deleteNoteById(noteId);
       }
-      
+
       newMenu.style.display = 'none';
     });
   });
 
-  // Close menu on outside click
   const closeMenu = (event) => {
     if (!newMenu.contains(event.target)) {
       newMenu.style.display = 'none';
@@ -723,7 +646,7 @@ NotesApp.prototype.moveNoteToFolderPrompt = function(noteId) {
 
   const folderList = folders.map((f, i) => `${i + 1}. ${f.name}`).join('\n');
   const choice = prompt(`Select folder:\n${folderList}\n\nEnter number:`);
-  
+
   if (choice) {
     const index = parseInt(choice) - 1;
     if (index >= 0 && index < folders.length) {
@@ -737,13 +660,12 @@ NotesApp.prototype.deleteNoteById = function(noteId) {
     storage.deleteNote(noteId);
     this.renderNotes();
     this.renderTrash();
-    
+
     if (this.currentNote?.id === noteId) {
       this.showWelcomeScreen();
     }
   }
 };
-
 
 NotesApp.prototype.suggestAITagsCompact = function() {
   if (!this.currentNote) {
@@ -751,7 +673,7 @@ NotesApp.prototype.suggestAITagsCompact = function() {
     return;
   }
 
-  const title = document.getElementById('note-title')?.value || '';
+  const title   = document.getElementById('note-title')?.value || '';
   const content = stripHtml(document.getElementById('note-content')?.innerHTML || '');
 
   const suggestedTags = aiTagging.generateTags(title, content, 5);
@@ -764,24 +686,24 @@ NotesApp.prototype.suggestAITagsCompact = function() {
   privacyMonitor.trackAIOperation('auto-tag', new Blob([title + content]).size);
 
   const container = document.getElementById('suggested-tags-compact');
-  const row = document.getElementById('suggested-tags-row');
+  const row       = document.getElementById('suggested-tags-row');
 
   document.getElementById('close-suggested-tags').onclick = () => {
     row.style.display = 'none';
-    document.getElementById('suggested-tags-compact').innerHTML = '';
-  };  
-  container.innerHTML = suggestedTags.map(tag => 
+    container.innerHTML = '';
+  };
+
+  container.innerHTML = suggestedTags.map(tag =>
     `<span class="suggested-tag-compact" data-tag="${tag}">${tag}</span>`
   ).join('');
-  
+
   row.style.display = 'flex';
 
-  const self = this;
   container.querySelectorAll('.suggested-tag-compact').forEach(tagEl => {
-    tagEl.addEventListener('click', function() {
-      self.addTag(tagEl.dataset.tag);
+    tagEl.addEventListener('click', () => {
+      this.addTag(tagEl.dataset.tag);
       tagEl.remove();
-      
+
       if (container.querySelectorAll('.suggested-tag-compact').length === 0) {
         row.style.display = 'none';
       }
@@ -806,11 +728,10 @@ NotesApp.prototype.renderNoteTagsCompact = function() {
     </span>
   `).join('');
 
-  const self = this;
   container.querySelectorAll('.remove').forEach(removeBtn => {
-    removeBtn.addEventListener('click', function(e) {
+    removeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      self.removeTag(removeBtn.dataset.tag);
+      this.removeTag(removeBtn.dataset.tag);
     });
   });
 };
@@ -829,9 +750,7 @@ NotesApp.prototype.addTag = function(tag) {
 
   this.currentNote.tags.push(tag);
 
-  storage.updateNote(this.currentNote.id, {
-    tags: this.currentNote.tags
-  });
+  storage.updateNote(this.currentNote.id, { tags: this.currentNote.tags });
 
   this.renderNoteTagsCompact();
   this.renderNotes();
@@ -844,9 +763,7 @@ NotesApp.prototype.removeTag = function(tag) {
 
   this.currentNote.tags = this.currentNote.tags.filter(t => t !== tag);
 
-  storage.updateNote(this.currentNote.id, {
-    tags: this.currentNote.tags
-  });
+  storage.updateNote(this.currentNote.id, { tags: this.currentNote.tags });
 
   this.renderNoteTagsCompact();
   this.renderNotes();
@@ -856,7 +773,7 @@ NotesApp.prototype.removeTag = function(tag) {
 
 NotesApp.prototype.addTagFromCompactInput = function() {
   const input = document.getElementById('tag-input-compact');
-  const tag = input?.value.trim().toLowerCase();
+  const tag   = input?.value.trim().toLowerCase();
 
   if (!tag) return;
 
@@ -875,23 +792,16 @@ NotesApp.prototype.addTagFromCompactInput = function() {
 // ==========================================
 
 NotesApp.prototype.startTimeTracking = function(note) {
-  // Stop any existing timer
   this.stopTimeTracking();
-  
-  // Initialize time spent if not exists
-  if (!note.timeSpent) {
-    note.timeSpent = 0;
-  }
-  
-  // Record start time
+
+  if (!note.timeSpent) note.timeSpent = 0;
+
   this.noteStartTime = Date.now();
-  
-  // Update display every second
+
   this.timeTrackerInterval = setInterval(() => {
     this.updateTimeDisplay();
   }, 1000);
-  
-  // Initial display
+
   this.updateTimeDisplay();
 };
 
@@ -900,16 +810,15 @@ NotesApp.prototype.stopTimeTracking = function() {
     clearInterval(this.timeTrackerInterval);
     this.timeTrackerInterval = null;
   }
-  
-  // Save accumulated time
+
   if (this.currentNote && this.noteStartTime) {
     const elapsed = Math.floor((Date.now() - this.noteStartTime) / 1000);
     this.currentNote.timeSpent = (this.currentNote.timeSpent || 0) + elapsed;
-    
+
     storage.updateNote(this.currentNote.id, {
       timeSpent: this.currentNote.timeSpent
     });
-    
+
     this.noteStartTime = null;
   }
 };
@@ -917,36 +826,29 @@ NotesApp.prototype.stopTimeTracking = function() {
 NotesApp.prototype.updateTimeDisplay = function() {
   const display = document.getElementById('time-display');
   if (!display || !this.currentNote) return;
-  
-  // Calculate current session time
-  const sessionTime = this.noteStartTime ? Math.floor((Date.now() - this.noteStartTime) / 1000) : 0;
-  
-  // Add to previously saved time
+
+  const sessionTime  = this.noteStartTime ? Math.floor((Date.now() - this.noteStartTime) / 1000) : 0;
   const totalSeconds = (this.currentNote.timeSpent || 0) + sessionTime;
-  
-  // Format as HH:MM:SS
-  const hours = Math.floor(totalSeconds / 3600);
+
+  const hours   = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  
+
   display.textContent = `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
 NotesApp.prototype.formatTimeSpent = function(seconds) {
   if (!seconds) return '0m';
-  
-  const hours = Math.floor(seconds / 3600);
+
+  const hours   = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  return `${minutes}m`;
+
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 };
 
-// ========================================
+// ==========================================
 // PROTOTYPE METHODS - Encryption
-// ========================================
+// ==========================================
 
 NotesApp.prototype.encryptCurrentNote = function() {
   if (!this.currentNote) {
@@ -983,10 +885,10 @@ NotesApp.prototype.showPasswordModal = function(action) {
     <div class="password-modal-content">
       <h3>${action === 'encrypt' ? '🔒 Encrypt Note' : '🔓 Decrypt Note'}</h3>
       <p>${action === 'encrypt' ? 'Enter a password to encrypt this note:' : 'Enter password to decrypt this note:'}</p>
-      
-      <input type="password" id="encryption-password-input" class="password-input" 
+
+      <input type="password" id="encryption-password-input" class="password-input"
              placeholder="Enter password" autocomplete="off">
-      
+
       ${action === 'encrypt' ? `
         <div class="password-strength-indicator">
           <div id="password-strength-bar" class="password-strength-bar"></div>
@@ -995,7 +897,7 @@ NotesApp.prototype.showPasswordModal = function(action) {
           Use a strong password with letters, numbers, and symbols
         </small>
       ` : ''}
-      
+
       <div class="password-buttons">
         <button class="btn btn-secondary" id="cancel-password-btn">Cancel</button>
         <button class="btn btn-primary" id="confirm-password-btn">
@@ -1008,19 +910,19 @@ NotesApp.prototype.showPasswordModal = function(action) {
   document.body.appendChild(modal);
 
   const passwordInput = document.getElementById('encryption-password-input');
-  const confirmBtn = document.getElementById('confirm-password-btn');
-  const cancelBtn = document.getElementById('cancel-password-btn');
+  const confirmBtn    = document.getElementById('confirm-password-btn');
+  const cancelBtn     = document.getElementById('cancel-password-btn');
 
   setTimeout(() => passwordInput.focus(), 100);
 
   if (action === 'encrypt') {
     passwordInput.addEventListener('input', () => {
-      const strength = checkPasswordStrength(passwordInput.value);
+      const strength    = checkPasswordStrength(passwordInput.value);
       const strengthBar = document.getElementById('password-strength-bar');
-      const feedback = document.getElementById('password-feedback');
+      const feedback    = document.getElementById('password-feedback');
 
       strengthBar.className = `password-strength-bar password-strength-${strength.level}`;
-      
+
       if (strength.feedback.length > 0) {
         feedback.textContent = strength.feedback.join(', ');
         feedback.style.color = 'var(--color-danger)';
@@ -1033,7 +935,7 @@ NotesApp.prototype.showPasswordModal = function(action) {
 
   confirmBtn.addEventListener('click', () => {
     const password = passwordInput.value;
-    
+
     if (!password) {
       showToast('Please enter a password', 'warning');
       return;
@@ -1053,15 +955,11 @@ NotesApp.prototype.showPasswordModal = function(action) {
   });
 
   passwordInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      confirmBtn.click();
-    }
+    if (e.key === 'Enter') confirmBtn.click();
   });
 
   modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.remove();
-    }
+    if (e.target === modal) modal.remove();
   });
 };
 
@@ -1069,16 +967,16 @@ NotesApp.prototype.performEncryption = function(password) {
   if (!this.currentNote) return;
 
   try {
-    const title = document.getElementById('note-title')?.value || '';
+    const title   = document.getElementById('note-title')?.value || '';
     const content = document.getElementById('note-content')?.innerHTML || '';
 
-    const encryptedTitle = advancedEncrypt(title, password);
+    const encryptedTitle   = advancedEncrypt(title, password);
     const encryptedContent = advancedEncrypt(content, password);
 
     storage.updateNote(this.currentNote.id, {
-      title: encryptedTitle,
-      content: encryptedContent,
-      encrypted: true,
+      title:       encryptedTitle,
+      content:     encryptedContent,
+      encrypted:   true,
       encryptedAt: new Date().toISOString()
     });
 
@@ -1088,7 +986,6 @@ NotesApp.prototype.performEncryption = function(password) {
     this.renderNotes();
 
     showToast('🔒 Note encrypted successfully!', 'success');
-    log('Note encrypted', 'privacy');
 
   } catch (error) {
     console.error('Encryption failed:', error);
@@ -1100,7 +997,7 @@ NotesApp.prototype.performDecryption = function(password) {
   if (!this.currentNote || !this.currentNote.encrypted) return;
 
   try {
-    const decryptedTitle = advancedDecrypt(this.currentNote.title, password);
+    const decryptedTitle   = advancedDecrypt(this.currentNote.title, password);
     const decryptedContent = advancedDecrypt(this.currentNote.content, password);
 
     if (!decryptedTitle && !decryptedContent) {
@@ -1109,8 +1006,8 @@ NotesApp.prototype.performDecryption = function(password) {
     }
 
     storage.updateNote(this.currentNote.id, {
-      title: decryptedTitle,
-      content: decryptedContent,
+      title:     decryptedTitle,
+      content:   decryptedContent,
       encrypted: false
     });
 
@@ -1118,7 +1015,6 @@ NotesApp.prototype.performDecryption = function(password) {
     this.renderNotes();
 
     showToast('🔓 Note decrypted successfully!', 'success');
-    log('Note decrypted', 'info');
 
   } catch (error) {
     console.error('Decryption failed:', error);
@@ -1160,18 +1056,15 @@ NotesApp.prototype.renderFolders = function() {
     `;
   }).join('');
 
-  // Add click listeners
   userFoldersList.querySelectorAll('.folder-item').forEach(item => {
     const folderId = item.dataset.folderId;
-    
-    // Click folder to filter
+
     item.addEventListener('click', (e) => {
       if (!e.target.classList.contains('folder-action-btn')) {
         this.filterByFolder(folderId);
       }
     });
 
-    // Rename button
     const renameBtn = item.querySelector('[data-action="rename"]');
     if (renameBtn) {
       renameBtn.addEventListener('click', (e) => {
@@ -1180,7 +1073,6 @@ NotesApp.prototype.renderFolders = function() {
       });
     }
 
-    // Delete button
     const deleteBtn = item.querySelector('[data-action="delete"]');
     if (deleteBtn) {
       deleteBtn.addEventListener('click', (e) => {
@@ -1194,28 +1086,21 @@ NotesApp.prototype.renderFolders = function() {
 };
 
 NotesApp.prototype.updateFolderCounts = function() {
-  const allCount = document.getElementById('all-notes-count');
+  const allCount    = document.getElementById('all-notes-count');
   const unfiledCount = document.getElementById('unfiled-count');
 
-  if (allCount) {
-    allCount.textContent = storage.getNotes().length;
-  }
-
-  if (unfiledCount) {
-    unfiledCount.textContent = storage.getNotesInFolder('unfiled').length;
-  }
+  if (allCount)     allCount.textContent    = storage.getNotes().length;
+  if (unfiledCount) unfiledCount.textContent = storage.getNotesInFolder('unfiled').length;
 };
 
 NotesApp.prototype.createNewFolder = function() {
   const name = prompt('Enter folder name:');
-  
-  if (!name || !name.trim()) {
-    return;
-  }
+
+  if (!name || !name.trim()) return;
 
   const folder = storage.createFolder(name.trim());
   this.renderFolders();
-  this.renderFolderDropdown(); // ← ADD THIS LINE
+  this.renderFolderDropdown();
   showToast(`📁 Folder "${folder.name}" created!`);
 };
 
@@ -1224,10 +1109,8 @@ NotesApp.prototype.renameFolder = function(folderId) {
   if (!folder) return;
 
   const newName = prompt('Rename folder:', folder.name);
-  
-  if (!newName || !newName.trim() || newName.trim() === folder.name) {
-    return;
-  }
+
+  if (!newName || !newName.trim() || newName.trim() === folder.name) return;
 
   storage.updateFolder(folderId, { name: newName.trim() });
   this.renderFolders();
@@ -1240,21 +1123,18 @@ NotesApp.prototype.deleteFolder = function(folderId) {
   if (!folder) return;
 
   const noteCount = storage.getNotesInFolder(folderId).length;
-  const message = noteCount > 0
+  const message   = noteCount > 0
     ? `Delete "${folder.name}"? ${noteCount} note(s) will be moved to Unfiled.`
     : `Delete "${folder.name}"?`;
 
-  if (!confirm(message)) {
-    return;
-  }
+  if (!confirm(message)) return;
 
   storage.deleteFolder(folderId);
   this.renderFolders();
   this.renderFolderDropdown();
   this.renderNotes();
   showToast(`📁 Folder "${folder.name}" deleted`);
-  
-  // If currently viewing this folder, switch to All Notes
+
   if (this.activeFolderId === folderId) {
     this.filterByFolder('all');
   }
@@ -1263,17 +1143,13 @@ NotesApp.prototype.deleteFolder = function(folderId) {
 NotesApp.prototype.filterByFolder = function(folderId) {
   this.activeFolderId = folderId;
 
-  // Update active states
   document.querySelectorAll('.folder-item').forEach(item => {
     item.classList.remove('active');
   });
 
   const activeFolder = document.querySelector(`[data-folder-id="${folderId}"]`);
-  if (activeFolder) {
-    activeFolder.classList.add('active');
-  }
+  if (activeFolder) activeFolder.classList.add('active');
 
-  // Render filtered notes
   this.renderNotes();
 };
 
@@ -1281,7 +1157,7 @@ NotesApp.prototype.moveNoteToFolder = function(noteId, folderId) {
   storage.moveNoteToFolder(noteId, folderId);
   this.renderNotes();
   this.renderFolders();
-  
+
   const folderName = folderId ? storage.getFolder(folderId)?.name : 'Unfiled';
   showToast(`Note moved to ${folderName || 'Unfiled'}`);
 };
@@ -1290,19 +1166,20 @@ NotesApp.prototype.renderFolderDropdown = function() {
   const select = document.getElementById('note-folder-select');
   if (!select) return;
 
-  const folders = storage.getFolders();
+  const folders         = storage.getFolders();
   const currentFolderId = this.currentNote?.folderId || '';
 
   select.innerHTML = '<option value="">Unfiled</option>';
-  
+
   folders.forEach(folder => {
-    const option = document.createElement('option');
-    option.value = folder.id;
+    const option     = document.createElement('option');
+    option.value     = folder.id;
     option.textContent = folder.name;
-    option.selected = folder.id === currentFolderId;
+    option.selected  = folder.id === currentFolderId;
     select.appendChild(option);
   });
 };
+
 // ==========================================
 // DRAG & DROP SYSTEM
 // ==========================================
@@ -1311,7 +1188,6 @@ NotesApp.prototype.enableNoteDragDrop = function() {
   const notesList = document.getElementById('notes-list');
   if (!notesList) return;
 
-  // Make notes draggable
   notesList.addEventListener('dragstart', (e) => {
     if (e.target.classList.contains('note-item')) {
       e.target.classList.add('dragging');
@@ -1326,14 +1202,13 @@ NotesApp.prototype.enableNoteDragDrop = function() {
     }
   });
 
-  // Make folders drop zones
   const foldersList = document.querySelector('.folders-list');
   if (!foldersList) return;
 
   foldersList.addEventListener('dragover', (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    
+
     const folderItem = e.target.closest('.folder-item');
     if (folderItem) {
       document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('drag-over'));
@@ -1350,299 +1225,71 @@ NotesApp.prototype.enableNoteDragDrop = function() {
 
   foldersList.addEventListener('drop', (e) => {
     e.preventDefault();
-    
+
     const folderItem = e.target.closest('.folder-item');
     if (!folderItem) return;
 
-    const noteId = e.dataTransfer.getData('text/plain');
+    const noteId   = e.dataTransfer.getData('text/plain');
     const folderId = folderItem.dataset.folderId;
 
-    // Clear drag-over state
     document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('drag-over'));
 
-    // Handle special folders
     if (folderId === 'all') {
       showToast('Cannot move notes to "All Notes"', 'warning');
       return;
     }
 
-    const targetFolderId = folderId === 'unfiled' ? null : folderId;
-
-    // Move the note
-    this.moveNoteToFolder(noteId, targetFolderId);
+    this.moveNoteToFolder(noteId, folderId === 'unfiled' ? null : folderId);
   });
 };
 
-// ==========================================
-// DRAWING SYSTEM
-  // ==========================================
-
-  NotesApp.prototype.initDrawingSystem = function() {
-    this.drawingMode = false;
-    this.canvas = document.getElementById('drawing-canvas');
-    this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
-    this.isDrawing = false;
-    this.currentTool = 'pen';
-    this.currentColor = '#000000';
-    this.brushSize = 3;
-
-    if (!this.canvas || !this.ctx) return;
-
-    // Setup canvas size
-    this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
-
-    // Tool buttons
-    document.querySelectorAll('.drawing-tool-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tool = btn.dataset.tool;
-        
-        if (tool === 'clear') {
-          this.clearCanvas();
-        } else {
-          document.querySelectorAll('.drawing-tool-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          this.currentTool = tool;
-        }
-      });
-    });
-
-    // Color buttons
-    document.querySelectorAll('.color-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.currentColor = btn.dataset.color;
-      });
-    });
-
-    // Brush size
-    const brushSlider = document.getElementById('brush-size');
-    const brushValue = document.getElementById('brush-size-value');
-    
-    brushSlider?.addEventListener('input', (e) => {
-      this.brushSize = parseInt(e.target.value);
-      brushValue.textContent = this.brushSize;
-    });
-
-    // Drawing events
-    this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
-    this.canvas.addEventListener('mousemove', (e) => this.draw(e));
-    this.canvas.addEventListener('mouseup', () => this.stopDrawing());
-    this.canvas.addEventListener('mouseout', () => this.stopDrawing());
-
-    // Touch events
-    this.canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      this.startDrawing(e.touches[0]);
-    });
-    this.canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      this.draw(e.touches[0]);
-    });
-    this.canvas.addEventListener('touchend', () => this.stopDrawing());
-  }
-
-  NotesApp.prototype.resizeCanvas = function() {
-    if (!this.canvas) return;
-    
-    const noteContent = document.getElementById('note-content');
-    if (!noteContent) return;
-
-    // Save current drawing
-    const imageData = this.canvas.toDataURL();
-    
-    // Resize canvas to match note content
-    this.canvas.width = noteContent.offsetWidth;
-    this.canvas.height = noteContent.offsetHeight;
-
-    // Restore drawing
-    if (imageData && this.drawingMode) {
-      const img = new Image();
-      img.onload = () => {
-        this.ctx.drawImage(img, 0, 0);
-      };
-      img.src = imageData;
-    }
-  }
-
-  NotesApp.prototype.toggleDrawingMode = function() {
-    this.drawingMode = !this.drawingMode;
-    
-    const canvas = document.getElementById('drawing-canvas');
-    const toolbar = document.getElementById('drawing-toolbar');
-    const noteContent = document.getElementById('note-content');
-    const drawBtn = document.getElementById('toggle-draw-btn');
-
-    if (this.drawingMode) {
-      // Enable drawing mode
-      canvas.style.display = 'block';
-      canvas.style.pointerEvents = 'auto';
-      toolbar.style.display = 'flex';
-      noteContent.contentEditable = 'false';
-      noteContent.style.pointerEvents = 'none';
-      drawBtn.classList.add('active');
-      drawBtn.textContent = '📝 Edit';
-      
-      this.resizeCanvas();
-      this.loadDrawing();
-      
-      showToast('🎨 Drawing mode enabled');
-    } else {
-      // Disable drawing mode
-      canvas.style.display = 'none';
-      canvas.style.pointerEvents = 'none';
-      toolbar.style.display = 'none';
-      noteContent.contentEditable = 'true';
-      noteContent.style.pointerEvents = 'auto';
-      drawBtn.classList.remove('active');
-      drawBtn.textContent = '🎨 Draw';
-      
-      this.saveDrawing();
-      
-      showToast('📝 Edit mode enabled');
-    }
-  }
-
-  NotesApp.prototype.startDrawing = function(e) {
-    if (!this.drawingMode) return;
-    
-    this.isDrawing = true;
-    const rect = this.canvas.getBoundingClientRect();
-    const x = (e.clientX || e.pageX) - rect.left;
-    const y = (e.clientY || e.pageY) - rect.top;
-
-    this.ctx.beginPath();
-    this.ctx.moveTo(x, y);
-  }
-
-  NotesApp.prototype.draw = function(e) {
-    if (!this.isDrawing || !this.drawingMode) return;
-
-    const rect = this.canvas.getBoundingClientRect();
-    const x = (e.clientX || e.pageX) - rect.left;
-    const y = (e.clientY || e.pageY) - rect.top;
-
-    this.ctx.lineWidth = this.brushSize;
-    this.ctx.lineCap = 'round';
-    this.ctx.lineJoin = 'round';
-
-    if (this.currentTool === 'eraser') {
-      this.ctx.globalCompositeOperation = 'destination-out';
-      this.ctx.strokeStyle = 'rgba(0,0,0,1)';
-    } else {
-      this.ctx.globalCompositeOperation = 'source-over';
-      this.ctx.strokeStyle = this.currentColor;
-    }
-
-    this.ctx.lineTo(x, y);
-    this.ctx.stroke();
-  }
-
-  NotesApp.prototype.stopDrawing = function() {
-    if (this.isDrawing) {
-      this.isDrawing = false;
-      this.saveDrawing();
-    }
-  }
-
-  NotesApp.prototype.clearCanvas = function() {
-    if (confirm('Clear all drawings? This cannot be undone.')) {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.saveDrawing();
-      showToast('Canvas cleared');
-    }
-  }
-
-  NotesApp.prototype.saveDrawing = function() {
-    if (!this.currentNote || !this.canvas) return;
-
-    const drawingData = this.canvas.toDataURL();
-    
-    storage.updateNote(this.currentNote.id, {
-      drawing: drawingData
-    });
-  }
-
-  NotesApp.prototype.loadDrawing = function() {
-    if (!this.currentNote || !this.canvas || !this.ctx) return;
-
-    const note = storage.getNote(this.currentNote.id);
-    if (note && note.drawing) {
-      const img = new Image();
-      img.onload = () => {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.drawImage(img, 0, 0);
-      };
-      img.src = note.drawing;
-    } else {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
-  };
 // ==========================================
 // TAKE A BREAK SYSTEM
 // ==========================================
 
 class BreakActivities {
   constructor() {
-    this.currentActivity = null;
-    this.meditationTimer = null;
-    this.meditationSeconds = 300; // 5 minutes default
-    this.meditationInterval = null;
-    this.breathingInterval = null;
-    this.breakTimerStart = null;
-    this.breakTimerInterval = null;
-    this.currentExerciseIndex = 0;  
-    this.exerciseTimer = null;      
-    
+    this.currentActivity      = null;
+    this.meditationTimer      = null;
+    this.meditationSeconds    = 300;
+    this.meditationInterval   = null;
+    this.breathingInterval    = null;
+    this.breakTimerStart      = null;
+    this.breakTimerInterval   = null;
+    this.currentExerciseIndex = 0;
+    this.exerciseTimer        = null;
+
     this.setupEventListeners();
   }
 
   setupEventListeners() {
-    // Open modal
     document.getElementById('take-break-btn')?.addEventListener('click', () => {
       this.openModal();
     });
 
-    // Close modal
     document.getElementById('break-modal-close')?.addEventListener('click', () => {
       this.closeModal();
     });
 
-    // Activity cards
     document.querySelectorAll('.break-activity-card').forEach(card => {
       card.addEventListener('click', () => {
-        const activity = card.dataset.activity;
-        this.openActivity(activity);
+        this.openActivity(card.dataset.activity);
       });
     });
 
-    // Back button
     document.getElementById('back-to-activities')?.addEventListener('click', () => {
       this.backToActivities();
     });
 
-    // Drawing pad
     this.setupDrawingPad();
-    
-    // Meditation timer
     this.setupMeditationTimer();
-    
-    // Breathing exercise
     this.setupBreathingExercise();
-    
-    // Memory game
     this.setupMemoryGame();
-    
-    // Break timer
     this.setupBreakTimer();
     this.setupMovementExercise();
 
-    // Close on outside click
     document.getElementById('break-modal')?.addEventListener('click', (e) => {
-      if (e.target.id === 'break-modal') {
-        this.closeModal();
-      }
+      if (e.target.id === 'break-modal') this.closeModal();
     });
   }
 
@@ -1658,20 +1305,16 @@ class BreakActivities {
 
   openActivity(activity) {
     this.currentActivity = activity;
-    
-    // Hide activity grid, show activity view
+
     document.querySelector('.break-activities').style.display = 'none';
     document.getElementById('activity-view').style.display = 'block';
-    
-    // Hide all activity contents
+
     document.querySelectorAll('.activity-content').forEach(content => {
       content.style.display = 'none';
     });
-    
-    // Show selected activity
+
     document.getElementById(`${activity}-activity`).style.display = 'block';
-    
-    // Initialize activity
+
     if (activity === 'drawing') {
       this.initDrawingPad();
     } else if (activity === 'puzzle') {
@@ -1686,19 +1329,16 @@ class BreakActivities {
   }
 
   stopAllActivities() {
-    // Stop meditation timer
     if (this.meditationInterval) {
       clearInterval(this.meditationInterval);
       this.meditationInterval = null;
     }
-    
-    // Stop breathing exercise
+
     if (this.breathingInterval) {
       clearInterval(this.breathingInterval);
       this.breathingInterval = null;
     }
-    
-    // Stop break timer
+
     if (this.breakTimerInterval) {
       clearInterval(this.breakTimerInterval);
       this.breakTimerInterval = null;
@@ -1707,15 +1347,14 @@ class BreakActivities {
 
   // Drawing Pad
   setupDrawingPad() {
-    this.canvas = document.getElementById('break-canvas');
-    this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
-    this.isDrawing = false;
+    this.canvas       = document.getElementById('break-canvas');
+    this.ctx          = this.canvas ? this.canvas.getContext('2d') : null;
+    this.isDrawing    = false;
     this.currentColor = '#000000';
-    this.brushSize = 3;
+    this.brushSize    = 3;
 
     if (!this.canvas || !this.ctx) return;
 
-    // Color buttons
     document.querySelectorAll('.color-btn-break').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.color-btn-break').forEach(b => b.classList.remove('active'));
@@ -1724,58 +1363,44 @@ class BreakActivities {
       });
     });
 
-    // Brush size
     document.getElementById('break-brush-size')?.addEventListener('input', (e) => {
       this.brushSize = parseInt(e.target.value);
     });
 
-    // Clear button
     document.getElementById('clear-break-canvas')?.addEventListener('click', () => {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     });
 
-    // Drawing events
     this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
     this.canvas.addEventListener('mousemove', (e) => this.draw(e));
-    this.canvas.addEventListener('mouseup', () => this.stopDrawing());
-    this.canvas.addEventListener('mouseout', () => this.stopDrawing());
+    this.canvas.addEventListener('mouseup',   () => this.stopDrawing());
+    this.canvas.addEventListener('mouseout',  () => this.stopDrawing());
 
-    // Touch events
-    this.canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      this.startDrawing(e.touches[0]);
-    });
-    this.canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      this.draw(e.touches[0]);
-    });
-    this.canvas.addEventListener('touchend', () => this.stopDrawing());
+    this.canvas.addEventListener('touchstart', (e) => { e.preventDefault(); this.startDrawing(e.touches[0]); });
+    this.canvas.addEventListener('touchmove',  (e) => { e.preventDefault(); this.draw(e.touches[0]); });
+    this.canvas.addEventListener('touchend',   () => this.stopDrawing());
   }
 
   initDrawingPad() {
     if (!this.canvas) return;
-    this.canvas.width = this.canvas.offsetWidth;
+    this.canvas.width  = this.canvas.offsetWidth;
     this.canvas.height = this.canvas.offsetHeight;
   }
 
   startDrawing(e) {
     this.isDrawing = true;
     const rect = this.canvas.getBoundingClientRect();
-    const x = (e.clientX || e.pageX) - rect.left;
-    const y = (e.clientY || e.pageY) - rect.top;
     this.ctx.beginPath();
-    this.ctx.moveTo(x, y);
+    this.ctx.moveTo((e.clientX || e.pageX) - rect.left, (e.clientY || e.pageY) - rect.top);
   }
 
   draw(e) {
     if (!this.isDrawing) return;
     const rect = this.canvas.getBoundingClientRect();
-    const x = (e.clientX || e.pageX) - rect.left;
-    const y = (e.clientY || e.pageY) - rect.top;
-    this.ctx.lineWidth = this.brushSize;
-    this.ctx.lineCap = 'round';
+    this.ctx.lineWidth   = this.brushSize;
+    this.ctx.lineCap     = 'round';
     this.ctx.strokeStyle = this.currentColor;
-    this.ctx.lineTo(x, y);
+    this.ctx.lineTo((e.clientX || e.pageX) - rect.left, (e.clientY || e.pageY) - rect.top);
     this.ctx.stroke();
   }
 
@@ -1785,17 +1410,9 @@ class BreakActivities {
 
   // Meditation Timer
   setupMeditationTimer() {
-    document.getElementById('meditation-start')?.addEventListener('click', () => {
-      this.startMeditation();
-    });
-
-    document.getElementById('meditation-pause')?.addEventListener('click', () => {
-      this.pauseMeditation();
-    });
-
-    document.getElementById('meditation-reset')?.addEventListener('click', () => {
-      this.resetMeditation();
-    });
+    document.getElementById('meditation-start')?.addEventListener('click', () => this.startMeditation());
+    document.getElementById('meditation-pause')?.addEventListener('click', () => this.pauseMeditation());
+    document.getElementById('meditation-reset')?.addEventListener('click', () => this.resetMeditation());
 
     document.querySelectorAll('.timer-presets button').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1831,7 +1448,7 @@ class BreakActivities {
 
   resetMeditation() {
     this.pauseMeditation();
-    const activePreset = document.querySelector('.timer-presets button.active');
+    const activePreset     = document.querySelector('.timer-presets button.active');
     this.meditationSeconds = parseInt(activePreset.dataset.minutes) * 60;
     this.updateMeditationDisplay();
   }
@@ -1839,29 +1456,24 @@ class BreakActivities {
   updateMeditationDisplay() {
     const minutes = Math.floor(this.meditationSeconds / 60);
     const seconds = this.meditationSeconds % 60;
-    document.getElementById('meditation-timer').textContent = 
+    document.getElementById('meditation-timer').textContent =
       `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 
   // Breathing Exercise
   setupBreathingExercise() {
-    document.getElementById('breathing-start')?.addEventListener('click', () => {
-      this.startBreathing();
-    });
-
-    document.getElementById('breathing-stop')?.addEventListener('click', () => {
-      this.stopBreathing();
-    });
+    document.getElementById('breathing-start')?.addEventListener('click', () => this.startBreathing());
+    document.getElementById('breathing-stop')?.addEventListener('click',  () => this.stopBreathing());
   }
 
   startBreathing() {
     document.getElementById('breathing-start').style.display = 'none';
-    document.getElementById('breathing-stop').style.display = 'inline-block';
+    document.getElementById('breathing-stop').style.display  = 'inline-block';
 
-    const circle = document.getElementById('breathing-circle');
+    const circle      = document.getElementById('breathing-circle');
     const instruction = document.getElementById('breathing-instruction');
-    
-    let phase = 0; // 0: inhale, 1: hold, 2: exhale, 3: hold
+
+    let phase = 0;
 
     const runCycle = () => {
       if (phase === 0) {
@@ -1888,23 +1500,21 @@ class BreakActivities {
   stopBreathing() {
     clearInterval(this.breathingInterval);
     this.breathingInterval = null;
-    document.getElementById('breathing-start').style.display = 'inline-block';
-    document.getElementById('breathing-stop').style.display = 'none';
-    document.getElementById('breathing-instruction').textContent = 'Click Start';
+    document.getElementById('breathing-start').style.display      = 'inline-block';
+    document.getElementById('breathing-stop').style.display       = 'none';
+    document.getElementById('breathing-instruction').textContent  = 'Click Start';
     document.getElementById('breathing-circle').classList.remove('inhale', 'exhale');
   }
 
   // Memory Game
   setupMemoryGame() {
-    document.getElementById('new-game')?.addEventListener('click', () => {
-      this.initMemoryGame();
-    });
+    document.getElementById('new-game')?.addEventListener('click', () => this.initMemoryGame());
   }
 
   initMemoryGame() {
     const emojis = ['🎨', '🎭', '🎪', '🎬', '🎮', '🎯', '🎲', '🎸'];
-    const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
-    
+    const cards  = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+
     const gameContainer = document.getElementById('memory-game');
     gameContainer.innerHTML = '';
 
@@ -1912,15 +1522,13 @@ class BreakActivities {
     let matchedPairs = 0;
 
     cards.forEach((emoji, index) => {
-      const card = document.createElement('div');
-      card.className = 'memory-card';
-      card.dataset.emoji = emoji;
-      card.dataset.index = index;
-      
+      const card          = document.createElement('div');
+      card.className      = 'memory-card';
+      card.dataset.emoji  = emoji;
+      card.dataset.index  = index;
+
       card.addEventListener('click', () => {
-        if (card.classList.contains('flipped') || card.classList.contains('matched') || flippedCards.length === 2) {
-          return;
-        }
+        if (card.classList.contains('flipped') || card.classList.contains('matched') || flippedCards.length === 2) return;
 
         card.classList.add('flipped');
         card.textContent = emoji;
@@ -1931,7 +1539,6 @@ class BreakActivities {
             flippedCards.forEach(c => c.classList.add('matched'));
             matchedPairs++;
             flippedCards = [];
-
             if (matchedPairs === emojis.length) {
               setTimeout(() => showToast('🎉 You won!'), 500);
             }
@@ -1953,49 +1560,35 @@ class BreakActivities {
 
   // Break Timer
   setupBreakTimer() {
-    document.getElementById('timer-start')?.addEventListener('click', () => {
-      this.startBreakTimer();
-    });
-
-    document.getElementById('timer-stop')?.addEventListener('click', () => {
-      this.stopBreakTimer();
-    });
+    document.getElementById('timer-start')?.addEventListener('click', () => this.startBreakTimer());
+    document.getElementById('timer-stop')?.addEventListener('click',  () => this.stopBreakTimer());
   }
 
   // Movement Exercise
   setupMovementExercise() {
     this.exercises = [
-      { icon: '🙆‍♂️', name: 'Neck Stretch', instruction: 'Gently tilt your head to each side, holding for 10 seconds' },
-      { icon: '💪', name: 'Shoulder Rolls', instruction: 'Roll your shoulders backward 10 times, then forward 10 times' },
+      { icon: '🙆‍♂️', name: 'Neck Stretch',     instruction: 'Gently tilt your head to each side, holding for 10 seconds' },
+      { icon: '💪',    name: 'Shoulder Rolls',   instruction: 'Roll your shoulders backward 10 times, then forward 10 times' },
       { icon: '🤸‍♂️', name: 'Standing Stretch', instruction: 'Stand up, reach arms overhead, and stretch tall for 15 seconds' },
-      { icon: '🦵', name: 'Leg Raises', instruction: 'While seated, extend one leg straight and hold for 10 seconds. Alternate legs' },
-      { icon: '👐', name: 'Wrist Circles', instruction: 'Rotate your wrists in circles, 10 times each direction' },
-      { icon: '🚶‍♂️', name: 'Walk Around', instruction: 'Stand up and walk around your space for 30 seconds' },
-      { icon: '🧘‍♀️', name: 'Seated Twist', instruction: 'Sit tall, twist your torso gently to each side, holding for 10 seconds' },
-      { icon: '👀', name: 'Eye Rest', instruction: 'Look away from screen. Focus on something 20 feet away for 20 seconds' }
+      { icon: '🦵',    name: 'Leg Raises',        instruction: 'While seated, extend one leg straight and hold for 10 seconds. Alternate legs' },
+      { icon: '👐',    name: 'Wrist Circles',     instruction: 'Rotate your wrists in circles, 10 times each direction' },
+      { icon: '🚶‍♂️', name: 'Walk Around',       instruction: 'Stand up and walk around your space for 30 seconds' },
+      { icon: '🧘‍♀️', name: 'Seated Twist',      instruction: 'Sit tall, twist your torso gently to each side, holding for 10 seconds' },
+      { icon: '👀',    name: 'Eye Rest',           instruction: 'Look away from screen. Focus on something 20 feet away for 20 seconds' }
     ];
 
-    document.getElementById('prev-exercise')?.addEventListener('click', () => {
-      this.previousExercise();
-    });
+    document.getElementById('prev-exercise')?.addEventListener('click',  () => this.previousExercise());
+    document.getElementById('next-exercise')?.addEventListener('click',  () => this.nextExercise());
+    document.getElementById('start-exercise')?.addEventListener('click', () => this.startExerciseTimer());
 
-    document.getElementById('next-exercise')?.addEventListener('click', () => {
-      this.nextExercise();
-    });
-
-    document.getElementById('start-exercise')?.addEventListener('click', () => {
-      this.startExerciseTimer();
-    });
-
-    // Initialize display with first exercise
     this.currentExerciseIndex = 0;
     this.showExercise(0);
   }
 
   showExercise(index) {
     const exercise = this.exercises[index];
-    document.querySelector('.exercise-icon').textContent = exercise.icon;
-    document.querySelector('.exercise-name').textContent = exercise.name;
+    document.querySelector('.exercise-icon').textContent        = exercise.icon;
+    document.querySelector('.exercise-name').textContent        = exercise.name;
     document.querySelector('.exercise-instruction').textContent = exercise.instruction;
   }
 
@@ -2010,13 +1603,13 @@ class BreakActivities {
   }
 
   startExerciseTimer() {
-    let timeLeft = 30;
+    let timeLeft      = 30;
     const timerDisplay = document.getElementById('exercise-timer');
-    const startBtn = document.getElementById('start-exercise');
+    const startBtn    = document.getElementById('start-exercise');
 
-    startBtn.style.display = 'none';
+    startBtn.style.display    = 'none';
     timerDisplay.style.display = 'block';
-    timerDisplay.textContent = timeLeft;
+    timerDisplay.textContent  = timeLeft;
 
     this.exerciseTimer = setInterval(() => {
       timeLeft--;
@@ -2024,14 +1617,10 @@ class BreakActivities {
 
       if (timeLeft <= 0) {
         clearInterval(this.exerciseTimer);
-        startBtn.style.display = 'inline-block';
+        startBtn.style.display     = 'inline-block';
         timerDisplay.style.display = 'none';
         showToast('✓ Exercise complete!');
-        
-        // Auto-advance to next exercise
-        setTimeout(() => {
-          this.nextExercise();
-        }, 1000);
+        setTimeout(() => this.nextExercise(), 1000);
       }
     }, 1000);
   }
@@ -2039,13 +1628,13 @@ class BreakActivities {
   startBreakTimer() {
     this.breakTimerStart = Date.now();
     document.getElementById('timer-start').style.display = 'none';
-    document.getElementById('timer-stop').style.display = 'inline-block';
+    document.getElementById('timer-stop').style.display  = 'inline-block';
 
     this.breakTimerInterval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - this.breakTimerStart) / 1000);
       const minutes = Math.floor(elapsed / 60);
       const seconds = elapsed % 60;
-      document.getElementById('break-timer').textContent = 
+      document.getElementById('break-timer').textContent =
         `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }, 1000);
   }
@@ -2054,13 +1643,9 @@ class BreakActivities {
     clearInterval(this.breakTimerInterval);
     this.breakTimerInterval = null;
     document.getElementById('timer-start').style.display = 'inline-block';
-    document.getElementById('timer-stop').style.display = 'none';
+    document.getElementById('timer-stop').style.display  = 'none';
   }
 }
-
-// Initialize break activities
-
-
 
 // ==========================================
 // TEMPLATES SYSTEM
@@ -2068,21 +1653,21 @@ class BreakActivities {
 
 class TemplatesSystem {
   constructor(notesApp) {
-    this.app = notesApp;
-    this.templates = this.defineTemplates();
-    this.recognition = null;
-    this.isListening = false;
-    
+    this.app          = notesApp;
+    this.templates    = this.defineTemplates();
+    this.recognition  = null;
+    this.isListening  = false;
+
     this.setupEventListeners();
     this.initVoiceRecognition();
   }
 
   defineTemplates() {
-    const today = new Date().toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    const today = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year:    'numeric',
+      month:   'long',
+      day:     'numeric'
     });
 
     return {
@@ -2185,129 +1770,86 @@ class TemplatesSystem {
   }
 
   setupEventListeners() {
-    // Open templates modal
-    document.getElementById('templates-btn')?.addEventListener('click', () => {
-      this.openModal();
-    });
+    document.getElementById('templates-btn')?.addEventListener('click', () => this.openModal());
+    document.getElementById('templates-modal-close')?.addEventListener('click', () => this.closeModal());
 
-    // Close templates modal
-    document.getElementById('templates-modal-close')?.addEventListener('click', () => {
-      this.closeModal();
-    });
-
-    // Template cards
     document.querySelectorAll('.template-card').forEach(card => {
       card.addEventListener('click', () => {
-        const templateType = card.dataset.template;
-        this.createFromTemplate(templateType);
+        this.createFromTemplate(card.dataset.template);
       });
     });
 
-    // Voice button
-    document.getElementById('voice-btn')?.addEventListener('click', () => {
-      this.toggleVoice();
-    });
+    document.getElementById('voice-btn')?.addEventListener('click', () => this.toggleVoice());
 
-    // Language selector
     document.getElementById('voice-language')?.addEventListener('change', (e) => {
       this.changeLanguage(e.target.value);
     });
 
-    // Close on outside click
     document.getElementById('templates-modal')?.addEventListener('click', (e) => {
-      if (e.target.id === 'templates-modal') {
-        this.closeModal();
-      }
+      if (e.target.id === 'templates-modal') this.closeModal();
     });
   }
 
-  openModal() {
-    document.getElementById('templates-modal').style.display = 'flex';
-  }
-
-  closeModal() {
-    document.getElementById('templates-modal').style.display = 'none';
-  }
+  openModal()  { document.getElementById('templates-modal').style.display = 'flex'; }
+  closeModal() { document.getElementById('templates-modal').style.display = 'none'; }
 
   createFromTemplate(templateType) {
     const template = this.templates[templateType];
     if (!template) return;
 
-    // Create new note with template content
     const note = storage.createNote(template.title, template.content);
-    
-    // Mark as template note
-    storage.updateNote(note.id, { 
-      isTemplate: true, 
+
+    storage.updateNote(note.id, {
+      isTemplate:   true,
       templateType: templateType,
-      hasVoice: template.hasVoice 
+      hasVoice:     template.hasVoice
     });
 
-    // Close modal
     this.closeModal();
 
-    // Open the new note
     if (typeof this.app.renderNotes === 'function') this.app.renderNotes();
     this.app.openNote(note.id);
 
-    // Show voice button if template supports it
-    if (template.hasVoice) {
-      this.showVoiceButton();
-    }
+    if (template.hasVoice) this.showVoiceButton();
 
     showToast(`✓ Created ${template.title.split(' - ')[0]}`);
   }
 
   showVoiceButton() {
     const voiceSection = document.getElementById('voice-to-text-section');
-    if (voiceSection) {
-      voiceSection.style.display = 'flex';
-    }
+    if (voiceSection) voiceSection.style.display = 'flex';
     this.loadSavedLanguage();
   }
-    
 
   hideVoiceButton() {
     const voiceSection = document.getElementById('voice-to-text-section');
-    if (voiceSection) {
-      voiceSection.style.display = 'none';
-    }
+    if (voiceSection) voiceSection.style.display = 'none';
     this.stopVoice();
   }
 
   // Voice Recognition
   initVoiceRecognition() {
-    // Check if browser supports speech recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      console.warn('Speech recognition not supported in this browser');
-      return;
-    }
 
-    this.recognition = new SpeechRecognition();
-    this.recognition.continuous = true;
+    if (!SpeechRecognition) return;
+
+    this.recognition              = new SpeechRecognition();
+    this.recognition.continuous   = true;
     this.recognition.interimResults = true;
-    // Load saved language or default to English
-    this.currentLanguage = localStorage.getItem('voiceLanguage') || 'en-US';
-    this.recognition.lang = this.currentLanguage;
+    this.currentLanguage          = localStorage.getItem('voiceLanguage') || 'en-US';
+    this.recognition.lang         = this.currentLanguage;
 
     let finalTranscript = '';
 
     this.recognition.onresult = (event) => {
-      let interimTranscript = '';
-
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
-        
+
         if (event.results[i].isFinal) {
           finalTranscript += transcript + ' ';
-        } else {
-          interimTranscript += transcript;
         }
       }
 
-      // Insert text into editor
       if (finalTranscript) {
         this.insertVoiceText(finalTranscript);
         finalTranscript = '';
@@ -2336,11 +1878,7 @@ class TemplatesSystem {
       return;
     }
 
-    if (this.isListening) {
-      this.stopVoice();
-    } else {
-      this.startVoice();
-    }
+    this.isListening ? this.stopVoice() : this.startVoice();
   }
 
   startVoice() {
@@ -2364,9 +1902,9 @@ class TemplatesSystem {
   }
 
   updateVoiceButton() {
-    const voiceBtn = document.getElementById('voice-btn');
+    const voiceBtn    = document.getElementById('voice-btn');
     const voiceStatus = document.getElementById('voice-status');
-    
+
     if (this.isListening) {
       voiceBtn.classList.add('listening');
       voiceStatus.textContent = 'Listening...';
@@ -2380,129 +1918,103 @@ class TemplatesSystem {
     const editor = document.getElementById('note-content');
     if (!editor) return;
 
-    // Focus editor
     editor.focus();
 
-    // Insert text at cursor position
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
+      const range    = selection.getRangeAt(0);
       range.deleteContents();
-      
+
       const textNode = document.createTextNode(text);
       range.insertNode(textNode);
-      
-      // Move cursor to end of inserted text
+
       range.setStartAfter(textNode);
       range.setEndAfter(textNode);
       selection.removeAllRanges();
       selection.addRange(range);
     } else {
-      // Fallback: append to end
       editor.innerHTML += text;
     }
 
-    // Trigger auto-save
-    if (this.app) {
-      this.app.autoSaveNote();
-    }
+    if (this.app) this.app.autoSaveNote();
   }
 
   changeLanguage(language) {
     this.currentLanguage = language;
     localStorage.setItem('voiceLanguage', language);
-    
-    if (this.recognition) {
-      this.recognition.lang = language;
-    }
-    
-    // If currently listening, restart with new language
+
+    if (this.recognition) this.recognition.lang = language;
+
     if (this.isListening) {
       this.stopVoice();
       setTimeout(() => this.startVoice(), 100);
     }
-    
+
     const langName = document.querySelector(`#voice-language option[value="${language}"]`).text;
     showToast(`🌍 Voice language: ${langName}`);
   }
 
   loadSavedLanguage() {
     const savedLanguage = localStorage.getItem('voiceLanguage') || 'en-US';
-    const selector = document.getElementById('voice-language');
-    if (selector) {
-      selector.value = savedLanguage;
-    }
+    const selector      = document.getElementById('voice-language');
+    if (selector) selector.value = savedLanguage;
   }
 
-// Check if current note supports voice (now ALL notes support it!)
-  checkVoiceSupport(note) {
-    // Always show voice button for all notes
+  checkVoiceSupport() {
     this.showVoiceButton();
-  }}
-
-// Initialize templates system (need to wait for NotesApp to be created)
-window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    if (window.app) {
-      window.templatesSystem = new TemplatesSystem(window.app);
-    }
-  }, 100);
-});
-// ========================================
-// INITIALIZATION
-// ========================================
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.app = new NotesApp();
-    app.loadTheme();
-
-    // ── Sidebar toggle for mobile ──
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.querySelector('.sidebar');
-
-    const overlay = document.createElement('div');
-    overlay.className = 'sidebar-overlay';
-    document.body.appendChild(overlay);
-
-    function openSidebar() {
-      sidebar.classList.add('is-open');
-      overlay.classList.add('is-visible');
-      sidebarToggle.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeSidebar() {
-      sidebar.classList.remove('is-open');
-      overlay.classList.remove('is-visible');
-      sidebarToggle.classList.remove('is-open');
-      document.body.style.overflow = '';
-    }
-
-    sidebarToggle.addEventListener('click', () => {
-      sidebar.classList.contains('is-open') ? closeSidebar() : openSidebar();
-    });
-
-    overlay.addEventListener('click', closeSidebar);
-
-    document.getElementById('notes-list').addEventListener('click', () => {
-      if (window.innerWidth <= 768) closeSidebar();
-    });
-  });
-} else {
-  window.app = new NotesApp();
-  app.loadTheme();
+  }
 }
 
-// Initialize Break Activities and Templates
-window.breakActivities = new BreakActivities();
-window.templatesSystem = new TemplatesSystem(window.app);
+// ==========================================
+// INITIALIZATION
+// ==========================================
+
+function initApp() {
+  window.app = new NotesApp();
+  app.loadTheme();
+
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const sidebar       = document.querySelector('.sidebar');
+
+  const overlay       = document.createElement('div');
+  overlay.className   = 'sidebar-overlay';
+  document.body.appendChild(overlay);
+
+  function openSidebar() {
+    sidebar.classList.add('is-open');
+    overlay.classList.add('is-visible');
+    sidebarToggle.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('is-open');
+    overlay.classList.remove('is-visible');
+    sidebarToggle.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.contains('is-open') ? closeSidebar() : openSidebar();
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+
+  document.getElementById('notes-list').addEventListener('click', () => {
+    if (window.innerWidth <= 768) closeSidebar();
+  });
+
+  window.breakActivities = new BreakActivities();
+  window.templatesSystem = new TemplatesSystem(window.app);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 // Save time tracking before page closes
 window.addEventListener('beforeunload', () => {
-  if (window.app) {
-    window.app.stopTimeTracking();
-  }
+  if (window.app) window.app.stopTimeTracking();
 });
-
-console.log('✅ Simple Notes App ready!');

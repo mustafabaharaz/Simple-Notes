@@ -22,7 +22,6 @@
   transition: all var(--transition-base);
   z-index: var(--z-fixed);
   overflow: hidden;
-  position: relative;
 }
 
 .theme-toggle::before {
@@ -87,8 +86,8 @@
 }
 
 [data-theme="dark"] .note-item.active {
-  background: linear-gradient(135deg, 
-    rgba(67, 56, 202, 0.2) 0%, 
+  background: linear-gradient(135deg,
+    rgba(67, 56, 202, 0.2) 0%,
     rgba(31, 31, 31, 0.95) 100%);
   border-color: var(--color-primary);
   box-shadow: 0 12px 32px rgba(99, 102, 241, 0.3);
@@ -139,8 +138,8 @@
 
 /* Tags in Dark Mode - Enhanced */
 [data-theme="dark"] .tag-chip {
-  background: linear-gradient(135deg, 
-    rgba(99, 102, 241, 0.2) 0%, 
+  background: linear-gradient(135deg,
+    rgba(99, 102, 241, 0.2) 0%,
     rgba(79, 70, 229, 0.25) 100%);
   color: #a5b4fc;
   border-color: rgba(165, 180, 252, 0.3);
@@ -148,15 +147,15 @@
 }
 
 [data-theme="dark"] .tag-chip:hover {
-  background: linear-gradient(135deg, 
-    rgba(99, 102, 241, 0.3) 0%, 
+  background: linear-gradient(135deg,
+    rgba(99, 102, 241, 0.3) 0%,
     rgba(79, 70, 229, 0.35) 100%);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
 [data-theme="dark"] .note-item-tag {
-  background: linear-gradient(135deg, 
-    rgba(59, 130, 246, 0.2) 0%, 
+  background: linear-gradient(135deg,
+    rgba(59, 130, 246, 0.2) 0%,
     rgba(37, 99, 235, 0.25) 100%);
   color: #93c5fd;
   border-color: rgba(147, 197, 253, 0.3);
@@ -180,8 +179,8 @@
 
 /* Tag Input Container Dark Mode */
 [data-theme="dark"] .tag-input-container {
-  background: linear-gradient(180deg, 
-    rgba(31, 31, 31, 0.6) 0%, 
+  background: linear-gradient(180deg,
+    rgba(31, 31, 31, 0.6) 0%,
     rgba(20, 20, 20, 0.8) 100%);
   border-bottom-color: rgba(64, 64, 64, 0.3);
 }
@@ -202,8 +201,8 @@
 }
 
 [data-theme="dark"] #suggested-tags-container {
-  background: linear-gradient(135deg, 
-    rgba(88, 28, 135, 0.2) 0%, 
+  background: linear-gradient(135deg,
+    rgba(88, 28, 135, 0.2) 0%,
     rgba(76, 29, 149, 0.25) 100%);
   border-color: rgba(196, 181, 253, 0.3);
 }
@@ -225,8 +224,8 @@
 
 /* Privacy Badge Dark Mode */
 [data-theme="dark"] .privacy-badge {
-  background: linear-gradient(135deg, 
-    rgba(6, 95, 70, 0.3) 0%, 
+  background: linear-gradient(135deg,
+    rgba(6, 95, 70, 0.3) 0%,
     rgba(4, 120, 87, 0.4) 100%);
   color: #86efac;
   border-color: rgba(134, 239, 172, 0.3);
@@ -239,8 +238,8 @@
 
 /* Save Status Dark Mode */
 [data-theme="dark"] .save-status {
-  background: linear-gradient(135deg, 
-    rgba(6, 95, 70, 0.3) 0%, 
+  background: linear-gradient(135deg,
+    rgba(6, 95, 70, 0.3) 0%,
     rgba(5, 150, 105, 0.4) 100%);
   color: #86efac;
   border-color: rgba(134, 239, 172, 0.3);
@@ -248,8 +247,8 @@
 
 /* Encrypted Badge Dark Mode */
 [data-theme="dark"] .encrypted-badge {
-  background: linear-gradient(135deg, 
-    rgba(120, 53, 15, 0.4) 0%, 
+  background: linear-gradient(135deg,
+    rgba(120, 53, 15, 0.4) 0%,
     rgba(146, 64, 14, 0.5) 100%);
   color: #fde68a;
   border-color: rgba(253, 230, 138, 0.3);
@@ -257,8 +256,8 @@
 
 /* Filter Badge Dark Mode */
 [data-theme="dark"] .filter-badge {
-  background: linear-gradient(135deg, 
-    rgba(120, 53, 15, 0.4) 0%, 
+  background: linear-gradient(135deg,
+    rgba(120, 53, 15, 0.4) 0%,
     rgba(146, 64, 14, 0.5) 100%);
   color: #fde68a;
   border-color: rgba(253, 230, 138, 0.3);
@@ -276,32 +275,32 @@
 }
 
 [data-theme="dark"] .toast.success {
-  background: linear-gradient(135deg, 
-    rgba(6, 95, 70, 0.5) 0%, 
+  background: linear-gradient(135deg,
+    rgba(6, 95, 70, 0.5) 0%,
     rgba(5, 150, 105, 0.6) 100%);
   color: #86efac;
   border-color: rgba(134, 239, 172, 0.3);
 }
 
 [data-theme="dark"] .toast.error {
-  background: linear-gradient(135deg, 
-    rgba(153, 27, 27, 0.5) 0%, 
+  background: linear-gradient(135deg,
+    rgba(153, 27, 27, 0.5) 0%,
     rgba(220, 38, 38, 0.6) 100%);
   color: #fca5a5;
   border-color: rgba(252, 165, 165, 0.3);
 }
 
 [data-theme="dark"] .toast.warning {
-  background: linear-gradient(135deg, 
-    rgba(120, 53, 15, 0.5) 0%, 
+  background: linear-gradient(135deg,
+    rgba(120, 53, 15, 0.5) 0%,
     rgba(146, 64, 14, 0.6) 100%);
   color: #fde68a;
   border-color: rgba(253, 230, 138, 0.3);
 }
 
 [data-theme="dark"] .toast.info {
-  background: linear-gradient(135deg, 
-    rgba(30, 64, 175, 0.5) 0%, 
+  background: linear-gradient(135deg,
+    rgba(30, 64, 175, 0.5) 0%,
     rgba(37, 99, 235, 0.6) 100%);
   color: #93c5fd;
   border-color: rgba(147, 197, 253, 0.3);
@@ -321,8 +320,8 @@
 
 /* Metric Cards Dark Mode */
 [data-theme="dark"] .metric-card {
-  background: linear-gradient(135deg, 
-    rgba(31, 31, 31, 0.8) 0%, 
+  background: linear-gradient(135deg,
+    rgba(31, 31, 31, 0.8) 0%,
     rgba(38, 38, 38, 0.9) 100%);
   border-color: rgba(64, 64, 64, 0.5);
 }
@@ -345,24 +344,16 @@
 
 /* Welcome Screen Dark Mode */
 [data-theme="dark"] #welcome-screen {
-  background: linear-gradient(135deg, 
-    #0a0a0a 0%, 
+  background: linear-gradient(135deg,
+    #0a0a0a 0%,
     #141414 50%,
     #0a0a0a 100%);
 }
 
 /* Scrollbar Dark Mode */
-[data-theme="dark"] ::-webkit-scrollbar-track {
-  background: #0f0f0f;
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: #404040;
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: #525252;
-}
+[data-theme="dark"] ::-webkit-scrollbar-track { background: #0f0f0f; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #404040; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #525252; }
 
 /* Selection Dark Mode */
 [data-theme="dark"] ::selection {
@@ -410,53 +401,18 @@
   animation: spin 0.8s linear infinite;
 }
 
-/* ===== PRINT STYLES ===== */
-@media print {
-  .sidebar,
-  .editor-toolbar,
-  .editor-actions,
-  .theme-toggle,
-  .toast {
-    display: none !important;
-  }
-  
-  .main-content {
-    width: 100%;
-  }
-  
-  .note-content {
-    padding: 0;
-    color: #000;
-  }
-  
-  body {
-    background: white;
-  }
-}
-
 /* ===== ACCESSIBILITY ENHANCEMENTS ===== */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* High Contrast Mode */
 @media (prefers-contrast: high) {
   :root {
     --color-border: #000;
     --color-text-primary: #000;
   }
-  
+
   [data-theme="dark"] {
     --color-border: #fff;
     --color-text-primary: #fff;
   }
-  
+
   .note-item,
   .toolbar-btn,
   .tag-chip {

@@ -5,7 +5,7 @@
 // Simple XOR encryption (for basic privacy)
 function simpleEncrypt(text, password) {
   if (!text || !password) return text;
-  
+
   let result = '';
   for (let i = 0; i < text.length; i++) {
     result += String.fromCharCode(
@@ -18,7 +18,7 @@ function simpleEncrypt(text, password) {
 // Simple XOR decryption
 function simpleDecrypt(encrypted, password) {
   if (!encrypted || !password) return encrypted;
-  
+
   try {
     const decoded = atob(encrypted); // Base64 decode
     let result = '';
@@ -37,10 +37,9 @@ function simpleDecrypt(encrypted, password) {
 // Advanced encryption using CryptoJS (if available)
 function advancedEncrypt(text, password) {
   if (typeof CryptoJS === 'undefined') {
-    console.warn('CryptoJS not loaded, falling back to simple encryption');
     return simpleEncrypt(text, password);
   }
-  
+
   try {
     return CryptoJS.AES.encrypt(text, password).toString();
   } catch (e) {
@@ -54,13 +53,14 @@ function advancedDecrypt(encrypted, password) {
   if (typeof CryptoJS === 'undefined') {
     return simpleDecrypt(encrypted, password);
   }
-  
+
   try {
     const bytes = CryptoJS.AES.decrypt(encrypted, password);
-    return bytes.toString(CryptoJS.enc.Utf8);
+    const result = bytes.toString(CryptoJS.enc.Utf8);
+    return result || null;
   } catch (e) {
     console.error('Advanced decryption failed:', e);
-    return simpleDecrypt(encrypted, password);
+    return null;
   }
 }
 
@@ -87,7 +87,7 @@ function sanitizeHtml(html) {
       ALLOWED_ATTR: []
     });
   }
-  
+
   // Basic sanitization fallback
   const div = document.createElement('div');
   div.textContent = html;
@@ -98,29 +98,27 @@ function sanitizeHtml(html) {
 function checkPasswordStrength(password) {
   let strength = 0;
   const feedback = [];
-  
+
   if (password.length >= 8) strength++;
   else feedback.push('Use at least 8 characters');
-  
+
   if (/[a-z]/.test(password)) strength++;
   else feedback.push('Add lowercase letters');
-  
+
   if (/[A-Z]/.test(password)) strength++;
   else feedback.push('Add uppercase letters');
-  
+
   if (/[0-9]/.test(password)) strength++;
   else feedback.push('Add numbers');
-  
+
   if (/[^a-zA-Z0-9]/.test(password)) strength++;
   else feedback.push('Add special characters');
-  
+
   const levels = ['weak', 'weak', 'fair', 'good', 'strong', 'very-strong'];
-  
+
   return {
-    level: levels[strength],
+    level:    levels[strength],
     strength: strength,
     feedback: feedback
   };
 }
-
-console.log('✅ Security utilities loaded');

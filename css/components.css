@@ -123,8 +123,8 @@
 /* ===== TAG COMPONENTS - Ultra Premium ===== */
 .tag-input-container {
   padding: var(--spacing-xl);
-  background: linear-gradient(180deg, 
-    rgba(250, 251, 252, 0.6) 0%, 
+  background: linear-gradient(180deg,
+    rgba(250, 251, 252, 0.6) 0%,
     rgba(246, 248, 250, 0.8) 100%);
   border-bottom: 1px solid var(--color-border-light);
   backdrop-filter: blur(10px);
@@ -132,8 +132,8 @@
 }
 
 [data-theme="dark"] .tag-input-container {
-  background: linear-gradient(180deg, 
-    rgba(26, 26, 26, 0.6) 0%, 
+  background: linear-gradient(180deg,
+    rgba(26, 26, 26, 0.6) 0%,
     rgba(38, 38, 38, 0.8) 100%);
 }
 
@@ -176,7 +176,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 0.5s;
 }
 
@@ -283,8 +283,8 @@
 /* Suggested Tags - AI Magic */
 #suggested-tags-container {
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, 
-    rgba(250, 245, 255, 0.9) 0%, 
+  background: linear-gradient(135deg,
+    rgba(250, 245, 255, 0.9) 0%,
     rgba(243, 232, 255, 0.9) 100%);
   border: 2px dashed rgba(139, 92, 246, 0.3);
   border-radius: var(--radius-xl);
@@ -305,8 +305,8 @@
 }
 
 [data-theme="dark"] #suggested-tags-container {
-  background: linear-gradient(135deg, 
-    rgba(88, 28, 135, 0.15) 0%, 
+  background: linear-gradient(135deg,
+    rgba(88, 28, 135, 0.15) 0%,
     rgba(76, 29, 149, 0.2) 100%);
 }
 
@@ -380,8 +380,8 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
-  background: linear-gradient(135deg, 
-    rgba(254, 243, 199, 0.9) 0%, 
+  background: linear-gradient(135deg,
+    rgba(254, 243, 199, 0.9) 0%,
     rgba(253, 230, 138, 0.9) 100%);
   border: 2px solid rgba(251, 191, 36, 0.4);
   border-radius: var(--radius-xl);
@@ -406,8 +406,8 @@
 }
 
 [data-theme="dark"] .filter-badge {
-  background: linear-gradient(135deg, 
-    rgba(120, 53, 15, 0.4) 0%, 
+  background: linear-gradient(135deg,
+    rgba(120, 53, 15, 0.4) 0%,
     rgba(146, 64, 14, 0.5) 100%);
   color: #fde68a;
 }
@@ -456,8 +456,8 @@
 }
 
 .metric-card {
-  background: linear-gradient(135deg, 
-    rgba(248, 250, 252, 0.8) 0%, 
+  background: linear-gradient(135deg,
+    rgba(248, 250, 252, 0.8) 0%,
     rgba(241, 245, 249, 0.9) 100%);
   border: 1.5px solid var(--color-border-light);
   border-radius: var(--radius-xl);
@@ -491,8 +491,8 @@
 }
 
 [data-theme="dark"] .metric-card {
-  background: linear-gradient(135deg, 
-    rgba(38, 38, 38, 0.8) 0%, 
+  background: linear-gradient(135deg,
+    rgba(38, 38, 38, 0.8) 0%,
     rgba(51, 51, 51, 0.9) 100%);
 }
 
@@ -568,12 +568,8 @@
 
 /* ===== UTILITY ANIMATIONS ===== */
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 .pulse {
@@ -581,12 +577,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-12px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 
 .bounce {
@@ -594,22 +586,19 @@
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
 }
 
 .shimmer {
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255,255,255,0.3) 50%, 
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
     transparent 100%);
   background-size: 1000px 100%;
   animation: shimmer 2s infinite;
 }
+
 /* ===== UNIFIED COMPACT TOOLBAR ===== */
 .unified-toolbar {
   display: flex;
@@ -619,11 +608,10 @@
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border-light);
   flex-wrap: wrap;
-  min-height: 48px; /* tighter than before */
+  min-height: 48px;
   overflow-x: auto;
 }
 
-/* Tighter toolbar buttons */
 .toolbar-btn {
   padding: 5px 10px;
   background: transparent;
@@ -857,6 +845,7 @@
     max-height: 100px;
   }
 }
+
 /* ==========================================
    FOLDERS SECTION
    ========================================== */
@@ -1010,6 +999,7 @@
   background: rgba(255, 255, 255, 0.2);
   color: white;
 }
+
 /* ==========================================
    DRAG & DROP STYLES
    ========================================== */
@@ -1032,8 +1022,8 @@
 }
 
 .folder-item.drag-over {
-  background: linear-gradient(135deg, 
-    rgba(79, 70, 229, 0.15), 
+  background: linear-gradient(135deg,
+    rgba(79, 70, 229, 0.15),
     rgba(139, 92, 246, 0.15)) !important;
   border: 2px dashed var(--color-primary) !important;
   transform: scale(1.05);
@@ -1041,10 +1031,10 @@
 }
 
 .folder-item.drag-over .folder-icon {
-  animation: bounce 0.5s ease infinite;
+  animation: bounceFolderDrag 0.5s ease infinite;
 }
 
-@keyframes bounce {
+@keyframes bounceFolderDrag {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
 }
@@ -1052,6 +1042,7 @@
 .note-item[draggable="true"]:hover::after {
   opacity: 1;
 }
+
 /* ==========================================
    PRIVACY DASHBOARD REDESIGN
    ========================================== */
@@ -1106,6 +1097,7 @@
   margin: 0;
   padding-right: 40px;
 }
+
 .modal-close {
   position: absolute;
   top: 16px;
@@ -1131,6 +1123,7 @@
   border-color: var(--color-danger);
   transform: rotate(90deg);
 }
+
 .privacy-metrics {
   padding: 30px;
 }
@@ -1250,25 +1243,10 @@
   flex-shrink: 0;
 }
 
-.stat-success .stat-icon {
-  background: #28a745;
-  color: white;
-}
-
-.stat-primary .stat-icon {
-  background: var(--color-primary);
-  color: white;
-}
-
-.stat-warning .stat-icon {
-  background: #ffc107;
-  color: #333;
-}
-
-.stat-danger .stat-icon {
-  background: #dc3545;
-  color: white;
-}
+.stat-success .stat-icon { background: #28a745; color: white; }
+.stat-primary .stat-icon { background: var(--color-primary); color: white; }
+.stat-warning .stat-icon { background: #ffc107; color: #333; }
+.stat-danger .stat-icon  { background: #dc3545; color: white; }
 
 .stat-content {
   flex: 1;
@@ -1437,14 +1415,12 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .privacy-stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
+  .privacy-stats-grid,
   .guarantees-grid {
     grid-template-columns: 1fr;
   }
 }
+
 /* ==========================================
    PASSWORD MODAL (CENTERED)
    ========================================== */
@@ -1518,25 +1494,10 @@
   border-radius: 2px;
 }
 
-.password-strength-bar.password-strength-weak {
-  width: 25%;
-  background: var(--color-danger);
-}
-
-.password-strength-bar.password-strength-medium {
-  width: 50%;
-  background: var(--color-warning);
-}
-
-.password-strength-bar.password-strength-good {
-  width: 75%;
-  background: var(--color-success);
-}
-
-.password-strength-bar.password-strength-strong {
-  width: 100%;
-  background: var(--color-primary);
-}
+.password-strength-bar.password-strength-weak   { width: 25%;  background: var(--color-danger); }
+.password-strength-bar.password-strength-medium { width: 50%;  background: var(--color-warning); }
+.password-strength-bar.password-strength-good   { width: 75%;  background: var(--color-success); }
+.password-strength-bar.password-strength-strong { width: 100%; background: var(--color-primary); }
 
 .password-buttons {
   display: flex;
@@ -1578,7 +1539,7 @@
 
 @keyframes fadeIn {
   from { opacity: 0; }
-  to { opacity: 1; }
+  to   { opacity: 1; }
 }
 
 @keyframes slideUp {
@@ -1591,44 +1552,7 @@
     transform: translateY(0);
   }
 }
-/* ==========================================
-   CONTEXT MENU
-   ========================================== */
 
-.context-menu {
-  position: fixed;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  padding: 4px 0;
-  min-width: 160px;
-  z-index: 10000;
-  animation: fadeIn 0.15s ease;
-}
-
-.context-menu-item {
-  padding: 10px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--color-text-primary);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.context-menu-item:hover {
-  background: var(--color-bg-secondary);
-}
-
-.context-menu-item.danger {
-  color: var(--color-danger);
-}
-
-.context-menu-item.danger:hover {
-  background: rgba(239, 68, 68, 0.1);
-}
 /* ==========================================
    DRAWING CANVAS & TOOLBAR
    ========================================== */
@@ -1716,14 +1640,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.color-btn:hover {
-  transform: scale(1.15);
-}
-
-.color-btn.active {
-  border-color: var(--color-text-primary);
-  transform: scale(1.2);
-}
+.color-btn:hover  { transform: scale(1.15); }
+.color-btn.active { border-color: var(--color-text-primary); transform: scale(1.2); }
 
 .drawing-sizes {
   display: flex;
@@ -1753,6 +1671,48 @@
 /* Note content positioning for canvas */
 .note-content {
   position: relative;
+}
+
+/* ==========================================
+   CONTEXT MENU
+   ========================================== */
+
+.context-menu {
+  position: fixed;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  min-width: 160px;
+  z-index: 10000;
+  backdrop-filter: blur(20px);
+  animation: fadeIn 0.15s ease;
+}
+
+[data-theme="dark"] .context-menu {
+  background: rgba(30, 30, 30, 0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.context-menu-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.context-menu-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.context-menu-item[data-action="delete"]:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
 }
 
 /* ==========================================
@@ -1866,14 +1826,8 @@
   transition: all 0.2s ease;
 }
 
-.color-btn-break:hover {
-  transform: scale(1.15);
-}
-
-.color-btn-break.active {
-  border-color: var(--color-text-primary);
-  transform: scale(1.2);
-}
+.color-btn-break:hover  { transform: scale(1.15); }
+.color-btn-break.active { border-color: var(--color-text-primary); transform: scale(1.2); }
 
 .drawing-controls input[type="range"] {
   width: 120px;
@@ -1948,9 +1902,7 @@
   transition: all 0.2s ease;
 }
 
-.timer-presets button:hover {
-  border-color: var(--color-primary);
-}
+.timer-presets button:hover { border-color: var(--color-primary); }
 
 .timer-presets button.active {
   background: var(--color-primary);
@@ -1974,13 +1926,8 @@
   box-shadow: 0 8px 32px rgba(79, 70, 229, 0.3);
 }
 
-.breathing-circle.inhale {
-  transform: scale(1.5);
-}
-
-.breathing-circle.exhale {
-  transform: scale(1);
-}
+.breathing-circle.inhale { transform: scale(1.5); }
+.breathing-circle.exhale { transform: scale(1); }
 
 .breathing-instruction {
   font-size: 24px;
@@ -2028,16 +1975,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.memory-card.flipped {
-  background: var(--color-primary);
-  color: white;
-}
-
-.memory-card.matched {
-  background: var(--color-success);
-  color: white;
-  cursor: default;
-}
+.memory-card.flipped { background: var(--color-primary); color: white; }
+.memory-card.matched { background: var(--color-success); color: white; cursor: default; }
 
 #new-game {
   padding: 12px 32px;
@@ -2054,6 +1993,7 @@
 #new-game:hover {
   background: var(--color-primary-dark);
 }
+
 /* ==========================================
    MODERN ELEGANT MODAL LAYOUTS
    ========================================== */
@@ -2079,7 +2019,6 @@
   overflow: hidden;
 }
 
-/* Gradient top bar on hover — matches sidebar card accent style */
 .template-card::before,
 .break-activity-card::before {
   content: '';
@@ -2103,7 +2042,6 @@
   opacity: 1;
 }
 
-/* Icon inside a colored rounded square — replaces raw emoji */
 .template-icon,
 .activity-icon {
   width: 48px;
@@ -2114,40 +2052,21 @@
   justify-content: center;
   font-size: 22px;
   margin: 0 auto 12px;
-  /* default — overridden per card below */
   background: var(--color-primary-light);
 }
 
 /* Template card icon colors */
-.template-card[data-template="journal"] .template-icon {
-  background: linear-gradient(135deg, #EEF2FF, #E0F2FE);
-}
-.template-card[data-template="meeting"] .template-icon {
-  background: linear-gradient(135deg, #E0F2FE, #D1FAE5);
-}
-.template-card[data-template="brainstorm"] .template-icon {
-  background: linear-gradient(135deg, #FEF3C7, #FEE2E2);
-}
+.template-card[data-template="journal"]    .template-icon { background: linear-gradient(135deg, #EEF2FF, #E0F2FE); }
+.template-card[data-template="meeting"]    .template-icon { background: linear-gradient(135deg, #E0F2FE, #D1FAE5); }
+.template-card[data-template="brainstorm"] .template-icon { background: linear-gradient(135deg, #FEF3C7, #FEE2E2); }
 
 /* Break card icon colors */
-.break-activity-card[data-activity="drawing"] .activity-icon {
-  background: linear-gradient(135deg, #FDF2F8, #FEF3C7);
-}
-.break-activity-card[data-activity="meditation"] .activity-icon {
-  background: linear-gradient(135deg, #EEF2FF, #E0F2FE);
-}
-.break-activity-card[data-activity="breathing"] .activity-icon {
-  background: linear-gradient(135deg, #E0F2FE, #D1FAE5);
-}
-.break-activity-card[data-activity="puzzle"] .activity-icon {
-  background: linear-gradient(135deg, #D1FAE5, #E0F2FE);
-}
-.break-activity-card[data-activity="timer"] .activity-icon {
-  background: linear-gradient(135deg, #FEF3C7, #FEE2E2);
-}
-.break-activity-card[data-activity="movement"] .activity-icon {
-  background: linear-gradient(135deg, #FDF2F8, #EEF2FF);
-}
+.break-activity-card[data-activity="drawing"]    .activity-icon { background: linear-gradient(135deg, #FDF2F8, #FEF3C7); }
+.break-activity-card[data-activity="meditation"] .activity-icon { background: linear-gradient(135deg, #EEF2FF, #E0F2FE); }
+.break-activity-card[data-activity="breathing"]  .activity-icon { background: linear-gradient(135deg, #E0F2FE, #D1FAE5); }
+.break-activity-card[data-activity="puzzle"]     .activity-icon { background: linear-gradient(135deg, #D1FAE5, #E0F2FE); }
+.break-activity-card[data-activity="timer"]      .activity-icon { background: linear-gradient(135deg, #FEF3C7, #FEE2E2); }
+.break-activity-card[data-activity="movement"]   .activity-icon { background: linear-gradient(135deg, #FDF2F8, #EEF2FF); }
 
 .template-card h3,
 .break-activity-card h3 {
@@ -2165,7 +2084,6 @@
   margin: 0;
 }
 
-/* Dark mode */
 [data-theme="dark"] .template-card,
 [data-theme="dark"] .break-activity-card {
   background: var(--color-bg-secondary);
@@ -2197,57 +2115,14 @@
 
 #voice-btn.listening {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: voicePulse 1.5s ease-in-out infinite;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
-  }
-}
-/* ==========================================
-   NOTE CONTEXT MENU
-   ========================================== */
-
-.context-menu {
-  position: fixed;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  padding: 4px 0;
-  min-width: 160px;
-  z-index: 10000;
-  backdrop-filter: blur(20px);
+@keyframes voicePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  50%       { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
 }
 
-[data-theme="dark"] .context-menu {
-  background: rgba(30, 30, 30, 0.95);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.context-menu-item {
-  padding: 10px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--color-text-primary);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.context-menu-item:hover {
-  background: var(--color-bg-secondary);
-}
-
-.context-menu-item[data-action="delete"]:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--color-danger);
-}
 /* ==========================================
    MOVEMENT EXERCISE
    ========================================== */
@@ -2333,6 +2208,7 @@
   color: var(--color-primary);
   margin-top: 16px;
 }
+
 /* ==========================================
    TIME TRACKER
    ========================================== */
@@ -2391,6 +2267,7 @@
   background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
   border-color: rgba(79, 70, 229, 0.3);
 }
+
 /* Time badge in sidebar */
 .time-badge {
   display: inline-flex;

@@ -5,22 +5,20 @@
 class PrivacyMonitor {
   constructor() {
     this.metrics = {
-      bytesToCloud: 0,
-      localProcessingBytes: 0,
-      notesCreated: 0,
-      notesEncrypted: 0,
-      aiOperationsCount: 0,
+      bytesToCloud:           0,
+      localProcessingBytes:   0,
+      notesCreated:           0,
+      notesEncrypted:         0,
+      aiOperationsCount:      0,
       networkRequestsBlocked: 0,
-      sessionStart: Date.now(),
-      events: []
+      sessionStart:           Date.now(),
+      events:                 []
     };
-    
+
     this.load();
     this.monitorNetwork();
     this.updateBadge();
     this.syncWithExistingData();
-    
-    console.log('✅ Privacy Monitor initialized');
   }
 
   // Load saved metrics
@@ -29,7 +27,6 @@ class PrivacyMonitor {
       const saved = localStorage.getItem('privacy_metrics');
       if (saved) {
         this.metrics = { ...this.metrics, ...JSON.parse(saved) };
-        console.log('📊 Loaded privacy metrics');
       }
     } catch (e) {
       console.error('Failed to load privacy metrics:', e);
@@ -52,14 +49,14 @@ class PrivacyMonitor {
       timestamp: new Date().toISOString(),
       ...data
     };
-    
+
     this.metrics.events.push(event);
-    
+
     // Keep only last 50 events
     if (this.metrics.events.length > 50) {
       this.metrics.events = this.metrics.events.slice(-50);
     }
-    
+
     this.save();
   }
 
@@ -70,14 +67,14 @@ class PrivacyMonitor {
 
     window.fetch = function(...args) {
       const url = args[0];
-      
+
       const allowedDomains = [
         'cdnjs.cloudflare.com',
-        'cdn.jsdelivr.net'
+        'cdn.jsdelivr.net',
         'isehwvujdmpizozhzwnk.supabase.co'
       ];
 
-      const isAllowed = allowedDomains.some(domain => 
+      const isAllowed = allowedDomains.some(domain =>
         (typeof url === 'string' && url.includes(domain))
       );
 
@@ -85,15 +82,11 @@ class PrivacyMonitor {
         self.metrics.networkRequestsBlocked++;
         self.save();
         self.updateBadge();
-        
-        console.log(`🛡️ Blocked network request: ${url}`);
         return Promise.reject(new Error('Blocked by privacy policy'));
       }
 
       return originalFetch.apply(this, args);
     };
-    
-    console.log('🔒 Network monitoring active');
   }
 
   // Track local data processing
@@ -139,16 +132,15 @@ class PrivacyMonitor {
 
   // Show privacy dashboard
   showDashboard() {
-    const modal = document.getElementById('privacy-dashboard');
+    const modal            = document.getElementById('privacy-dashboard');
     const metricsContainer = document.getElementById('privacy-metrics');
-    
+
     if (!modal || !metricsContainer) return;
 
-    // Calculate metrics
-    const totalNotes = Object.keys(storage.data.notes || {}).length;
+    const totalNotes     = Object.keys(storage.data.notes || {}).length;
     const encryptedNotes = Object.values(storage.data.notes || {}).filter(n => n.encrypted).length;
-    const localBytes = this.metrics.localProcessingBytes;
-    const aiOps = this.metrics.aiOperationsCount;
+    const localBytes     = this.metrics.localProcessingBytes;
+    const aiOps          = this.metrics.aiOperationsCount;
 
     metricsContainer.innerHTML = `
       <div class="privacy-hero">
@@ -208,7 +200,7 @@ class PrivacyMonitor {
               <p>No analytics, cookies, or user tracking</p>
             </div>
           </div>
-          
+
           <div class="guarantee-item">
             <span class="guarantee-icon">✓</span>
             <div class="guarantee-text">
@@ -216,7 +208,7 @@ class PrivacyMonitor {
               <p>All data stays in your browser</p>
             </div>
           </div>
-          
+
           <div class="guarantee-item">
             <span class="guarantee-icon">✓</span>
             <div class="guarantee-text">
@@ -224,7 +216,7 @@ class PrivacyMonitor {
               <p>AI runs entirely on your device</p>
             </div>
           </div>
-          
+
           <div class="guarantee-item">
             <span class="guarantee-icon">✓</span>
             <div class="guarantee-text">
@@ -252,21 +244,20 @@ class PrivacyMonitor {
 
       <div class="privacy-footer">
         <p>
-          <strong>Your privacy matters.</strong> 
+          <strong>Your privacy matters.</strong>
           Simple Notes is designed with privacy as the foundation, not an afterthought.
         </p>
       </div>
     `;
 
     modal.style.display = 'flex';
-    log('Privacy dashboard opened', 'info');
   }
 
   getEventIcon(type) {
     const icons = {
-      'note-created': '📝',
-      'note-encrypted': '🔒',
-      'ai-operation': '🤖',
+      'note-created':    '📝',
+      'note-encrypted':  '🔒',
+      'ai-operation':    '🤖',
       'local-processing': '💾'
     };
     return icons[type] || '📋';
@@ -274,9 +265,9 @@ class PrivacyMonitor {
 
   getEventTitle(event) {
     const titles = {
-      'note-created': 'Note created locally',
-      'note-encrypted': 'Note encrypted with AES-256',
-      'ai-operation': `AI ${event.operation} (${formatBytes(event.bytes)})`,
+      'note-created':    'Note created locally',
+      'note-encrypted':  'Note encrypted with AES-256',
+      'ai-operation':    `AI ${event.operation} (${formatBytes(event.bytes)})`,
       'local-processing': `Processed ${formatBytes(event.bytes)} locally`
     };
     return titles[event.type] || 'Privacy event';
@@ -285,9 +276,7 @@ class PrivacyMonitor {
   // Hide dashboard
   hideDashboard() {
     const modal = document.getElementById('privacy-dashboard');
-    if (modal) {
-      modal.style.display = 'none';
-    }
+    if (modal) modal.style.display = 'none';
   }
 
   // Sync with existing data
@@ -295,22 +284,17 @@ class PrivacyMonitor {
     setTimeout(() => {
       if (typeof storage !== 'undefined') {
         const notes = storage.getNotes();
-        
+
         if (this.metrics.notesCreated === 0 && notes.length > 0) {
           this.metrics.notesCreated = notes.length;
-          
+
           notes.forEach(note => {
-            const noteBytes = new Blob([JSON.stringify(note)]).size;
-            this.metrics.localProcessingBytes += noteBytes;
-            
-            if (note.encrypted) {
-              this.metrics.notesEncrypted++;
-            }
+            this.metrics.localProcessingBytes += new Blob([JSON.stringify(note)]).size;
+            if (note.encrypted) this.metrics.notesEncrypted++;
           });
-          
+
           this.save();
           this.updateBadge();
-          console.log('✅ Synced metrics with existing data');
         }
       }
     }, 100);
@@ -319,5 +303,3 @@ class PrivacyMonitor {
 
 // Create global instance
 window.privacyMonitor = new PrivacyMonitor();
-
-console.log('✅ Privacy monitor loaded - protecting your data!');

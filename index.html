@@ -7,14 +7,14 @@
     <meta name="theme-color" content="#007AFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Simple Notes - Privacy-First AI Notes</title>
-    
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    
+
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    
+
     <!-- CSS Files -->
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/layout.css">
@@ -25,55 +25,57 @@
 </head>
 <body>
     <!-- App Loading Screen -->
-    <div id="loading-screen" class="loading-screen" style="display: none;">
+    <div id="loading-screen" class="loading-screen">
         <div class="loading-spinner"></div>
         <p>Loading Simple Notes...</p>
         <small>🔒 100% Private • 🤖 Local AI</small>
     </div>
 
     <!-- Main App Container -->
-    <div id="app" class="app-container">
-        
+    <div id="app" class="app-container" style="display: none;">
+
         <!-- Sidebar -->
         <aside class="sidebar">
-        <div class="sidebar-header">
-            <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <div class="app-logo" id="privacy-badge">
-                <div class="app-logo-icon">🛡️</div>
-                <div class="app-logo-text">
-                    <span class="app-logo-name">Simple Notes</span>
-                    <span class="app-logo-tagline">Private &amp; local</span>
+            <div class="sidebar-header">
+                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="app-logo" id="privacy-badge">
+                    <div class="app-logo-icon">🛡️</div>
+                    <div class="app-logo-text">
+                        <span class="app-logo-name">Simple Notes</span>
+                        <span class="app-logo-tagline">Private &amp; local</span>
+                    </div>
                 </div>
             </div>
-        </div>            
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <button id="new-note-btn" class="qa-btn qa-btn-primary">
-                <span class="qa-icon">📝</span>
-                <span>New Note</span>
-            </button>
-            <div class="qa-secondary-row">
-                <button id="templates-btn" class="qa-btn qa-btn-secondary" title="Templates">
-                    <span class="qa-icon">📋</span>
-                    <span>Templates</span>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button id="new-note-btn" class="qa-btn-primary">
+                    <span class="qa-icon">📝</span>
+                    <span>New Note</span>
                 </button>
-                <button id="privacy-dashboard-btn" class="qa-btn qa-btn-secondary" title="Privacy Dashboard">
-                    <span class="qa-icon">🔒</span>
-                    <span>Privacy</span>
-                </button>
-                <button id="take-break-btn" class="qa-btn qa-btn-secondary" title="Take a Break">
-                    <span class="qa-icon">🧘</span>
-                    <span>Break</span>
-                </button>
+                <div class="qa-secondary-row">
+                    <button id="templates-btn" class="qa-btn-secondary" title="Templates">
+                        <span class="qa-icon">📋</span>
+                        <span>Templates</span>
+                    </button>
+                    <button id="privacy-dashboard-btn" class="qa-btn-secondary" title="Privacy Dashboard">
+                        <span class="qa-icon">🔒</span>
+                        <span>Privacy</span>
+                    </button>
+                    <button id="take-break-btn" class="qa-btn-secondary" title="Take a Break">
+                        <span class="qa-icon">🧘</span>
+                        <span>Break</span>
+                    </button>
+                </div>
             </div>
-        </div>
+
             <!-- Notes List -->
             <div class="notes-section">
-                <h3>Your Notes <span id="notes-count" class="count-badge">0</span></h3>
+                <h3>Your Notes <span id="notes-count" class="notes-count">0</span></h3>
                 <div id="notes-list" class="notes-list">
                     <!-- Notes will be dynamically added here -->
                 </div>
@@ -85,38 +87,40 @@
                     <h3>📁 Folders</h3>
                     <button class="btn-icon" id="new-folder-btn" title="New Folder">+</button>
                 </div>
-                
+
                 <div class="folders-list">
                     <div class="folder-item special-folder active" data-folder-id="all">
                         <span class="folder-icon">📋</span>
                         <span class="folder-name">All Notes</span>
                         <span class="folder-count" id="all-notes-count">0</span>
                     </div>
-                                        
+
                     <div class="folders-divider"></div>
-                    
+
                     <div id="user-folders-list">
                         <!-- User folders will be rendered here -->
                     </div>
                 </div>
             </div>
+
             <!-- Trash Section -->
             <div class="trash-section">
-            <div class="trash-header">
-                <h3>🗑️ Trash</h3>
-                <span class="trash-count" id="trash-count">0</span>
+                <div class="trash-header">
+                    <h3>🗑️ Trash</h3>
+                    <span class="trash-count" id="trash-count">0</span>
+                </div>
+                <div class="trash-list" id="trash-list">
+                    <!-- Trash items will be rendered here -->
+                </div>
+                <button class="empty-trash-btn" id="empty-trash-btn" style="display: none;">
+                    Empty Trash
+                </button>
             </div>
-            <div class="trash-list" id="trash-list">
-                <!-- Trash items will be rendered here -->
-            </div>
-            <button class="empty-trash-btn" id="empty-trash-btn" style="display: none;">
-                Empty Trash
-            </button>
-            </div>
+
             <div id="auth-user-strip">
-            <span>👤</span>
-            <span id="auth-user-email">Loading…</span>
-            <button id="sign-out-btn">Sign out</button>
+                <span>👤</span>
+                <span id="auth-user-email">Loading…</span>
+                <button id="sign-out-btn">Sign out</button>
             </div>
         </aside>
 
@@ -156,7 +160,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Features Grid -->
                     <div class="features-grid">
                         <div class="feature-box feature-privacy">
@@ -180,7 +184,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="feature-box feature-ai">
                             <div class="feature-visual">
                                 <div class="ai-brain">
@@ -198,7 +202,7 @@
                                 <span class="tag-bubble">Local ML</span>
                             </div>
                         </div>
-                        
+
                         <div class="feature-box feature-tools">
                             <div class="feature-visual">
                                 <div class="tools-stack">
@@ -222,7 +226,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Trust Indicators -->
                     <div class="trust-bar">
                         <div class="trust-item">
@@ -260,28 +264,29 @@
             <!-- Note Editor Screen -->
             <div id="note-editor-screen" class="note-editor-screen" style="display: none;">
                 <div class="editor-header">
-                        <input type="text" id="note-title" class="note-title-input" placeholder="Note title...">
-                        
-                        <div class="time-tracker">
-                            <span class="time-icon">⏱️</span>
-                            <span id="time-display" class="time-display">0:00:00</span>
-                            <span class="time-label">time on note</span>
-                        </div>
-                        
-                        <div class="editor-actions">
-                            <span id="save-status" class="save-status">✓ Saved</span>
-                            <button id="encrypt-note-btn" class="btn btn-small btn-success" style="display: none;">
-                                🔒 Encrypt Note
-                            </button>
-                            <button id="decrypt-note-btn" class="btn btn-small btn-warning" style="display: none;">
-                                🔓 Decrypt Note
-                            </button>
-                            <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
-                            <button class="toolbar-btn" id="theme-toggle" title="Toggle Theme">
-                                <span id="theme-icon">🌙</span>
-                            </button>
-                        </div>
+                    <input type="text" id="note-title" class="note-title-input" placeholder="Note title...">
+
+                    <div class="time-tracker">
+                        <span class="time-icon">⏱️</span>
+                        <span id="time-display" class="time-display">0:00:00</span>
+                        <span class="time-label">time on note</span>
                     </div>
+
+                    <div class="editor-actions">
+                        <span id="save-status" class="save-status">✓ Saved</span>
+                        <button id="encrypt-note-btn" class="btn btn-small btn-success" style="display: none;">
+                            🔒 Encrypt Note
+                        </button>
+                        <button id="decrypt-note-btn" class="btn btn-small btn-warning" style="display: none;">
+                            🔓 Decrypt Note
+                        </button>
+<button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
+                        <button class="toolbar-btn" id="theme-toggle" title="Toggle Theme">
+                            <span id="theme-icon">🌙</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Unified Compact Toolbar -->
                 <div class="unified-toolbar" id="unified-toolbar" style="display: none;">
                     <div class="toolbar-section toolbar-formatting">
@@ -308,19 +313,21 @@
                         <div class="toolbar-divider"></div>
                         <button class="toolbar-btn" data-action="date" title="Insert Date">Date</button>
                     </div>
+
                     <div class="toolbar-section toolbar-folder">
                         <label for="note-folder-select" style="font-size: 12px; color: var(--color-text-secondary);">Folder:</label>
                         <select class="toolbar-select" id="note-folder-select">
                             <option value="">Unfiled</option>
                         </select>
                     </div>
-                    
+
                     <div class="toolbar-section toolbar-tags">
                         <button class="toolbar-btn ai-suggest-btn-compact" id="ai-suggest-tags-btn-compact" title="AI suggest tags">🤖</button>
                         <input type="text" id="tag-input-compact" class="tag-input-compact" placeholder="Add tag..." maxlength="20">
                         <div class="tags-display-compact" id="note-tags-display"></div>
                     </div>
-                                <!-- Voice-to-Text Button (in toolbar, hidden by default) -->
+
+                    <!-- Voice-to-Text Button -->
                     <div id="voice-to-text-section" class="toolbar-section" style="display: none;">
                         <select id="voice-language" class="toolbar-select" title="Voice Language">
                             <option value="en-US">🇺🇸 English (US)</option>
@@ -343,41 +350,17 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Suggested Tags Row -->
                 <div id="suggested-tags-row" class="suggested-tags-row" style="display: none;">
                     <span class="suggested-label">🤖 Suggested:</span>
                     <div id="suggested-tags-compact"></div>
                     <button id="close-suggested-tags" class="close-suggested-btn" title="Dismiss">✕</button>
                 </div>
+
                 <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
                 </div>
-                <!-- Drawing Canvas Overlay -->
-                <canvas id="drawing-canvas" class="drawing-canvas" style="display: none;"></canvas>
-                
-                <!-- Drawing Toolbar -->
-                <div id="drawing-toolbar" class="drawing-toolbar" style="display: none;">
-                    <div class="drawing-tools">
-                        <button class="drawing-tool-btn active" data-tool="pen" title="Pen">✏️</button>
-                        <button class="drawing-tool-btn" data-tool="eraser" title="Eraser">🧹</button>
-                        <button class="drawing-tool-btn" data-tool="clear" title="Clear All">🗑️</button>
-                    </div>
-                    
-                    <div class="drawing-colors">
-                        <button class="color-btn active" data-color="#000000" style="background: #000000;" title="Black"></button>
-                        <button class="color-btn" data-color="#FF0000" style="background: #FF0000;" title="Red"></button>
-                        <button class="color-btn" data-color="#0000FF" style="background: #0000FF;" title="Blue"></button>
-                        <button class="color-btn" data-color="#00FF00" style="background: #00FF00;" title="Green"></button>
-                        <button class="color-btn" data-color="#FFFF00" style="background: #FFFF00;" title="Yellow"></button>
-                        <button class="color-btn" data-color="#FF00FF" style="background: #FF00FF;" title="Purple"></button>
-                    </div>
-                    
-                    <div class="drawing-sizes">
-                        <label>Size:</label>
-                        <input type="range" id="brush-size" min="1" max="20" value="3" class="brush-size-slider">
-                        <span id="brush-size-value">3</span>
-                    </div>
-                </div>
+
             </div>
 
             <!-- Privacy Dashboard (modal) -->
@@ -392,6 +375,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Take a Break Modal -->
             <div id="break-modal" class="modal">
                 <div class="modal-content break-modal-content">
@@ -399,49 +383,49 @@
                         <h2>🧘 Take a Break</h2>
                         <button class="modal-close" id="break-modal-close">&times;</button>
                     </div>
-                    
+
                     <div class="break-activities">
                         <div class="break-activity-card" data-activity="drawing">
                             <div class="activity-icon">🎨</div>
                             <h3>Drawing Pad</h3>
                             <p>Sketch and doodle freely</p>
                         </div>
-                        
+
                         <div class="break-activity-card" data-activity="meditation">
                             <div class="activity-icon">🧘</div>
                             <h3>Meditation Timer</h3>
                             <p>Mindful breathing sessions</p>
                         </div>
-                        
+
                         <div class="break-activity-card" data-activity="breathing">
                             <div class="activity-icon">🫁</div>
                             <h3>Breathing Exercise</h3>
                             <p>Guided breathing patterns</p>
                         </div>
-                        
+
                         <div class="break-activity-card" data-activity="puzzle">
                             <div class="activity-icon">🎮</div>
                             <h3>Quick Puzzle</h3>
                             <p>Simple brain teaser</p>
                         </div>
-                        
+
                         <div class="break-activity-card" data-activity="timer">
                             <div class="activity-icon">☕</div>
                             <h3>Break Timer</h3>
                             <p>Timed rest reminders</p>
                         </div>
-                        
+
                         <div class="break-activity-card" data-activity="movement">
                             <div class="activity-icon">🧘‍♂️</div>
                             <h3>Physical Movement</h3>
                             <p>Stretches and exercises</p>
                         </div>
                     </div>
-                    
+
                     <!-- Activity Views -->
                     <div id="activity-view" class="activity-view" style="display: none;">
                         <button class="back-btn" id="back-to-activities">← Back</button>
-                        
+
                         <div id="drawing-activity" class="activity-content" style="display: none;">
                             <h3>🎨 Drawing Pad</h3>
                             <canvas id="break-canvas" class="break-canvas"></canvas>
@@ -455,7 +439,7 @@
                                 <button id="clear-break-canvas">Clear</button>
                             </div>
                         </div>
-                        
+
                         <div id="meditation-activity" class="activity-content" style="display: none;">
                             <h3>🧘 Meditation Timer</h3>
                             <div class="meditation-timer">
@@ -473,7 +457,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div id="breathing-activity" class="activity-content" style="display: none;">
                             <h3>🫁 Breathing Exercise</h3>
                             <div class="breathing-exercise">
@@ -483,13 +467,13 @@
                                 <button id="breathing-stop" style="display: none;">Stop</button>
                             </div>
                         </div>
-                        
+
                         <div id="puzzle-activity" class="activity-content" style="display: none;">
                             <h3>🎮 Memory Game</h3>
                             <div id="memory-game" class="memory-game"></div>
                             <button id="new-game">New Game</button>
                         </div>
-                        
+
                         <div id="timer-activity" class="activity-content" style="display: none;">
                             <h3>☕ Break Timer</h3>
                             <div class="break-timer">
@@ -500,7 +484,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div id="movement-activity" class="activity-content" style="display: none;">
                             <h3>🧘‍♂️ Physical Movement</h3>
                             <div class="movement-exercise">
@@ -530,20 +514,20 @@
                         <h2>📋 Templates</h2>
                         <button class="modal-close" id="templates-modal-close">&times;</button>
                     </div>
-                    
+
                     <div class="templates-grid">
                         <div class="template-card" data-template="journal">
                             <div class="template-icon">📔</div>
                             <h3>Daily Journal</h3>
                             <p>Personal reflection template</p>
                         </div>
-                        
+
                         <div class="template-card" data-template="meeting">
                             <div class="template-icon">📝</div>
                             <h3>Meeting Notes</h3>
                             <p>Structured meeting format</p>
                         </div>
-                        
+
                         <div class="template-card" data-template="brainstorm">
                             <div class="template-icon">💡</div>
                             <h3>Brainstorm</h3>
@@ -562,7 +546,6 @@
         <div class="context-menu-item" data-action="delete">🗑️ Delete</div>
     </div>
 
-    <!-- JavaScript Files -->
     <!-- JavaScript Files -->
     <script src="js/utils/helpers.js"></script>
     <script src="js/utils/security.js"></script>

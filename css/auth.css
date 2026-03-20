@@ -1,7 +1,6 @@
 /* ============================================
    AUTH.CSS  –  Auth modal styles
    Simple Notes WebApp
-   Add to: css/components.css or a new auth.css
    ============================================ */
 
 /* Overlay */
@@ -84,7 +83,7 @@
 .auth-tab.active {
   background: var(--color-surface, #fff);
   color: var(--color-primary, #007AFF);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 /* Form */
@@ -146,8 +145,8 @@
   transition: opacity 0.15s, transform 0.1s;
 }
 
-.auth-btn-primary:hover  { opacity: 0.9; }
-.auth-btn-primary:active { transform: scale(0.98); }
+.auth-btn-primary:hover    { opacity: 0.9; }
+.auth-btn-primary:active   { transform: scale(0.98); }
 .auth-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .auth-btn-secondary {

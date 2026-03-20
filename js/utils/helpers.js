@@ -4,7 +4,7 @@
 
 // Generate unique ID for notes
 function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
 // Format date for display
@@ -20,9 +20,9 @@ function formatDate(date) {
   if (diffMins < 60) return `${diffMins} min ago`;
   if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
   if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-  
-  return noteDate.toLocaleDateString('en-US', { 
-    month: 'short', 
+
+  return noteDate.toLocaleDateString('en-US', {
+    month: 'short',
     day: 'numeric',
     year: noteDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
   });
@@ -51,7 +51,7 @@ function stripHtml(html) {
 // Truncate text
 function truncate(text, length = 100) {
   if (text.length <= length) return text;
-  return text.substr(0, length) + '...';
+  return text.slice(0, length) + '...';
 }
 
 // Format bytes for display
@@ -66,14 +66,14 @@ function formatBytes(bytes) {
 // Show toast notification
 function showToast(message, type = 'success') {
   const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
+  toast.className = `toast ${type}`;
   toast.innerHTML = `
     <strong>${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}</strong>
     <span>${message}</span>
   `;
-  
+
   document.body.appendChild(toast);
-  
+
   setTimeout(() => {
     toast.style.animation = 'fadeOut 0.3s ease';
     setTimeout(() => toast.remove(), 300);
@@ -111,13 +111,11 @@ async function copyToClipboard(text) {
 
 // Check if browser supports required features
 function checkBrowserSupport() {
-  const required = {
-    localStorage: typeof(Storage) !== "undefined",
+  return {
+    localStorage:  typeof Storage !== 'undefined',
     serviceWorker: 'serviceWorker' in navigator,
     notifications: 'Notification' in window
   };
-  
-  return required;
 }
 
 // Safe JSON parse
@@ -130,16 +128,14 @@ function safeJsonParse(str, fallback = null) {
   }
 }
 
-// Console log with emoji (for debugging)
+// Console log with emoji (for debugging — remove before final release)
 function log(message, type = 'info') {
   const emoji = {
-    info: 'ℹ️',
+    info:    'ℹ️',
     success: '✅',
     warning: '⚠️',
-    error: '❌',
+    error:   '❌',
     privacy: '🔒'
   };
   console.log(`${emoji[type] || 'ℹ️'} ${message}`);
 }
-
-console.log('✅ Helpers loaded');

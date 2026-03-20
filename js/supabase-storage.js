@@ -52,15 +52,6 @@ function _rowToFolder(row) {
   };
 }
 
-/* ── Supabase client reference ────────────── */
-// Reuse the same client created in auth.js
-function _db() { return window._supabase ?? supabase.createClient; }
-
-// We piggyback on the private client auth.js already created.
-// auth.js exposes it on window for us:
-function _client() { return window.__sbClient; }
-
-
 /* ============================================
    StorageManager (cloud edition)
    ============================================ */
@@ -86,7 +77,6 @@ class StorageManager {
     await Promise.all([this._fetchNotes(), this._fetchFolders()]);
     this._loaded = true;
     this._subscribeRealtime();
-    log('☁️ Cloud storage ready', 'success');
 
     // Migrate any old localStorage notes (runs once)
     await this.migrateFromLocalStorage();
@@ -210,7 +200,6 @@ class StorageManager {
 
     const note = _rowToNote(data);
     this._notes[note.id] = note;
-    log(`Note created: ${note.id}`, 'success');
     return note;
   }
 
@@ -465,4 +454,3 @@ class StorageManager {
 }
 
 window.storage = new StorageManager();
-console.log('☁️ Supabase storage loaded');

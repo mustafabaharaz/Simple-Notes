@@ -8,8 +8,8 @@ const SUPABASE_ANON = '__SUPABASE_ANON__';
 
 window.__sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
   auth: {
-    persistSession: true,
-    autoRefreshToken: true,
+    persistSession:     true,
+    autoRefreshToken:   true,
     detectSessionInUrl: true,
   },
 });
@@ -91,7 +91,7 @@ class AuthManager {
 
   async getProfile() {
     if (!this.userId) return null;
-    const { data, error } = await _supabase
+    const { data, error } = await window.__sbClient
       .from('profiles')
       .select('*')
       .eq('id', this.userId)
@@ -102,7 +102,7 @@ class AuthManager {
 
   async updateProfile(updates) {
     if (!this.userId) return;
-    const { error } = await _supabase
+    const { error } = await window.__sbClient
       .from('profiles')
       .update(updates)
       .eq('id', this.userId);
@@ -218,8 +218,8 @@ class AuthManager {
         } else {
           await this.signIn(email, password);
         }
-      } catch (e) {
-        err(e.message);
+      } catch (authErr) {
+        err(authErr.message);
       } finally {
         btn.disabled    = false;
         btn.textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
@@ -232,11 +232,11 @@ class AuthManager {
       try {
         await this.signInMagicLink(email);
         err('Magic link sent! Check your inbox ✉️');
-      } catch (e) { err(e.message); }
+      } catch (authErr) { err(authErr.message); }
     });
 
     get('google-btn').addEventListener('click', () => {
-      this.signInOAuth('google').catch(e => err(e.message));
+      this.signInOAuth('google').catch(authErr => err(authErr.message));
     });
 
     get('forgot-password-btn').addEventListener('click', async () => {
@@ -245,7 +245,7 @@ class AuthManager {
       try {
         await this.resetPassword(email);
         err('Password reset email sent ✉️');
-      } catch (e) { err(e.message); }
+      } catch (authErr) { err(authErr.message); }
     });
   }
 }
