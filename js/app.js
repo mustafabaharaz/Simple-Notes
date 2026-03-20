@@ -61,7 +61,7 @@ class NotesApp {
 
     // Privacy dashboard button
     document.getElementById('privacy-dashboard-btn')?.addEventListener('click', () => {
-      privacyMonitor.showDashboard();
+      if (window.privacyMonitor) window.privacyMonitor.showDashboard();
     });
 
     // Close privacy dashboard
