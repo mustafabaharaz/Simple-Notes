@@ -1,0 +1,305 @@
+/* ============================================
+   ACTION ITEMS — append to css/meeting-editor.css
+   ============================================ */
+
+/* ==========================================
+   ACTION ITEM ROW
+   ========================================== */
+
+.action-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  margin-bottom: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-item-row:hover {
+  border-color: var(--color-border-dark);
+}
+
+.action-item-row:focus-within {
+  border-color: rgba(79, 70, 229, 0.35);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.05);
+}
+
+/* Status stripe on left edge */
+.action-item-row.status-open       { border-left: 3px solid var(--color-border-dark); }
+.action-item-row.status-in-progress { border-left: 3px solid #F59E0B; }
+.action-item-row.status-done       { border-left: 3px solid #10B981; opacity: 0.7; }
+
+.action-item-row.status-done .action-item-text {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}
+
+/* ==========================================
+   STATUS BUTTON
+   ========================================== */
+
+.action-status-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: transform 0.15s ease;
+}
+
+.action-status-btn:hover {
+  transform: scale(1.15);
+}
+
+.status-icon {
+  font-size: 18px;
+  line-height: 1;
+  display: block;
+  width: 20px;
+  text-align: center;
+}
+
+.status-open       { color: var(--color-text-tertiary); }
+.status-in-progress { color: #F59E0B; }
+.status-done       { color: #10B981; font-weight: 700; font-size: 14px; }
+
+/* ==========================================
+   ITEM BODY
+   ========================================== */
+
+.action-item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.action-item-text {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  padding: 0;
+}
+
+.action-item-text::placeholder {
+  color: var(--color-text-placeholder);
+  font-weight: 400;
+}
+
+.action-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-assignee-input,
+.action-due-input {
+  padding: 3px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-family: var(--font-family);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.action-assignee-input {
+  width: 120px;
+}
+
+.action-assignee-input:focus,
+.action-due-input:focus {
+  border-color: var(--color-primary);
+  color: var(--color-text-primary);
+}
+
+.action-assignee-input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.action-status-label {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.03em;
+}
+
+.status-label-open {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+}
+
+.status-label-in-progress {
+  background: rgba(245, 158, 11, 0.12);
+  color: #D97706;
+}
+
+.status-label-done {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+/* ==========================================
+   DELETE BUTTON
+   ========================================== */
+
+.action-delete-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 3px 5px;
+  border-radius: 4px;
+  opacity: 0;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  margin-top: 2px;
+}
+
+.action-item-row:hover .action-delete-btn,
+.action-item-row:focus-within .action-delete-btn {
+  opacity: 1;
+}
+
+.action-delete-btn:hover {
+  color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ==========================================
+   ADD ROW
+   ========================================== */
+
+.action-add-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  background: transparent;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  flex-wrap: wrap;
+}
+
+.action-add-row:focus-within {
+  border-color: var(--color-primary);
+  border-style: solid;
+  background: var(--color-surface);
+}
+
+.action-add-icon {
+  color: var(--color-text-tertiary);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.action-add-input {
+  flex: 1;
+  min-width: 140px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  padding: 0;
+}
+
+.action-add-input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.action-add-assignee {
+  width: 100px;
+  padding: 3px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-family: var(--font-family);
+  outline: none;
+}
+
+.action-add-assignee::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.action-add-assignee:focus {
+  border-color: var(--color-primary);
+}
+
+.action-add-due {
+  padding: 3px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-family: var(--font-family);
+  outline: none;
+}
+
+.action-add-due:focus {
+  border-color: var(--color-primary);
+}
+
+.action-add-confirm {
+  padding: 5px 12px;
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.action-add-row:focus-within .action-add-confirm {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.action-add-confirm:hover {
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ==========================================
+   DARK MODE
+   ========================================== */
+
+[data-theme="dark"] .action-item-row {
+  background: var(--color-bg-secondary);
+}
+
+[data-theme="dark"] .action-assignee-input,
+[data-theme="dark"] .action-due-input,
+[data-theme="dark"] .action-add-assignee,
+[data-theme="dark"] .action-add-due {
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+}

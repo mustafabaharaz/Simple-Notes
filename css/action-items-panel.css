@@ -1,0 +1,281 @@
+/* ============================================
+   ACTION ITEMS PANEL — append to css/action-items.css
+   ============================================ */
+
+/* ==========================================
+   FILTER ROW
+   ========================================== */
+
+.aip-filter-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.aip-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.aip-filter-btn:hover {
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+.aip-filter-btn.active {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+}
+
+.aip-filter-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-open        { background: var(--color-text-tertiary); }
+.dot-in-progress { background: #F59E0B; }
+.dot-done        { background: #10B981; }
+
+/* ==========================================
+   MEETING GROUP
+   ========================================== */
+
+.aip-meeting-group {
+  margin-bottom: 24px;
+}
+
+.aip-meeting-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.aip-meeting-label:hover .aip-meeting-title {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.aip-meeting-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.aip-meeting-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  flex: 1;
+  transition: color 0.15s ease;
+}
+
+.aip-meeting-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-secondary);
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.aip-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 4px;
+}
+
+/* ==========================================
+   PANEL ITEM ROW
+   ========================================== */
+
+.aip-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.aip-item-row:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.aip-item-row.status-open        { border-left: 3px solid var(--color-border-dark); }
+.aip-item-row.status-in-progress { border-left: 3px solid #F59E0B; }
+.aip-item-row.status-done        { border-left: 3px solid #10B981; opacity: 0.65; }
+
+/* ==========================================
+   STATUS BUTTON (panel)
+   ========================================== */
+
+.aip-status-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: transform 0.15s ease;
+}
+
+.aip-status-btn:hover { transform: scale(1.2); }
+
+/* ==========================================
+   ITEM BODY
+   ========================================== */
+
+.aip-item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.aip-item-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.aip-done-text {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}
+
+.aip-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Assignee */
+.aip-meta-assignee {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.aip-assignee-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Due date */
+.aip-meta-due {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.aip-overdue {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+/* Status pill */
+.aip-status-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.03em;
+}
+
+.status-pill-open {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+}
+
+.status-pill-in-progress {
+  background: rgba(245, 158, 11, 0.12);
+  color: #D97706;
+}
+
+.status-pill-done {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+/* ==========================================
+   EMPTY STATE
+   ========================================== */
+
+.aip-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  gap: 10px;
+}
+
+.aip-empty-icon {
+  font-size: 36px;
+  opacity: 0.4;
+  margin-bottom: 4px;
+}
+
+.aip-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.aip-empty-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  max-width: 260px;
+}
+
+/* ==========================================
+   DARK MODE
+   ========================================== */
+
+[data-theme="dark"] .aip-item-row {
+  background: var(--color-bg-secondary);
+}
+
+[data-theme="dark"] .aip-item-row:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
