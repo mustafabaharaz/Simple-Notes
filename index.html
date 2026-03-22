@@ -22,8 +22,10 @@
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/phase1.css">
 </head>
 <body>
+
     <!-- App Loading Screen -->
     <div id="loading-screen" class="loading-screen">
         <div class="loading-spinner"></div>
@@ -34,8 +36,9 @@
     <!-- Main App Container -->
     <div id="app" class="app-container" style="display: none;">
 
-        <!-- Sidebar -->
+        <!-- ===================== SIDEBAR ===================== -->
         <aside class="sidebar">
+
             <div class="sidebar-header">
                 <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
                     <span></span>
@@ -53,29 +56,61 @@
 
             <!-- Quick Actions -->
             <div class="quick-actions">
-                <button id="new-note-btn" class="qa-btn-primary">
+                <button id="new-note-btn" class="qa-btn qa-btn-primary">
                     <span class="qa-icon">📝</span>
                     <span>New Note</span>
                 </button>
                 <div class="qa-secondary-row">
-                    <button id="templates-btn" class="qa-btn-secondary" title="Templates">
+                    <button id="templates-btn" class="qa-btn qa-btn-secondary" title="Templates">
                         <span class="qa-icon">📋</span>
                         <span>Templates</span>
                     </button>
-                    <button id="privacy-dashboard-btn" class="qa-btn-secondary" title="Privacy Dashboard">
+                    <button id="privacy-dashboard-btn" class="qa-btn qa-btn-secondary" title="Privacy Dashboard">
                         <span class="qa-icon">🔒</span>
                         <span>Privacy</span>
                     </button>
-                    <button id="take-break-btn" class="qa-btn-secondary" title="Take a Break">
+                    <button id="take-break-btn" class="qa-btn qa-btn-secondary" title="Take a Break">
                         <span class="qa-icon">🧘</span>
                         <span>Break</span>
                     </button>
+                    <button id="settings-btn" class="qa-btn qa-btn-secondary" title="Settings (Ctrl+,)">
+                        <span class="qa-icon">⚙️</span>
+                        <span>Settings</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-wrapper">
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input
+                        type="text"
+                        id="search-input"
+                        class="search-input"
+                        placeholder="Search notes…"
+                        autocomplete="off"
+                        spellcheck="false"
+                        aria-label="Search notes">
+                    <button class="search-clear" id="search-clear" title="Clear search" aria-label="Clear search">✕</button>
                 </div>
             </div>
 
             <!-- Notes List -->
             <div class="notes-section">
-                <h3>Your Notes <span id="notes-count" class="notes-count">0</span></h3>
+                <div class="notes-section-header">
+                    <h3>
+                        Your Notes
+                        <span id="notes-count" class="count-badge">0</span>
+                        <span class="search-results-label" id="search-results-label"></span>
+                    </h3>
+                    <select id="sidebar-sort-order" class="sort-select" title="Sort notes" aria-label="Sort notes">
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                        <option value="alphabetical">A → Z</option>
+                        <option value="z-a">Z → A</option>
+                    </select>
+                </div>
                 <div id="notes-list" class="notes-list">
                     <!-- Notes will be dynamically added here -->
                 </div>
@@ -87,16 +122,13 @@
                     <h3>📁 Folders</h3>
                     <button class="btn-icon" id="new-folder-btn" title="New Folder">+</button>
                 </div>
-
                 <div class="folders-list">
                     <div class="folder-item special-folder active" data-folder-id="all">
                         <span class="folder-icon">📋</span>
                         <span class="folder-name">All Notes</span>
                         <span class="folder-count" id="all-notes-count">0</span>
                     </div>
-
                     <div class="folders-divider"></div>
-
                     <div id="user-folders-list">
                         <!-- User folders will be rendered here -->
                     </div>
@@ -122,30 +154,31 @@
                 <span id="auth-user-email">Loading…</span>
                 <button id="sign-out-btn">Sign out</button>
             </div>
-        </aside>
 
-        <!-- Main Content Area -->
+        </aside>
+        <!-- =================== END SIDEBAR =================== -->
+
+
+        <!-- ================== MAIN CONTENT ================== -->
         <main class="main-content">
+
             <!-- Welcome Screen -->
             <div id="welcome-screen" class="welcome-screen">
                 <div class="welcome-container">
-                    <!-- Hero Section -->
+
                     <div class="welcome-hero">
                         <div class="hero-badge">
                             <span class="badge-dot"></span>
                             Privacy-First &bull; Local AI &bull; Zero Cloud
                         </div>
-
                         <h1 class="hero-title">
                             Notes that stay
                             <span class="gradient-text">yours.</span>
                         </h1>
-
                         <p class="hero-subtitle">
                             AI-powered note-taking with military-grade encryption.
                             Everything stays on your device — always.
                         </p>
-
                         <div class="hero-cta">
                             <button id="get-started-btn" class="btn-primary-large">
                                 Start writing
@@ -206,15 +239,9 @@
                         <div class="feature-box feature-tools">
                             <div class="feature-visual">
                                 <div class="tools-stack">
-                                    <div class="tool-layer layer-1">
-                                        <span>📝</span> Rich Text
-                                    </div>
-                                    <div class="tool-layer layer-2">
-                                        <span>🔐</span> Encryption
-                                    </div>
-                                    <div class="tool-layer layer-3">
-                                        <span>📁</span> Folders
-                                    </div>
+                                    <div class="tool-layer layer-1"><span>📝</span> Rich Text</div>
+                                    <div class="tool-layer layer-2"><span>🔐</span> Encryption</div>
+                                    <div class="tool-layer layer-3"><span>📁</span> Folders</div>
                                 </div>
                             </div>
                             <h3 class="feature-title">Pro-Level Tools</h3>
@@ -258,20 +285,22 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
+            <!-- End Welcome Screen -->
+
 
             <!-- Note Editor Screen -->
             <div id="note-editor-screen" class="note-editor-screen" style="display: none;">
+
                 <div class="editor-header">
                     <input type="text" id="note-title" class="note-title-input" placeholder="Note title...">
-
                     <div class="time-tracker">
                         <span class="time-icon">⏱️</span>
                         <span id="time-display" class="time-display">0:00:00</span>
                         <span class="time-label">time on note</span>
                     </div>
-
                     <div class="editor-actions">
                         <span id="save-status" class="save-status">✓ Saved</span>
                         <button id="encrypt-note-btn" class="btn btn-small btn-success" style="display: none;">
@@ -280,7 +309,7 @@
                         <button id="decrypt-note-btn" class="btn btn-small btn-warning" style="display: none;">
                             🔓 Decrypt Note
                         </button>
-<button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
+                        <button id="delete-note-btn" class="btn btn-small btn-danger">🗑️ Delete</button>
                         <button class="toolbar-btn" id="theme-toggle" title="Toggle Theme">
                             <span id="theme-icon">🌙</span>
                         </button>
@@ -358,12 +387,44 @@
                     <button id="close-suggested-tags" class="close-suggested-btn" title="Dismiss">✕</button>
                 </div>
 
-                <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note...">
+                <!-- Editor Content -->
+                <div id="note-content" class="note-content" contenteditable="true" data-placeholder="Start typing your note..."></div>
+
+                <!-- Word Count Bar -->
+                <div class="word-count-bar">
+                    <span id="word-count-display">0 words · 0 chars</span>
+                </div>
+
+                <!-- Drawing Canvas Overlay -->
+                <canvas id="drawing-canvas" class="drawing-canvas" style="display: none;"></canvas>
+
+                <!-- Drawing Toolbar -->
+                <div id="drawing-toolbar" class="drawing-toolbar" style="display: none;">
+                    <div class="drawing-tools">
+                        <button class="drawing-tool-btn active" data-tool="pen" title="Pen">✏️</button>
+                        <button class="drawing-tool-btn" data-tool="eraser" title="Eraser">🧹</button>
+                        <button class="drawing-tool-btn" data-tool="clear" title="Clear All">🗑️</button>
+                    </div>
+                    <div class="drawing-colors">
+                        <button class="color-btn active" data-color="#000000" style="background: #000000;" title="Black"></button>
+                        <button class="color-btn" data-color="#FF0000" style="background: #FF0000;" title="Red"></button>
+                        <button class="color-btn" data-color="#0000FF" style="background: #0000FF;" title="Blue"></button>
+                        <button class="color-btn" data-color="#00FF00" style="background: #00FF00;" title="Green"></button>
+                        <button class="color-btn" data-color="#FFFF00" style="background: #FFFF00;" title="Yellow"></button>
+                        <button class="color-btn" data-color="#FF00FF" style="background: #FF00FF;" title="Purple"></button>
+                    </div>
+                    <div class="drawing-sizes">
+                        <label>Size:</label>
+                        <input type="range" id="brush-size" min="1" max="20" value="3" class="brush-size-slider">
+                        <span id="brush-size-value">3</span>
+                    </div>
                 </div>
 
             </div>
+            <!-- End Note Editor Screen -->
 
-            <!-- Privacy Dashboard (modal) -->
+
+            <!-- Privacy Dashboard Modal -->
             <div id="privacy-dashboard" class="modal" style="display: none;">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -383,38 +444,32 @@
                         <h2>🧘 Take a Break</h2>
                         <button class="modal-close" id="break-modal-close">&times;</button>
                     </div>
-
                     <div class="break-activities">
                         <div class="break-activity-card" data-activity="drawing">
                             <div class="activity-icon">🎨</div>
                             <h3>Drawing Pad</h3>
                             <p>Sketch and doodle freely</p>
                         </div>
-
                         <div class="break-activity-card" data-activity="meditation">
                             <div class="activity-icon">🧘</div>
                             <h3>Meditation Timer</h3>
                             <p>Mindful breathing sessions</p>
                         </div>
-
                         <div class="break-activity-card" data-activity="breathing">
                             <div class="activity-icon">🫁</div>
                             <h3>Breathing Exercise</h3>
                             <p>Guided breathing patterns</p>
                         </div>
-
                         <div class="break-activity-card" data-activity="puzzle">
                             <div class="activity-icon">🎮</div>
                             <h3>Quick Puzzle</h3>
                             <p>Simple brain teaser</p>
                         </div>
-
                         <div class="break-activity-card" data-activity="timer">
                             <div class="activity-icon">☕</div>
                             <h3>Break Timer</h3>
                             <p>Timed rest reminders</p>
                         </div>
-
                         <div class="break-activity-card" data-activity="movement">
                             <div class="activity-icon">🧘‍♂️</div>
                             <h3>Physical Movement</h3>
@@ -422,7 +477,6 @@
                         </div>
                     </div>
 
-                    <!-- Activity Views -->
                     <div id="activity-view" class="activity-view" style="display: none;">
                         <button class="back-btn" id="back-to-activities">← Back</button>
 
@@ -514,20 +568,17 @@
                         <h2>📋 Templates</h2>
                         <button class="modal-close" id="templates-modal-close">&times;</button>
                     </div>
-
                     <div class="templates-grid">
                         <div class="template-card" data-template="journal">
                             <div class="template-icon">📔</div>
                             <h3>Daily Journal</h3>
                             <p>Personal reflection template</p>
                         </div>
-
                         <div class="template-card" data-template="meeting">
                             <div class="template-icon">📝</div>
                             <h3>Meeting Notes</h3>
                             <p>Structured meeting format</p>
                         </div>
-
                         <div class="template-card" data-template="brainstorm">
                             <div class="template-icon">💡</div>
                             <h3>Brainstorm</h3>
@@ -536,23 +587,219 @@
                     </div>
                 </div>
             </div>
+
         </main>
+        <!-- ================ END MAIN CONTENT ================ -->
+
     </div>
+    <!-- End #app -->
+
+
+    <!-- ================== OVERLAYS & MODALS ================== -->
+    <!-- (Outside #app so they overlay everything cleanly)       -->
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" role="dialog" aria-modal="true" aria-label="Settings">
+        <div class="settings-modal-content">
+            <div class="settings-header">
+                <h2>⚙️ Settings</h2>
+                <button class="modal-close" id="close-settings" aria-label="Close settings">&times;</button>
+            </div>
+            <div class="settings-body">
+
+                <!-- APPEARANCE -->
+                <div class="settings-section">
+                    <div class="settings-section-title">Appearance</div>
+                    <div class="settings-row">
+                        <div class="settings-label-group">
+                            <span class="settings-label">Theme</span>
+                            <span class="settings-sublabel">Choose light, dark, or match your OS</span>
+                        </div>
+                        <div class="theme-options">
+                            <label class="theme-option">
+                                <input type="radio" name="sn-theme" value="light">
+                                <div class="theme-swatch light-swatch">☀️</div>
+                                <span>Light</span>
+                            </label>
+                            <label class="theme-option">
+                                <input type="radio" name="sn-theme" value="dark">
+                                <div class="theme-swatch dark-swatch">🌙</div>
+                                <span>Dark</span>
+                            </label>
+                            <label class="theme-option">
+                                <input type="radio" name="sn-theme" value="auto" checked>
+                                <div class="theme-swatch auto-swatch">✦</div>
+                                <span>Auto</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-label-group">
+                            <span class="settings-label">Editor Font Size</span>
+                            <span class="settings-sublabel">Applies to the note writing area</span>
+                        </div>
+                        <div class="font-size-options">
+                            <label class="font-option">
+                                <input type="radio" name="sn-font-size" value="small">
+                                <div class="font-swatch small-swatch">Aa</div>
+                                <span>Small</span>
+                            </label>
+                            <label class="font-option">
+                                <input type="radio" name="sn-font-size" value="medium" checked>
+                                <div class="font-swatch medium-swatch">Aa</div>
+                                <span>Medium</span>
+                            </label>
+                            <label class="font-option">
+                                <input type="radio" name="sn-font-size" value="large">
+                                <div class="font-swatch large-swatch">Aa</div>
+                                <span>Large</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EDITOR -->
+                <div class="settings-section">
+                    <div class="settings-section-title">Editor</div>
+                    <div class="settings-row">
+                        <div class="settings-label-group">
+                            <span class="settings-label">Auto-save</span>
+                            <span class="settings-sublabel">Save notes automatically as you type</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="auto-save-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-label-group">
+                            <span class="settings-label">Show Word Count</span>
+                            <span class="settings-sublabel">Display word and character count below editor</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="word-count-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- NOTES -->
+                <div class="settings-section">
+                    <div class="settings-section-title">Notes</div>
+                    <div class="settings-row">
+                        <div class="settings-label-group">
+                            <span class="settings-label">Default Sort Order</span>
+                            <span class="settings-sublabel">How notes are ordered in the sidebar</span>
+                        </div>
+                        <select id="settings-sort-order" class="settings-select">
+                            <option value="newest">Newest first</option>
+                            <option value="oldest">Oldest first</option>
+                            <option value="alphabetical">A → Z</option>
+                            <option value="z-a">Z → A</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- DATA & PRIVACY -->
+                <div class="settings-section">
+                    <div class="settings-section-title">Data &amp; Privacy</div>
+                    <div class="settings-label-group" style="gap: 8px; width: 100%;">
+                        <span class="settings-label">Storage Usage</span>
+                        <div class="storage-bar-wrapper">
+                            <div class="storage-bar">
+                                <div class="storage-bar-fill" id="storage-bar-fill"></div>
+                            </div>
+                            <span id="storage-label">Calculating…</span>
+                        </div>
+                    </div>
+                    <div class="settings-label-group" style="width: 100%;">
+                        <span class="settings-label" style="margin-bottom: 8px;">Export</span>
+                        <div class="export-buttons">
+                            <button id="export-json-btn" class="btn-settings">📦 Full Backup (.json)</button>
+                            <button id="export-txt-btn" class="btn-settings">📄 Current Note (.txt)</button>
+                            <button id="export-md-btn" class="btn-settings">📝 Current Note (.md)</button>
+                        </div>
+                    </div>
+                    <div class="settings-label-group" style="width: 100%;">
+                        <span class="settings-label" style="margin-bottom: 8px;">Import</span>
+                        <div class="import-buttons">
+                            <button id="import-btn" class="btn-settings">📂 Import Backup (.json)</button>
+                            <input type="file" id="import-file-input" accept=".json" style="display: none;" aria-hidden="true">
+                        </div>
+                        <span class="settings-sublabel" style="margin-top: 6px;">Choose Merge to add imported notes alongside existing ones, or Replace to overwrite everything.</span>
+                    </div>
+                    <div class="settings-row" style="padding-top: 4px;">
+                        <div class="settings-label-group">
+                            <span class="settings-label">Delete All Data</span>
+                            <span class="settings-sublabel">Permanently removes all notes and folders</span>
+                        </div>
+                        <button id="clear-all-btn" class="btn-settings btn-danger">🗑️ Clear All</button>
+                    </div>
+                </div>
+
+                <!-- KEYBOARD SHORTCUTS -->
+                <div class="settings-section">
+                    <div class="settings-section-title">Keyboard Shortcuts</div>
+                    <div class="shortcuts-grid">
+                        <div class="shortcut-row">
+                            <span class="shortcut-action">New note</span>
+                            <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">N</span></div>
+                        </div>
+                        <div class="shortcut-row">
+                            <span class="shortcut-action">Save note</span>
+                            <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">S</span></div>
+                        </div>
+                        <div class="shortcut-row">
+                            <span class="shortcut-action">Search</span>
+                            <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">F</span></div>
+                        </div>
+                        <div class="shortcut-row">
+                            <span class="shortcut-action">Settings</span>
+                            <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">,</span></div>
+                        </div>
+                        <div class="shortcut-row">
+                            <span class="shortcut-action">Bold</span>
+                            <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">B</span></div>
+                        </div>
+                        <div class="shortcut-row">
+                            <span class="shortcut-action">Italic</span>
+                            <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">I</span></div>
+                        </div>
+                        <div class="shortcut-row">
+                            <span class="shortcut-action">Underline</span>
+                            <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">U</span></div>
+                        </div>
+                        <div class="shortcut-row">
+                            <span class="shortcut-action">Encrypt note</span>
+                            <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">E</span></div>
+                        </div>
+                    </div>
+                    <span class="settings-sublabel" style="margin-top: 4px;">On Mac, use ⌘ instead of Ctrl.</span>
+                </div>
+
+            </div><!-- /settings-body -->
+        </div><!-- /settings-modal-content -->
+    </div><!-- /settings-modal -->
 
     <!-- Context Menu for Notes -->
     <div id="note-context-menu" class="context-menu" style="display: none;">
         <div class="context-menu-item" data-action="rename">✏️ Rename</div>
         <div class="context-menu-item" data-action="move">📁 Move to Folder</div>
+        <div class="context-menu-item" data-action="pin">📌 Pin Note</div>
         <div class="context-menu-item" data-action="delete">🗑️ Delete</div>
     </div>
 
-    <!-- JavaScript Files -->
+
+    <!-- ================== SCRIPTS ================== -->
     <script src="js/utils/helpers.js"></script>
     <script src="js/utils/security.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/privacy.js"></script>
     <script src="js/ai/tagging.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/app-phase1-patch.js"></script>
 
 </body>
 </html>
