@@ -1,13 +1,17 @@
 /* ============================================
    MEETING-NOTES.JS — Structured Meeting Notes
    Phase 2 — Additive only, zero core edits
+   Hotfix3: keeps original API signatures so
+   existing hotfix-phase4 patches don't break.
+   Added: _liveData, group detection,
+          attendee detail popup, 12h time fix.
    ============================================ */
 
 class MeetingNotes {
   constructor() {
     this.activeMeetingId = null;
-    this.saveTimer = null;
-
+    this.saveTimer       = null;
+    this._liveData       = null; // exposed for meeting-brief.js
     this.init();
   }
 
@@ -16,87 +20,65 @@ class MeetingNotes {
   ------------------------------------------ */
 
   init() {
-    // Wait for app to be ready
     const ready = () => {
       this.patchOpenNote();
       this.bindEvents();
       this.refreshMiniList();
       console.log('📅 MeetingNotes initialized');
     };
-
-    if (window.app) {
-      ready();
-    } else {
-      // app.js initializes on DOMContentLoaded — wait a tick
-      window.addEventListener('load', ready);
-    }
+    if (window.app) { ready(); }
+    else { window.addEventListener('load', ready); }
   }
 
   /* ------------------------------------------
-     PATCH window.app.openNote
-     Intercept opens for meeting-type notes
+     PATCH openNote
   ------------------------------------------ */
 
   patchOpenNote() {
     if (!window.app || window.app.__meetingPatched) return;
     window.app.__meetingPatched = true;
-
     const original = window.app.openNote.bind(window.app);
-
     window.app.openNote = (id) => {
       const note = storage.getNote(id);
-
-      if (note && note.type === 'meeting') {
-        this.openMeetingNote(note);
-      } else {
-        this.closeMeetingEditor();
-        original(id);
-      }
+      if (note && note.type === 'meeting') { this.openMeetingNote(note); }
+      else { this.closeMeetingEditor(); original(id); }
     };
   }
 
   /* ------------------------------------------
-     CREATE NEW MEETING NOTE
+     CREATE MEETING
   ------------------------------------------ */
 
   createMeeting() {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-US', {
-      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
-    });
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const now     = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
+    const timeStr = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
 
     const meetingData = {
-      date: now.toISOString().split('T')[0],
-      time: timeStr,
-      attendees: [],
-      agendaItems: [
+      date:            now.toISOString().split('T')[0],
+      time:            timeStr,
+      attendees:       [],
+      attendeeDetails: {},
+      agendaItems:     [
         this.newAgendaItem('Opening / Check-in'),
         this.newAgendaItem(''),
         this.newAgendaItem('Next steps')
       ],
-      actionItems: [],
-      summary: '',
-      decisions: ''
+      actionItems:     [],
+      summary:         '',
+      decisions:       ''
     };
 
     const title = `Meeting — ${dateStr}`;
-    const note = storage.createNote(title, JSON.stringify(meetingData));
+    const note  = storage.createNote(title, JSON.stringify(meetingData));
     storage.updateNote(note.id, { type: 'meeting' });
-
     privacyMonitor.trackNoteCreated();
-
     this.refreshMiniList();
 
-    // Switch to org mode if not already
     if (window.orgMode && !window.orgMode.isOrgMode()) {
       window.orgMode.applyWorkspace('org');
     }
-
-    // Re-patch in case app was re-initialized
     this.patchOpenNote();
-
-    // Open immediately
     setTimeout(() => {
       const fresh = storage.getNote(note.id);
       if (fresh) this.openMeetingNote(fresh);
@@ -108,58 +90,54 @@ class MeetingNotes {
 
   newAgendaItem(title = '') {
     return {
-      id: 'ag_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      id:        'ag_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
       title,
-      notes: '',
+      notes:     '',
       completed: false
     };
   }
 
   /* ------------------------------------------
-     OPEN MEETING NOTE — render structured UI
+     OPEN MEETING NOTE
   ------------------------------------------ */
 
   openMeetingNote(note) {
     this.activeMeetingId = note.id;
 
-    // Parse meeting data
     let data;
-    try {
-      data = JSON.parse(note.content || '{}');
-    } catch (e) {
-      data = {};
-    }
+    try { data = JSON.parse(note.content || '{}'); } catch (e) { data = {}; }
 
-    // Ensure fields exist
-    data.date        = data.date || new Date().toISOString().split('T')[0];
-    data.time        = data.time || '';
-    data.attendees   = data.attendees || [];
-    data.agendaItems = data.agendaItems || [this.newAgendaItem('')];
-    data.actionItems = data.actionItems || [];
-    data.summary     = data.summary || '';
-    data.decisions   = data.decisions || '';
+    data.date            = data.date            || new Date().toISOString().split('T')[0];
+    data.time            = data.time            || '';
+    data.attendees       = data.attendees       || [];
+    data.attendeeDetails = data.attendeeDetails || {};
+    data.agendaItems     = data.agendaItems     || [this.newAgendaItem('')];
+    data.actionItems     = data.actionItems     || [];
+    data.summary         = data.summary         || '';
+    data.decisions       = data.decisions       || '';
 
-    // Hide personal editor chrome
+    // Convert stored 12h time to 24h for <input type="time">
+    data.time = this.to24h(data.time);
+
+    // Expose live reference so meeting-brief.js can read it
+    this._liveData = data;
+
     this.setEditorVisibility(false);
-
-    // Show / build meeting editor
     this.renderMeetingEditor(note, data);
-
-    // Highlight in sidebar
     this.highlightMiniListItem(note.id);
   }
 
   /* ------------------------------------------
-     EDITOR VISIBILITY TOGGLE
+     EDITOR VISIBILITY
   ------------------------------------------ */
 
   setEditorVisibility(show) {
-    const toolbar    = document.querySelector('.toolbar');
-    const noteHeader = document.querySelector('.note-header');
-    const noteContent = document.getElementById('note-content');
-    const canvas     = document.getElementById('drawing-canvas');
+    const toolbar      = document.querySelector('.toolbar');
+    const noteHeader   = document.querySelector('.note-header');
+    const noteContent  = document.getElementById('note-content');
+    const canvas       = document.getElementById('drawing-canvas');
     const voiceSection = document.getElementById('voice-to-text-section');
-    const wordCount  = document.getElementById('word-count-bar');
+    const wordCount    = document.getElementById('word-count-bar');
 
     [toolbar, noteHeader, noteContent, canvas, voiceSection, wordCount].forEach(el => {
       if (el) el.style.display = show ? '' : 'none';
@@ -174,27 +152,20 @@ class MeetingNotes {
     const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
 
-    // Remove existing meeting editor if any
     document.getElementById('meeting-editor')?.remove();
 
-    // Hide welcome screen
     const welcome = document.getElementById('welcome-screen');
     if (welcome) welcome.style.display = 'none';
 
     const editor = document.createElement('div');
-    editor.id = 'meeting-editor';
+    editor.id        = 'meeting-editor';
     editor.className = 'meeting-editor';
     editor.innerHTML = this.buildEditorHTML(note, data);
 
     mainContent.appendChild(editor);
 
-    // Bind internal events
     this.bindEditorEvents(editor, note.id, data);
-
-    // Render agenda items
     this.renderAgendaItems(data.agendaItems, editor);
-
-    // Render attendees
     this.renderAttendees(data.attendees, editor);
   }
 
@@ -203,28 +174,23 @@ class MeetingNotes {
   ------------------------------------------ */
 
   buildEditorHTML(note, data) {
-    const attendeeChips = data.attendees.map(a => this.attendeeChipHTML(a)).join('');
-    const summaryVal  = this.escapeHTML(data.summary || '');
+    const attendeeChips = data.attendees.map(a =>
+      this.attendeeChipHTML(a, (data.attendeeDetails || {})[a] || {})
+    ).join('');
+    const summaryVal   = this.escapeHTML(data.summary   || '');
     const decisionsVal = this.escapeHTML(data.decisions || '');
 
     return `
-      <!-- Meeting Header -->
       <div class="meeting-editor-header">
         <div class="meeting-editor-meta">
           <span class="meeting-type-badge">📅 Meeting Note</span>
           <button class="meeting-close-btn" id="meeting-close-btn" title="Back to notes">✕ Close</button>
         </div>
-        <input
-          class="meeting-title-input"
-          id="meeting-title-input"
-          type="text"
-          value="${this.escapeHTML(note.title)}"
-          placeholder="Meeting title"
-          autocomplete="off"
-        />
+        <input class="meeting-title-input" id="meeting-title-input" type="text"
+               value="${this.escapeHTML(note.title)}" placeholder="Meeting title" autocomplete="off" />
         <div class="meeting-datetime-row">
           <input type="date" class="meeting-date-input" id="meeting-date-input" value="${data.date}" />
-          <input type="time" class="meeting-time-input" id="meeting-time-input" value="${data.time || ''}" placeholder="Time" />
+          <input type="time" class="meeting-time-input" id="meeting-time-input" value="${data.time || ''}" />
         </div>
       </div>
 
@@ -240,13 +206,8 @@ class MeetingNotes {
             ${attendeeChips}
           </div>
           <div class="attendee-add-row">
-            <input
-              type="text"
-              id="attendee-input"
-              class="attendee-input"
-              placeholder="Add name and press Enter"
-              autocomplete="off"
-            />
+            <input type="text" id="attendee-input" class="attendee-input"
+                   placeholder="Add name, family or group — press Enter" autocomplete="off" />
             <button class="attendee-add-btn" id="attendee-add-btn">Add</button>
           </div>
         </section>
@@ -275,7 +236,6 @@ class MeetingNotes {
             <button class="meeting-add-btn" id="add-action-btn">＋ Add</button>
           </div>
           <div class="action-items-list" id="meeting-action-list">
-            <!-- rendered by action-items.js in Step 3 -->
             <div class="action-items-placeholder" id="action-items-placeholder">
               <span class="placeholder-text">No action items yet — add one above</span>
             </div>
@@ -290,11 +250,8 @@ class MeetingNotes {
             <span class="meeting-section-icon">💡</span>
             <h3 class="meeting-section-title">Summary &amp; Decisions</h3>
           </div>
-          <textarea
-            class="meeting-textarea"
-            id="meeting-summary"
-            placeholder="Key decisions made in this meeting…"
-            rows="3"
+          <textarea class="meeting-textarea" id="meeting-summary"
+                    placeholder="Key decisions made in this meeting…" rows="3"
           >${summaryVal}${decisionsVal ? '\n\n' + decisionsVal : ''}</textarea>
         </section>
 
@@ -303,7 +260,8 @@ class MeetingNotes {
       <!-- Meeting Footer -->
       <div class="meeting-editor-footer">
         <span class="meeting-save-status" id="meeting-save-status">All changes saved</span>
-        <button class="meeting-report-btn" id="meeting-generate-report" title="Generate activity report from this meeting">
+        <button class="meeting-report-btn" id="meeting-generate-report"
+                title="Generate activity report from this meeting">
           📊 Generate Report
         </button>
       </div>
@@ -312,6 +270,7 @@ class MeetingNotes {
 
   /* ------------------------------------------
      RENDER AGENDA ITEMS
+     Signature unchanged: (items, editorEl)
   ------------------------------------------ */
 
   renderAgendaItems(items, editorEl) {
@@ -321,7 +280,8 @@ class MeetingNotes {
     list.innerHTML = items.map((item, idx) => `
       <div class="agenda-item" data-id="${item.id}">
         <div class="agenda-item-header">
-          <button class="agenda-check-btn ${item.completed ? 'completed' : ''}" data-agenda-id="${item.id}" title="Mark complete">
+          <button class="agenda-check-btn ${item.completed ? 'completed' : ''}"
+                  data-agenda-id="${item.id}" title="Mark complete">
             ${item.completed ? '✓' : ''}
           </button>
           <span class="agenda-number">${idx + 1}.</span>
@@ -347,23 +307,131 @@ class MeetingNotes {
 
   /* ------------------------------------------
      RENDER ATTENDEES
+     Original 2-param signature kept.
+     Reads attendeeDetails from _liveData.
   ------------------------------------------ */
 
   renderAttendees(attendees, editorEl) {
     const chips = (editorEl || document).getElementById('attendees-chips');
     if (!chips) return;
-    chips.innerHTML = attendees.map(a => this.attendeeChipHTML(a)).join('');
+    const details = this._liveData?.attendeeDetails || {};
+    chips.innerHTML = attendees.map(a =>
+      this.attendeeChipHTML(a, details[a] || {})
+    ).join('');
+    // Re-bind detail click events after re-render
+    this.bindAttendeeDetailEvents(editorEl);
   }
 
-  attendeeChipHTML(name) {
-    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  /* ------------------------------------------
+     ATTENDEE CHIP HTML
+     Groups/families → 👥 icon.
+     Clickable for email/phone popup.
+  ------------------------------------------ */
+
+  attendeeChipHTML(name, detail = {}) {
+    const isGroup   = this.isGroupName(name);
+    const hasDetail = detail.email || detail.phone;
+    const avatar    = isGroup
+      ? `<span class="attendee-initials attendee-group-icon">👥</span>`
+      : `<span class="attendee-initials">${name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}</span>`;
+
     return `
-      <div class="attendee-chip" data-name="${this.escapeHTML(name)}">
-        <span class="attendee-initials">${initials}</span>
+      <div class="attendee-chip${isGroup ? ' attendee-chip-group' : ''}"
+           data-name="${this.escapeHTML(name)}"
+           title="Click name to add email / phone">
+        ${avatar}
         <span class="attendee-name">${this.escapeHTML(name)}</span>
+        ${hasDetail ? `<span class="attendee-has-detail" title="${this.escapeHTML(detail.email || '')}"></span>` : ''}
         <button class="attendee-remove-btn" data-name="${this.escapeHTML(name)}" title="Remove">✕</button>
       </div>
     `;
+  }
+
+  /* ------------------------------------------
+     GROUP DETECTION
+     Matches single-word family/group names,
+     multi-word names (3+ words), or keywords.
+  ------------------------------------------ */
+
+  isGroupName(name) {
+    const lower    = (name || '').trim().toLowerCase();
+    const words    = lower.split(/\s+/);
+    const keywords = /\b(team|group|dept|department|committee|board|council|chapter|crew|squad|staff|org|division|unit|club|association|society|guild|family|families|household|class|community|network|circle|cohort|collective|alliance|coalition|tribe|forum|branch|hub|partners|stakeholders)\b/;
+    return keywords.test(lower) || words.length >= 3;
+  }
+
+  /* ------------------------------------------
+     ATTENDEE DETAIL POPUP
+     Email + phone, stored in attendeeDetails.
+  ------------------------------------------ */
+
+  showAttendeeDetail(name, editorEl) {
+    const editor  = editorEl || document.getElementById('meeting-editor');
+    const data    = this._liveData;
+    if (!editor || !data) return;
+
+    // Remove any open popup first
+    editor.querySelectorAll('.attendee-detail-popup').forEach(p => p.remove());
+
+    const chip   = editor.querySelector(`.attendee-chip[data-name="${CSS.escape(name)}"]`);
+    if (!chip) return;
+
+    const detail = (data.attendeeDetails || {})[name] || {};
+    const popup  = document.createElement('div');
+    popup.className = 'attendee-detail-popup';
+    popup.innerHTML = `
+      <div class="adp-header">
+        <span class="adp-name">${this.escapeHTML(name)}</span>
+        <button class="adp-close" title="Close">✕</button>
+      </div>
+      <label class="adp-label">Email</label>
+      <input type="email" class="adp-email" placeholder="email@example.com"
+             value="${this.escapeHTML(detail.email || '')}" />
+      <label class="adp-label">Phone / WhatsApp</label>
+      <input type="tel" class="adp-phone" placeholder="+1 555 000 0000"
+             value="${this.escapeHTML(detail.phone || '')}" />
+      <button class="adp-save">Save</button>
+    `;
+
+    chip.appendChild(popup);
+    popup.querySelector('.adp-email').focus();
+
+    const save = () => {
+      const email = popup.querySelector('.adp-email').value.trim();
+      const phone = popup.querySelector('.adp-phone').value.trim();
+      if (!data.attendeeDetails) data.attendeeDetails = {};
+      data.attendeeDetails[name] = { email, phone };
+      this.renderAttendees(data.attendees, editor);
+      this.scheduleSave(this.activeMeetingId, editor, data);
+    };
+
+    popup.querySelector('.adp-save').addEventListener('click', () => {
+      save(); popup.remove();
+    });
+    popup.querySelector('.adp-close').addEventListener('click', () => popup.remove());
+    popup.addEventListener('click', e => e.stopPropagation());
+
+    const closeOnOutside = (e) => {
+      if (!chip.contains(e.target)) {
+        save(); popup.remove();
+        document.removeEventListener('click', closeOnOutside);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeOnOutside), 10);
+  }
+
+  bindAttendeeDetailEvents(editorEl) {
+    const editor = editorEl || document.getElementById('meeting-editor');
+    if (!editor) return;
+    editor.querySelectorAll('.attendee-chip').forEach(chip => {
+      // Click on name or avatar opens popup; remove-btn is handled separately
+      ['attendee-name', 'attendee-initials', 'attendee-group-icon'].forEach(cls => {
+        chip.querySelector('.' + cls)?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.showAttendeeDetail(chip.dataset.name, editor);
+        });
+      });
+    });
   }
 
   /* ------------------------------------------
@@ -371,19 +439,19 @@ class MeetingNotes {
   ------------------------------------------ */
 
   bindEditorEvents(editor, noteId, data) {
-    // Close button
+    // Keep _liveData pointing at the active data object
+    this._liveData = data;
+
     editor.querySelector('#meeting-close-btn')?.addEventListener('click', () => {
       this.closeMeetingEditor();
     });
 
-    // Title input
     editor.querySelector('#meeting-title-input')?.addEventListener('input', (e) => {
       storage.updateNote(noteId, { title: e.target.value });
       this.refreshMiniList();
       this.scheduleSave(noteId, editor, data);
     });
 
-    // Date / time
     editor.querySelector('#meeting-date-input')?.addEventListener('input', (e) => {
       data.date = e.target.value;
       this.scheduleSave(noteId, editor, data);
@@ -394,7 +462,7 @@ class MeetingNotes {
     });
 
     // Add attendee
-    const attendeeInput = editor.querySelector('#attendee-input');
+    const attendeeInput     = editor.querySelector('#attendee-input');
     const addAttendeeAction = () => {
       const val = attendeeInput.value.trim();
       if (!val) return;
@@ -414,12 +482,16 @@ class MeetingNotes {
     editor.querySelector('#attendees-chips')?.addEventListener('click', (e) => {
       const btn = e.target.closest('.attendee-remove-btn');
       if (btn) {
-        const name = btn.dataset.name;
-        data.attendees = data.attendees.filter(a => a !== name);
+        const nm = btn.dataset.name;
+        data.attendees = data.attendees.filter(a => a !== nm);
+        if (data.attendeeDetails) delete data.attendeeDetails[nm];
         this.renderAttendees(data.attendees, editor);
         this.scheduleSave(noteId, editor, data);
       }
     });
+
+    // Initial bind of detail popup
+    this.bindAttendeeDetailEvents(editor);
 
     // Add agenda item
     editor.querySelector('#add-agenda-btn')?.addEventListener('click', () => {
@@ -427,21 +499,17 @@ class MeetingNotes {
       this.renderAgendaItems(data.agendaItems, editor);
       this.bindAgendaEvents(editor, noteId, data);
       this.scheduleSave(noteId, editor, data);
-      // Focus new input
       const inputs = editor.querySelectorAll('.agenda-title-input');
       inputs[inputs.length - 1]?.focus();
     });
 
-    // Agenda events (delegated)
     this.bindAgendaEvents(editor, noteId, data);
 
-    // Summary
     editor.querySelector('#meeting-summary')?.addEventListener('input', (e) => {
       data.summary = e.target.value;
       this.scheduleSave(noteId, editor, data);
     });
 
-    // Generate report button
     editor.querySelector('#meeting-generate-report')?.addEventListener('click', () => {
       document.dispatchEvent(new CustomEvent('generateReportRequested', {
         detail: { noteId }
@@ -453,7 +521,6 @@ class MeetingNotes {
     const list = editor.querySelector('#agenda-list');
     if (!list) return;
 
-    // Remove duplicates — re-bind cleanly
     const newList = list.cloneNode(true);
     list.parentNode.replaceChild(newList, list);
 
@@ -462,32 +529,23 @@ class MeetingNotes {
       if (!agId) return;
       const item = data.agendaItems.find(i => i.id === agId);
       if (!item) return;
-
-      if (e.target.classList.contains('agenda-title-input')) {
-        item.title = e.target.value;
-      } else if (e.target.classList.contains('agenda-notes-input')) {
-        item.notes = e.target.value;
-      }
+      if (e.target.classList.contains('agenda-title-input'))      item.title = e.target.value;
+      else if (e.target.classList.contains('agenda-notes-input')) item.notes = e.target.value;
       this.scheduleSave(noteId, editor, data);
     });
 
     newList.addEventListener('click', (e) => {
-      // Delete agenda item
       const del = e.target.closest('.agenda-delete-btn');
       if (del) {
-        const agId = del.dataset.agendaId;
-        data.agendaItems = data.agendaItems.filter(i => i.id !== agId);
+        data.agendaItems = data.agendaItems.filter(i => i.id !== del.dataset.agendaId);
         this.renderAgendaItems(data.agendaItems, editor);
         this.bindAgendaEvents(editor, noteId, data);
         this.scheduleSave(noteId, editor, data);
         return;
       }
-
-      // Toggle complete
       const check = e.target.closest('.agenda-check-btn');
       if (check) {
-        const agId = check.dataset.agendaId;
-        const item = data.agendaItems.find(i => i.id === agId);
+        const item = data.agendaItems.find(i => i.id === check.dataset.agendaId);
         if (item) {
           item.completed = !item.completed;
           check.classList.toggle('completed', item.completed);
@@ -517,15 +575,15 @@ class MeetingNotes {
   }
 
   /* ------------------------------------------
-     CLOSE MEETING EDITOR
+     CLOSE
   ------------------------------------------ */
 
   closeMeetingEditor() {
     document.getElementById('meeting-editor')?.remove();
     this.activeMeetingId = null;
+    this._liveData       = null;
     this.setEditorVisibility(true);
 
-    // Show welcome screen if no note is open
     if (window.app && !window.app.currentNote) {
       const welcome = document.getElementById('welcome-screen');
       if (welcome) welcome.style.display = '';
@@ -542,7 +600,6 @@ class MeetingNotes {
 
     const meetings = storage.getNotes().filter(n => n.type === 'meeting');
 
-    // Update count badge
     if (window.orgMode) {
       window.orgMode.updateCount('meetings', meetings.length);
     }
@@ -563,12 +620,13 @@ class MeetingNotes {
       try {
         const d = JSON.parse(note.content || '{}');
         if (d.date) {
-          dateStr = new Date(d.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          dateStr = new Date(d.date + 'T12:00:00').toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric'
+          });
         }
       } catch (e) { /* ignore */ }
 
       const active = note.id === this.activeMeetingId ? 'active' : '';
-
       return `
         <button class="org-nav-item meeting-mini-item ${active}" data-meeting-id="${note.id}">
           <span class="org-nav-icon">📅</span>
@@ -578,7 +636,6 @@ class MeetingNotes {
       `;
     }).join('');
 
-    // Bind clicks
     list.querySelectorAll('.meeting-mini-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const note = storage.getNote(btn.dataset.meetingId);
@@ -594,7 +651,7 @@ class MeetingNotes {
   }
 
   /* ------------------------------------------
-     GET MEETING DATA (used by reports/actions)
+     PUBLIC ACCESSORS
   ------------------------------------------ */
 
   getMeetingData(noteId) {
@@ -606,23 +663,17 @@ class MeetingNotes {
   getAllMeetings() {
     return storage.getNotes()
       .filter(n => n.type === 'meeting')
-      .map(note => ({
-        note,
-        data: this.getMeetingData(note.id)
-      }));
+      .map(note => ({ note, data: this.getMeetingData(note.id) }));
   }
 
   /* ------------------------------------------
-     BIND GLOBAL EVENTS
+     GLOBAL EVENTS
   ------------------------------------------ */
 
   bindEvents() {
-    // New Meeting button
     document.addEventListener('newMeetingRequested', () => {
       this.createMeeting();
     });
-
-    // Workspace switch — refresh list
     document.addEventListener('workspaceChanged', ({ detail }) => {
       if (detail.workspace === 'org') {
         this.patchOpenNote();
@@ -635,12 +686,29 @@ class MeetingNotes {
      UTIL
   ------------------------------------------ */
 
+  // Keep original name — existing hotfix patches call this.escapeHTML
   escapeHTML(str) {
     return String(str || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/&/g,  '&amp;')
+      .replace(/</g,  '&lt;')
+      .replace(/>/g,  '&gt;')
+      .replace(/"/g,  '&quot;');
+  }
+
+  // Convert "02:45 AM" / "2:45 PM" → "02:45" / "14:45" for <input type="time">
+  to24h(timeStr) {
+    if (!timeStr) return '';
+    // Already 24h format (HH:mm or HH:mm:ss) — pass through
+    if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(timeStr.trim())) return timeStr.trim().slice(0, 5);
+    // Parse 12h format
+    const m = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!m) return '';
+    let h = parseInt(m[1], 10);
+    const min = m[2];
+    const ampm = m[3].toUpperCase();
+    if (ampm === 'AM' && h === 12) h = 0;
+    if (ampm === 'PM' && h !== 12) h += 12;
+    return String(h).padStart(2, '0') + ':' + min;
   }
 }
 

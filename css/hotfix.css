@@ -1,0 +1,67 @@
+/* ============================================
+   HOTFIX.CSS — small additions across phases
+   Additive only — append to css/phase5.css
+   (or load as css/hotfix.css)
+   ============================================ */
+
+/* ------------------------------------------
+   WHATSAPP SHARE BUTTON
+   Used in Brief and Follow-Up modals
+------------------------------------------ */
+
+.phase5-btn-whatsapp {
+  padding: 9px 16px;
+  background: #25d366;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.phase5-btn-whatsapp:hover {
+  background: #1ebe5a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
+.phase5-btn-whatsapp:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+[data-theme="dark"] .phase5-btn-whatsapp {
+  background: #128c3e;
+  box-shadow: 0 2px 8px rgba(18, 140, 62, 0.4);
+}
+
+[data-theme="dark"] .phase5-btn-whatsapp:hover {
+  background: #25d366;
+}
+
+/* ------------------------------------------
+   ATTENDEE GROUP CHIP
+   Slightly wider to fit full group names,
+   muted teal accent to distinguish from
+   individual person chips.
+------------------------------------------ */
+
+.attendee-chip-group {
+  background: rgba(14, 165, 233, 0.08);
+  border-color: rgba(14, 165, 233, 0.3);
+}
+
+[data-theme="dark"] .attendee-chip-group {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.25);
+}
+
+.attendee-group-icon {
+  font-size: 13px;
+  /* override the initials sizing so emoji fits well */
+  line-height: 1;
+  padding: 0 1px;
+}

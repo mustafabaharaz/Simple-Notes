@@ -1,0 +1,365 @@
+/* ============================================
+   PHASE6.CSS — Meeting Journey Map
+   Phase 6 — Additive only, zero core edits
+   ============================================ */
+
+/* ------------------------------------------
+   JOURNEY STRIP CONTAINER
+------------------------------------------ */
+
+.journey-strip {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 16px 20px 20px;
+  margin-bottom: 4px;
+}
+
+.journey-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.journey-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* ------------------------------------------
+   AI NUDGE BUTTON
+------------------------------------------ */
+
+.journey-nudge-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-surface, #fff);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.5;
+}
+
+.journey-nudge-btn:hover:not(:disabled) {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.journey-nudge-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------
+   TRACK — horizontal subway line
+------------------------------------------ */
+
+.journey-track {
+  display: flex;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none; /* Firefox */
+}
+
+.journey-track::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* ------------------------------------------
+   STATION
+------------------------------------------ */
+
+.journey-station {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 72px;
+  cursor: default;
+}
+
+/* ------------------------------------------
+   CONNECTOR — the rail between stations
+------------------------------------------ */
+
+.journey-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border, #e5e7eb);
+  margin-top: 15px; /* (32px dot ÷ 2) − (2px line ÷ 2) = 15px — centers on dot */
+  min-width: 8px;
+  transition: background 0.4s ease;
+}
+
+.journey-connector-complete {
+  background: #10b981;
+}
+
+/* ------------------------------------------
+   DOT
+------------------------------------------ */
+
+.journey-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-bg-secondary, #f9fafb);
+  border: 2px solid var(--color-border, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0;
+}
+
+.journey-icon {
+  font-size: 13px;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ------------------------------------------
+   BADGE — small overlay (✓ or !)
+------------------------------------------ */
+
+.journey-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 8px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 1.5px solid var(--color-surface, #fff);
+  pointer-events: none;
+}
+
+.journey-badge-check {
+  background: #10b981;
+  color: #fff;
+}
+
+.journey-badge-warn {
+  background: #f59e0b;
+  color: #fff;
+}
+
+/* ------------------------------------------
+   LABEL
+------------------------------------------ */
+
+.journey-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin-top: 8px;
+  text-align: center;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+/* ------------------------------------------
+   STATE — complete (green)
+------------------------------------------ */
+
+.journey-complete .journey-dot {
+  background: #d1fae5;
+  border-color: #10b981;
+}
+
+.journey-complete .journey-label {
+  color: #10b981;
+}
+
+/* ------------------------------------------
+   STATE — warning (amber)
+------------------------------------------ */
+
+.journey-warning .journey-dot {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  animation: journeyPulseAmber 2s ease-in-out infinite;
+}
+
+.journey-warning .journey-label {
+  color: #d97706;
+  font-weight: 700;
+}
+
+@keyframes journeyPulseAmber {
+  0%,  100% { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0.5); }
+  50%        { box-shadow: 0 0 0 7px rgba(245, 158, 11, 0);   }
+}
+
+/* ------------------------------------------
+   STATE — active / meeting day (violet)
+------------------------------------------ */
+
+.journey-active .journey-dot {
+  background: #ede9fe;
+  border-color: #8b5cf6;
+  animation: journeyPulseViolet 2s ease-in-out infinite;
+}
+
+.journey-active .journey-label {
+  color: #7c3aed;
+  font-weight: 700;
+}
+
+@keyframes journeyPulseViolet {
+  0%,  100% { box-shadow: 0 0 0 0   rgba(139, 92, 246, 0.5); }
+  50%        { box-shadow: 0 0 0 7px rgba(139, 92, 246, 0);   }
+}
+
+/* ------------------------------------------
+   STATE — success / final celebration
+------------------------------------------ */
+
+.journey-complete:last-child .journey-dot {
+  background: linear-gradient(135deg, #d1fae5 0%, #ddd6fe 100%);
+  border-color: #8b5cf6;
+}
+
+/* ------------------------------------------
+   STATE — pending (default gray)
+------------------------------------------ */
+
+.journey-pending .journey-dot {
+  background: var(--color-bg-secondary, #f9fafb);
+  border-color: var(--color-border, #e5e7eb);
+}
+
+.journey-pending .journey-label {
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* ------------------------------------------
+   NUDGE PANEL
+------------------------------------------ */
+
+.journey-nudge-panel {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border: 1px solid #d8b4fe;
+  border-radius: 10px;
+  animation: journeyNudgeSlide 0.2s ease-out;
+}
+
+@keyframes journeyNudgeSlide {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.journey-nudge-loading {
+  font-size: 13px;
+  color: #7c3aed;
+  font-style: italic;
+}
+
+.journey-nudge-text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--color-text-primary, #111827);
+  font-weight: 500;
+}
+
+.journey-nudge-error {
+  font-size: 13px;
+  color: #ef4444;
+}
+
+/* ------------------------------------------
+   DARK MODE
+------------------------------------------ */
+
+[data-theme="dark"] .journey-strip {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .journey-nudge-panel {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+[data-theme="dark"] .journey-nudge-text {
+  color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .journey-nudge-btn {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .journey-complete .journey-dot {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+}
+
+[data-theme="dark"] .journey-warning .journey-dot {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+}
+
+[data-theme="dark"] .journey-active .journey-dot {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: #8b5cf6;
+}
+
+[data-theme="dark"] .journey-badge {
+  border-color: var(--color-surface);
+}
+
+/* ------------------------------------------
+   RESPONSIVE — narrow screens
+------------------------------------------ */
+
+@media (max-width: 600px) {
+  .journey-station {
+    width: 54px;
+  }
+
+  .journey-label {
+    font-size: 9px;
+  }
+
+  .journey-dot {
+    width: 28px;
+    height: 28px;
+  }
+
+  .journey-connector {
+    margin-top: 13px; /* (28px ÷ 2) − 1 */
+  }
+
+  .journey-icon {
+    font-size: 11px;
+  }
+
+  .journey-badge {
+    width: 12px;
+    height: 12px;
+    font-size: 7px;
+    bottom: -3px;
+    right: -3px;
+  }
+}

@@ -1,0 +1,541 @@
+/* ============================================
+   PHASE5.CSS — Pre/Post Meeting Comms + Layout
+   Phase 5 — Additive only, zero core edits
+   ============================================ */
+
+/* ------------------------------------------
+   MEETING EDITOR — FULL-WIDTH LAYOUT
+   Forces meeting editor to fill the entire
+   main content area, matching personal editor
+------------------------------------------ */
+
+#meeting-editor {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--color-bg, #ffffff);
+  z-index: 1;
+}
+
+.main-content {
+  position: relative;
+}
+
+/* ------------------------------------------
+   MEETING EDITOR — TYPOGRAPHY & SPACING
+   Cohesive with personal note editor
+------------------------------------------ */
+
+.meeting-editor-header {
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--color-border, #e8edf2);
+  flex-shrink: 0;
+}
+
+.meeting-editor-body {
+  flex: 1;
+  padding: 0 32px 32px;
+  overflow-y: auto;
+}
+
+.meeting-editor-footer {
+  padding: 12px 32px;
+  border-top: 1px solid var(--color-border, #e8edf2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  background: var(--color-bg-secondary, #f8fafc);
+}
+
+/* Meeting title — matches personal note title */
+.meeting-title-input {
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary, #0f172a);
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 0;
+  margin: 0 0 10px;
+  font-family: inherit;
+  line-height: 1.3;
+}
+
+.meeting-title-input::placeholder {
+  color: var(--color-text-placeholder, #cbd5e1);
+  font-weight: 400;
+}
+
+/* Section spacing */
+.meeting-section {
+  padding: 20px 0 4px;
+}
+
+.meeting-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.meeting-section-title {
+  font-size: 11.5px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-tertiary, #94a3b8);
+  margin: 0;
+  flex: 1;
+}
+
+.meeting-divider {
+  height: 1px;
+  background: var(--color-border, #e8edf2);
+  margin: 4px 0;
+}
+
+/* ------------------------------------------
+   ORG MODE EMPTY STATE (full screen)
+------------------------------------------ */
+
+.org-empty-state-full {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg, #ffffff);
+  z-index: 1;
+}
+
+.org-es-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 300px;
+  text-align: center;
+  padding: 40px 24px;
+  animation: org-es-in 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes org-es-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.org-es-icon {
+  font-size: 38px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.org-es-title {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary, #0f172a);
+  margin: 0;
+}
+
+.org-es-desc {
+  font-size: 13px;
+  color: var(--color-text-tertiary, #94a3b8);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.org-es-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--color-accent, #3b82f6);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  font-family: inherit;
+}
+
+.org-es-cta:hover {
+  background: var(--color-accent-dark, #2563eb);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+}
+
+.org-es-cta:active {
+  transform: translateY(0);
+}
+
+/* ------------------------------------------
+   MEETING FOOTER BUTTONS
+------------------------------------------ */
+
+.meeting-brief-btn,
+.meeting-followup-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-bg, #ffffff);
+  color: var(--color-text-secondary, #64748b);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.meeting-brief-btn:hover {
+  background: var(--color-accent-soft, #eff6ff);
+  border-color: var(--color-accent, #3b82f6);
+  color: var(--color-accent, #3b82f6);
+  transform: translateY(-1px);
+}
+
+.meeting-followup-btn:hover {
+  background: var(--color-success-soft, #f0fdf4);
+  border-color: var(--color-success, #22c55e);
+  color: var(--color-success, #22c55e);
+  transform: translateY(-1px);
+}
+
+/* ------------------------------------------
+   PHASE 5 MODAL OVERLAY
+------------------------------------------ */
+
+.phase5-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: phase5-overlay-in 0.15s ease;
+}
+
+@keyframes phase5-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ------------------------------------------
+   PHASE 5 MODAL
+------------------------------------------ */
+
+.phase5-modal {
+  background: var(--color-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.03),
+    0 8px 24px rgba(0,0,0,0.08),
+    0 32px 80px rgba(0,0,0,0.14);
+  width: 100%;
+  max-width: 600px;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  animation: phase5-modal-in 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+  overflow: hidden;
+}
+
+.phase5-modal--cf {
+  max-width: 500px;
+}
+
+@keyframes phase5-modal-in {
+  from { opacity: 0; transform: scale(0.95) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+/* ------------------------------------------
+   MODAL HEADER
+------------------------------------------ */
+
+.phase5-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--color-border, #e8edf2);
+  flex-shrink: 0;
+}
+
+.phase5-modal-title {
+  font-size: 14.5px;
+  font-weight: 650;
+  color: var(--color-text-primary, #0f172a);
+  letter-spacing: -0.01em;
+}
+
+.phase5-modal-close {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: var(--color-bg-secondary, #f1f5f9);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--color-text-tertiary, #94a3b8);
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.phase5-modal-close:hover {
+  background: var(--color-danger-soft, #fef2f2);
+  color: var(--color-danger, #ef4444);
+}
+
+/* ------------------------------------------
+   MODAL SUBTITLE
+------------------------------------------ */
+
+.phase5-modal-subtitle {
+  padding: 12px 22px 14px;
+  font-size: 12.5px;
+  color: var(--color-text-tertiary, #94a3b8);
+  line-height: 1.6;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-border, #e8edf2);
+  background: var(--color-bg-secondary, #f8fafc);
+}
+
+/* ------------------------------------------
+   MODAL TEXTAREA
+------------------------------------------ */
+
+.phase5-modal-textarea {
+  flex: 1;
+  min-height: 300px;
+  padding: 18px 22px;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'SF Mono', ui-monospace, 'Cascadia Code', monospace;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: var(--color-text-primary, #0f172a);
+  background: var(--color-bg, #ffffff);
+  overflow-y: auto;
+}
+
+/* ------------------------------------------
+   MODAL FOOTER
+------------------------------------------ */
+
+.phase5-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 22px;
+  border-top: 1px solid var(--color-border, #e8edf2);
+  flex-shrink: 0;
+  background: var(--color-bg-secondary, #f8fafc);
+  flex-wrap: wrap;
+}
+
+.phase5-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.phase5-modal-hint {
+  font-size: 11.5px;
+  color: var(--color-text-tertiary, #94a3b8);
+}
+
+/* ------------------------------------------
+   MODAL BUTTONS
+------------------------------------------ */
+
+.phase5-btn-primary {
+  padding: 7px 16px;
+  border-radius: 7px;
+  border: none;
+  background: var(--color-accent, #3b82f6);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.phase5-btn-primary:hover {
+  background: var(--color-accent-dark, #2563eb);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.phase5-btn-secondary {
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-bg, #ffffff);
+  color: var(--color-text-secondary, #64748b);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.phase5-btn-secondary:hover {
+  border-color: var(--color-text-secondary, #64748b);
+  color: var(--color-text-primary, #0f172a);
+}
+
+.phase5-btn-ghost {
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary, #94a3b8);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.phase5-btn-ghost:hover {
+  color: var(--color-text-secondary, #64748b);
+  background: var(--color-bg-secondary, #f1f5f9);
+}
+
+/* ------------------------------------------
+   BRIEF SENT BADGE
+------------------------------------------ */
+
+.phase5-sent-badge {
+  font-size: 11.5px;
+  color: var(--color-success, #22c55e);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+
+/* ------------------------------------------
+   CARRY FORWARD — ITEM LIST
+------------------------------------------ */
+
+.cf-items-list {
+  padding: 10px 22px 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cf-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-bg, #ffffff);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.cf-item-row:hover {
+  border-color: var(--color-accent, #3b82f6);
+  background: var(--color-accent-soft, #eff6ff);
+}
+
+.cf-checkbox {
+  margin-top: 3px;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  accent-color: var(--color-accent, #3b82f6);
+  cursor: pointer;
+}
+
+.cf-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cf-item-text {
+  font-size: 13px;
+  color: var(--color-text-primary, #0f172a);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.cf-item-meta {
+  font-size: 11.5px;
+  color: var(--color-text-tertiary, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------------
+   CARRY FORWARD BADGE (on action item rows)
+------------------------------------------ */
+
+.cf-carried-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--color-warning-soft, #fffbeb);
+  border: 1px solid var(--color-warning-border, #fde68a);
+  color: var(--color-warning-text, #92400e);
+  font-size: 10.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------------
+   RESPONSIVE
+------------------------------------------ */
+
+@media (max-width: 640px) {
+  .meeting-editor-header,
+  .meeting-editor-body,
+  .meeting-editor-footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
