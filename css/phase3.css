@@ -1,0 +1,604 @@
+/* ============================================================
+   PHASE 3 — Wren Share System & Contact Groups
+   Additive styles — zero modifications to existing CSS files
+   ============================================================ */
+
+/* ===== SHARE BUTTON — toolbar & panel injection ===== */
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+  white-space: nowrap;
+}
+
+.share-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+}
+
+.share-btn:active {
+  transform: translateY(0);
+}
+
+.share-btn-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* Share btn inside editor toolbar — push to far right */
+.toolbar-share-btn {
+  margin-left: auto;
+}
+
+/* ===== SHARE MODAL (desktop fallback) ===== */
+.share-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: wrenFadeIn 0.2s ease;
+}
+
+.share-modal {
+  background: var(--color-surface);
+  border-radius: 16px;
+  width: 440px;
+  max-width: calc(100vw - 40px);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: wrenSlideUp 0.25s ease;
+  border: 1px solid var(--color-border);
+}
+
+.share-modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.share-modal-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.share-modal-close {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: var(--color-bg-secondary);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.share-modal-close:hover {
+  background: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.share-modal-preview {
+  margin: 16px 24px 6px;
+  background: var(--color-bg-secondary);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  max-height: 110px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+}
+
+.share-modal-section-label {
+  padding: 12px 24px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* 2×2 platform grid */
+.share-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 24px 16px;
+}
+
+.share-option-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.share-option-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.share-option-icon {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.share-option-btn.opt-whatsapp:hover  { border-color: #25d366; background: rgba(37, 211, 102, 0.05); }
+.share-option-btn.opt-sms:hover       { border-color: #34c759; background: rgba(52, 199, 89, 0.05); }
+.share-option-btn.opt-email:hover     { border-color: #ea4335; background: rgba(234, 67, 53, 0.05); }
+.share-option-btn.opt-copy:hover      { border-color: #6366f1; background: rgba(99, 102, 241, 0.05); }
+
+/* ===== GROUP EMAIL SECTION ===== */
+.share-email-section {
+  padding: 14px 24px 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.share-email-section h4 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 10px;
+}
+
+.contact-group-select-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.contact-group-select {
+  flex: 1;
+  padding: 9px 12px;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.contact-group-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.btn-send-group-email {
+  padding: 9px 16px;
+  background: linear-gradient(135deg, #ea4335, #d93025);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-send-group-email:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 67, 53, 0.35);
+}
+
+.btn-manage-groups {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.btn-manage-groups:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ===== CONTACT GROUPS MANAGER MODAL ===== */
+.contacts-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: wrenFadeIn 0.2s ease;
+}
+
+.contacts-modal {
+  background: var(--color-surface);
+  border-radius: 16px;
+  width: 500px;
+  max-width: calc(100vw - 40px);
+  max-height: 82vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: wrenSlideUp 0.25s ease;
+  border: 1px solid var(--color-border);
+}
+
+.contacts-modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  z-index: 2;
+}
+
+.contacts-modal-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.contacts-modal-body {
+  padding: 20px 24px 24px;
+}
+
+/* Group list */
+.contact-groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.contact-group-item {
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.contact-group-item:hover {
+  border-color: var(--color-primary);
+}
+
+.contact-group-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--color-bg-secondary);
+}
+
+.contact-group-item-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-group-count {
+  font-size: 11px;
+  background: var(--color-primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.contact-group-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-group-action {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-group-edit   { background: rgba(99, 102, 241, 0.1); color: var(--color-primary); }
+.btn-group-edit:hover  { background: rgba(99, 102, 241, 0.2); }
+.btn-group-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.btn-group-delete:hover { background: rgba(239, 68, 68, 0.2); }
+
+.contact-group-emails {
+  padding: 10px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.contact-email-chip {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* Add / edit group form */
+.add-group-form {
+  background: var(--color-bg-secondary);
+  border-radius: 10px;
+  padding: 18px;
+  border: 1.5px dashed var(--color-border);
+  margin-top: 14px;
+}
+
+.add-group-form h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 14px;
+}
+
+.wren-form-field {
+  margin-bottom: 12px;
+}
+
+.wren-form-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wren-form-field input,
+.wren-form-field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.wren-form-field input:focus,
+.wren-form-field textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.wren-form-field textarea {
+  resize: vertical;
+  min-height: 85px;
+  line-height: 1.5;
+}
+
+.wren-field-hint {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.wren-form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.btn-save-group {
+  padding: 9px 18px;
+  background: linear-gradient(135deg, var(--color-primary), #7c3aed);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-save-group:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.btn-cancel-group {
+  padding: 9px 16px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel-group:hover {
+  border-color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+}
+
+.btn-new-group {
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: 2px dashed var(--color-primary);
+  border-radius: 10px;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-new-group:hover {
+  background: rgba(99, 102, 241, 0.05);
+}
+
+/* Empty contacts state */
+.contacts-empty {
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--color-text-secondary);
+}
+
+.contacts-empty-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.contacts-empty p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ===== DARK MODE ===== */
+[data-theme="dark"] .share-modal,
+[data-theme="dark"] .contacts-modal {
+  background: #1a1a1a;
+  border-color: rgba(64, 64, 64, 0.5);
+}
+
+[data-theme="dark"] .share-modal-header,
+[data-theme="dark"] .contacts-modal-header {
+  background: #1a1a1a;
+  border-bottom-color: rgba(64, 64, 64, 0.3);
+}
+
+[data-theme="dark"] .share-modal-preview {
+  background: #111;
+  border-color: rgba(64, 64, 64, 0.4);
+  color: #a3a3a3;
+}
+
+[data-theme="dark"] .share-option-btn {
+  background: #1f1f1f;
+  border-color: rgba(82, 82, 82, 0.5);
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .share-email-section {
+  border-top-color: rgba(64, 64, 64, 0.3);
+}
+
+[data-theme="dark"] .contact-group-select {
+  background: #1a1a1a;
+  border-color: rgba(82, 82, 82, 0.5);
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .contact-group-item {
+  border-color: rgba(64, 64, 64, 0.5);
+}
+
+[data-theme="dark"] .contact-group-item-header {
+  background: #111;
+}
+
+[data-theme="dark"] .add-group-form {
+  background: #111;
+  border-color: rgba(64, 64, 64, 0.5);
+}
+
+[data-theme="dark"] .wren-form-field input,
+[data-theme="dark"] .wren-form-field textarea {
+  background: #1a1a1a;
+  border-color: rgba(82, 82, 82, 0.5);
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .contact-email-chip {
+  background: #111;
+  border-color: rgba(64, 64, 64, 0.4);
+  color: #a3a3a3;
+}
+
+[data-theme="dark"] .btn-cancel-group {
+  background: #1f1f1f;
+  border-color: rgba(82, 82, 82, 0.5);
+  color: #a3a3a3;
+}
+
+[data-theme="dark"] .btn-manage-groups {
+  border-color: rgba(82, 82, 82, 0.5);
+  color: #a3a3a3;
+}
+
+[data-theme="dark"] .btn-new-group {
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes wrenFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes wrenSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
