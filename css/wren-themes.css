@@ -1,0 +1,461 @@
+/* ================================================================
+   THEMES.CSS — Wren Theme Engine
+   Phase 9: Full visual themes (colors + typography)
+   Additive — zero edits to existing CSS files
+   ================================================================ */
+
+/* ────────────────────────────────────────────────────────────────
+   MIDNIGHT  ·  Dark / Techy
+   Palette: deep navy bg · electric cyan accent · monospace font
+   ──────────────────────────────────────────────────────────────── */
+
+[data-wren-theme="midnight"] {
+  /* Backgrounds */
+  --color-bg-primary:       #0d0f14;
+  --color-bg-secondary:     #131720;
+  --color-bg-tertiary:      #1a1f2e;
+
+  /* Surfaces */
+  --color-surface:          #131720;
+  --color-surface-hover:    #1a1f2e;
+  --color-surface-elevated: #1e2438;
+
+  /* Primary — electric cyan */
+  --color-primary:          #00e5ff;
+  --color-primary-hover:    #40eeff;
+  --color-primary-light:    rgba(0, 229, 255, 0.12);
+  --color-primary-dark:     #00b8d4;
+
+  /* Accent — electric violet */
+  --color-accent:           #7c3aed;
+  --color-accent-hover:     #8b5cf6;
+  --color-accent-light:     rgba(124, 58, 237, 0.15);
+  --color-accent-dark:      #6d28d9;
+
+  /* Text */
+  --color-text-primary:     #e2e8f0;
+  --color-text-secondary:   #94a3b8;
+  --color-text-tertiary:    #64748b;
+  --color-text-disabled:    #475569;
+  --color-text-placeholder: #334155;
+
+  /* Borders — cyan-tinted */
+  --color-border-light:     rgba(0, 229, 255, 0.07);
+  --color-border:           rgba(0, 229, 255, 0.14);
+  --color-border-dark:      rgba(0, 229, 255, 0.26);
+
+  /* Status */
+  --color-success:          #10b981;
+  --color-success-light:    rgba(16, 185, 129, 0.15);
+  --color-warning:          #f59e0b;
+  --color-warning-light:    rgba(245, 158, 11, 0.15);
+  --color-danger:           #ef4444;
+  --color-danger-light:     rgba(239, 68, 68, 0.15);
+
+  /* Typography — monospace for the techy feel */
+  --font-family:            'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+  --font-family-mono:       'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Shadows — cyan glow */
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 229, 255, 0.05);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 229, 255, 0.04);
+  --shadow-lg:  0 10px 24px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 229, 255, 0.06);
+}
+
+/* Midnight — subtle scan-line texture on app background */
+[data-wren-theme="midnight"] body {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 229, 255, 0.012) 2px,
+    rgba(0, 229, 255, 0.012) 4px
+  );
+}
+
+/* Midnight — cyan glow on active/focused notes */
+[data-wren-theme="midnight"] .note-item.active,
+[data-wren-theme="midnight"] .note-item:focus-visible {
+  box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.4), 0 0 16px rgba(0, 229, 255, 0.1);
+}
+
+/* Midnight — neon primary buttons */
+[data-wren-theme="midnight"] .btn-primary,
+[data-wren-theme="midnight"] [class*="btn-primary"] {
+  background: linear-gradient(135deg, #00b8d4, #00e5ff);
+  color: #0d0f14;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   ARCTIC  ·  White / Sleek
+   Palette: crisp white bg · ice sky blue accent · geometric sans
+   ──────────────────────────────────────────────────────────────── */
+
+[data-wren-theme="arctic"] {
+  /* Backgrounds */
+  --color-bg-primary:       #f0f7ff;
+  --color-bg-secondary:     #ffffff;
+  --color-bg-tertiary:      #e4f0fc;
+
+  /* Surfaces */
+  --color-surface:          #ffffff;
+  --color-surface-hover:    #f0f7ff;
+  --color-surface-elevated: #ffffff;
+
+  /* Primary — sky blue */
+  --color-primary:          #0ea5e9;
+  --color-primary-hover:    #0284c7;
+  --color-primary-light:    #e0f2fe;
+  --color-primary-dark:     #0369a1;
+
+  /* Accent — cyan */
+  --color-accent:           #06b6d4;
+  --color-accent-hover:     #0891b2;
+  --color-accent-light:     #cffafe;
+  --color-accent-dark:      #0e7490;
+
+  /* Text */
+  --color-text-primary:     #0c1a2e;
+  --color-text-secondary:   #1e3a5f;
+  --color-text-tertiary:    #4d7097;
+  --color-text-disabled:    #93b4cc;
+  --color-text-placeholder: #bdd5e8;
+
+  /* Borders — icy blue */
+  --color-border-light:     #dbeafe;
+  --color-border:           #bfdbfe;
+  --color-border-dark:      #93c5fd;
+
+  /* Status */
+  --color-success:          #059669;
+  --color-success-light:    #d1fae5;
+  --color-warning:          #d97706;
+  --color-warning-light:    #fef3c7;
+  --color-danger:           #dc2626;
+  --color-danger-light:     #fee2e2;
+
+  /* Typography — geometric, clean */
+  --font-family:            'DM Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-mono:       'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Shadows — crisp blue-tinted */
+  --shadow-sm:  0 1px 3px rgba(14, 165, 233, 0.08), 0 1px 2px rgba(14, 165, 233, 0.05);
+  --shadow-md:  0 4px 6px rgba(14, 165, 233, 0.1),  0 2px 4px rgba(14, 165, 233, 0.06);
+  --shadow-lg:  0 10px 20px rgba(14, 165, 233, 0.1), 0 4px 6px rgba(14, 165, 233, 0.05);
+}
+
+/* Arctic — clean frost edge on sidebar */
+[data-wren-theme="arctic"] .sidebar {
+  background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+  border-right-color: #dbeafe;
+}
+
+/* Arctic — very tight letter-spacing for the geometric look */
+[data-wren-theme="arctic"] h1,
+[data-wren-theme="arctic"] h2,
+[data-wren-theme="arctic"] .app-title,
+[data-wren-theme="arctic"] .wren-wordmark {
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   OBSIDIAN  ·  Dark / Elegant
+   Palette: near-black bg · warm gold accent · serif display
+   ──────────────────────────────────────────────────────────────── */
+
+[data-wren-theme="obsidian"] {
+  /* Backgrounds */
+  --color-bg-primary:       #080706;
+  --color-bg-secondary:     #100e0c;
+  --color-bg-tertiary:      #181410;
+
+  /* Surfaces */
+  --color-surface:          #100e0c;
+  --color-surface-hover:    #181410;
+  --color-surface-elevated: #201c18;
+
+  /* Primary — warm gold */
+  --color-primary:          #c9a84c;
+  --color-primary-hover:    #dbb95e;
+  --color-primary-light:    rgba(201, 168, 76, 0.12);
+  --color-primary-dark:     #a8882f;
+
+  /* Accent — bronze */
+  --color-accent:           #9c7a3c;
+  --color-accent-hover:     #b08d4a;
+  --color-accent-light:     rgba(156, 122, 60, 0.15);
+  --color-accent-dark:      #7d5f28;
+
+  /* Text — warm off-whites and creams */
+  --color-text-primary:     #f5ede0;
+  --color-text-secondary:   #c4b49a;
+  --color-text-tertiary:    #8a7460;
+  --color-text-disabled:    #5a4a38;
+  --color-text-placeholder: #3d3028;
+
+  /* Borders — gold-tinted */
+  --color-border-light:     rgba(201, 168, 76, 0.08);
+  --color-border:           rgba(201, 168, 76, 0.15);
+  --color-border-dark:      rgba(201, 168, 76, 0.28);
+
+  /* Status */
+  --color-success:          #6ee7b7;
+  --color-success-light:    rgba(110, 231, 183, 0.12);
+  --color-warning:          #fbbf24;
+  --color-warning-light:    rgba(251, 191, 36, 0.12);
+  --color-danger:           #f87171;
+  --color-danger-light:     rgba(248, 113, 113, 0.12);
+
+  /* Typography — Lato body, Playfair Display for headings */
+  --font-family:            'Lato', Georgia, 'Times New Roman', serif;
+  --font-family-mono:       'JetBrains Mono', monospace;
+
+  /* Shadows — warm dark */
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.6);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.7), 0 0 1px rgba(201, 168, 76, 0.1);
+  --shadow-lg:  0 16px 32px rgba(0, 0, 0, 0.8), 0 0 2px rgba(201, 168, 76, 0.12);
+}
+
+/* Obsidian — serif for display/heading elements */
+[data-wren-theme="obsidian"] h1,
+[data-wren-theme="obsidian"] h2,
+[data-wren-theme="obsidian"] h3,
+[data-wren-theme="obsidian"] .app-title,
+[data-wren-theme="obsidian"] .wren-wordmark,
+[data-wren-theme="obsidian"] .note-title,
+[data-wren-theme="obsidian"] .settings-header h2,
+[data-wren-theme="obsidian"] .welcome-title,
+[data-wren-theme="obsidian"] .modal-title {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.01em;
+}
+
+/* Obsidian — gold gradient on primary buttons */
+[data-wren-theme="obsidian"] .btn-primary,
+[data-wren-theme="obsidian"] [class*="btn-primary"] {
+  background: linear-gradient(135deg, #a8882f, #c9a84c, #dbb95e);
+  color: #080706;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.8em;
+}
+
+/* Obsidian — rich dark sidebar */
+[data-wren-theme="obsidian"] .sidebar {
+  background: linear-gradient(180deg, #100e0c 0%, #080706 100%);
+  border-right-color: rgba(201, 168, 76, 0.12);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   ACCESSIBLE  ·  High Contrast / Elder-Friendly
+   Palette: warm cream bg · strong navy accent · larger type
+   ──────────────────────────────────────────────────────────────── */
+
+[data-wren-theme="accessible"] {
+  /* Backgrounds */
+  --color-bg-primary:       #fef9f0;
+  --color-bg-secondary:     #ffffff;
+  --color-bg-tertiary:      #fdf3e3;
+
+  /* Surfaces */
+  --color-surface:          #ffffff;
+  --color-surface-hover:    #fef3dc;
+  --color-surface-elevated: #ffffff;
+
+  /* Primary — strong navy blue (WCAG AAA) */
+  --color-primary:          #1a56db;
+  --color-primary-hover:    #1240af;
+  --color-primary-light:    #dbeafe;
+  --color-primary-dark:     #0e3aa0;
+
+  /* Accent — warm amber */
+  --color-accent:           #c05621;
+  --color-accent-hover:     #9c4317;
+  --color-accent-light:     #fed7aa;
+  --color-accent-dark:      #7c3412;
+
+  /* Text — maximum contrast */
+  --color-text-primary:     #111827;
+  --color-text-secondary:   #1f2937;
+  --color-text-tertiary:    #374151;
+  --color-text-disabled:    #6b7280;
+  --color-text-placeholder: #9ca3af;
+
+  /* Borders — visible */
+  --color-border-light:     #d1d5db;
+  --color-border:           #9ca3af;
+  --color-border-dark:      #6b7280;
+
+  /* Status */
+  --color-success:          #065f46;
+  --color-success-light:    #d1fae5;
+  --color-warning:          #92400e;
+  --color-warning-light:    #fef3c7;
+  --color-danger:           #991b1b;
+  --color-danger-light:     #fee2e2;
+
+  /* Typography — Atkinson Hyperlegible (designed for low vision) */
+  --font-family:            'Atkinson Hyperlegible', 'Verdana', 'Trebuchet MS', Arial, sans-serif;
+  --font-family-mono:       'Courier New', Courier, monospace;
+
+  /* ENLARGED type scale */
+  --font-size-xs:           0.9375rem;  /* 15px (was 12–13) */
+  --font-size-sm:           1.0625rem;  /* 17px (was 14–15) */
+  --font-size-base:         1.125rem;   /* 18px (was 16) */
+  --font-size-lg:           1.3125rem;  /* 21px */
+  --font-size-xl:           1.5625rem;  /* 25px */
+  --font-size-2xl:          1.875rem;   /* 30px */
+  --font-size-3xl:          2.25rem;    /* 36px */
+
+  /* Generous spacing for breathing room */
+  --spacing-xs:  0.375rem;  /* 6px */
+  --spacing-sm:  0.625rem;  /* 10px */
+  --spacing-md:  1.125rem;  /* 18px */
+  --spacing-lg:  1.75rem;   /* 28px */
+  --spacing-xl:  2.25rem;   /* 36px */
+
+  /* Shadows — warm, gentle */
+  --shadow-sm:  0 1px 4px rgba(26, 86, 219, 0.08);
+  --shadow-md:  0 4px 12px rgba(26, 86, 219, 0.1);
+  --shadow-lg:  0 12px 28px rgba(26, 86, 219, 0.1);
+}
+
+/* Accessible — bold text throughout */
+[data-wren-theme="accessible"] .settings-label,
+[data-wren-theme="accessible"] .note-preview,
+[data-wren-theme="accessible"] .note-date {
+  font-weight: 600;
+}
+
+/* Accessible — fat, clear focus rings */
+[data-wren-theme="accessible"] *:focus-visible {
+  outline: 3px solid #1a56db !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+}
+
+/* Accessible — extra padding on interactive elements */
+[data-wren-theme="accessible"] button,
+[data-wren-theme="accessible"] .note-item {
+  padding-top: 0.15em;
+  padding-bottom: 0.15em;
+}
+
+/* Accessible — warm sidebar tint */
+[data-wren-theme="accessible"] .sidebar {
+  background: linear-gradient(180deg, #fff 0%, #fef9f0 100%);
+  border-right-color: #d1d5db;
+}
+
+/* Accessible — thicker note borders for scan-ability */
+[data-wren-theme="accessible"] .note-item {
+  border-left-width: 3px;
+}
+
+/* Accessible — extra visible active state */
+[data-wren-theme="accessible"] .note-item.active {
+  border-left-color: #1a56db;
+  border-left-width: 4px;
+  background: #dbeafe;
+}
+
+
+/* ================================================================
+   THEME PICKER UI — injected into Settings modal by theme.js
+   ================================================================ */
+
+.wren-theme-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 4px 0 2px;
+}
+
+.wren-theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wren-theme-swatch {
+  position: relative;
+  width: 72px;
+  height: 52px;
+  border-radius: 10px;
+  border: 2px solid var(--color-border);
+  overflow: hidden;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
+  display: flex;
+  align-items: flex-end;
+}
+
+.wren-theme-swatch-bar {
+  width: 100%;
+  height: 12px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.wren-theme-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary, #4F46E5);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+
+.wren-theme-card:hover .wren-theme-swatch {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.wren-theme-card.is-active .wren-theme-swatch {
+  border-color: var(--color-primary, #4F46E5);
+  box-shadow: 0 0 0 3px var(--color-primary-light, rgba(79,70,229,0.15));
+}
+
+.wren-theme-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.wren-theme-sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+  line-height: 1;
+  margin-top: -3px;
+}
+
+.wren-theme-card.is-active .wren-theme-label {
+  color: var(--color-primary, #4F46E5);
+  font-weight: 700;
+}
+
+/* Accessible theme swatch overrides — higher contrast border */
+[data-wren-theme="accessible"] .wren-theme-card.is-active .wren-theme-swatch {
+  border-color: #1a56db;
+  border-width: 3px;
+}
