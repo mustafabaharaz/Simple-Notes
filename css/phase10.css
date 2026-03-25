@@ -919,7 +919,7 @@
 /* ── Default theme — white logo fills sidebar header ─────────── */
 
 .sidebar-header {
-  background-image: url('../assets/icons/wren_corner_white.svg');
+  background-image: url('../assets/icons/Wren_Corner_White.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -939,7 +939,7 @@
 /* ── Obsidian — gold logo ─────────────────────────────────────── */
 
 [data-wren-theme="obsidian"] .sidebar-header {
-  background-image: url('../assets/icons/wren_corner_gold.svg');
+  background-image: url('../assets/icons/Wren_Corner_Gold.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -956,7 +956,7 @@
 /* ── Midnight — turquoise logo ────────────────────────────────── */
 
 [data-wren-theme="midnight"] .sidebar-header {
-  background-image: url('../assets/icons/wren_corner_turqu.svg');
+  background-image: url('../assets/icons/Wren_Corner_Turqu.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
