@@ -1,7 +1,7 @@
 {
-  "name": "Wren — Your Always-On Secretary",
+  "name": "Wren — Nothing slips past a Wren.",
   "short_name": "Wren",
-  "description": "Wren is your always-on personal secretary. Privacy-first notes, meeting summaries, action items, and activity reports. Everything stays on your device.",
+  "description": "Nothing slips past a Wren. Privacy-first notes, meeting management, action items, and follow-ups — all in one place.",
   "start_url": "/wren/",
   "display": "standalone",
   "background_color": "#ffffff",

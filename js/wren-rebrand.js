@@ -6,8 +6,8 @@
 (function () {
   const BRAND = {
     name:     'Wren',
-    tagline:  'Your always-on secretary',
-    icon:     '🐦',
+    tagline:  'Nothing slips past a Wren.',
+    icon:     ' ',
     old:      'Simple Notes',
     color:    '#007AFF'
   };
@@ -27,8 +27,7 @@
     if (tagline) tagline.textContent = BRAND.tagline;
 
     // 4. Sidebar logo icon → bird
-    const logoIcon = document.querySelector('.app-logo-icon');
-    if (logoIcon) logoIcon.textContent = BRAND.icon;
+    // Logo image is set directly in index.html — no override needed
 
     // 5. Loading screen text
     const loadingP = document.querySelector('#loading-screen p');
